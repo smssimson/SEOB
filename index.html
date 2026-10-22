@@ -1,1 +1,490 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SEOB 건축 업무 자동화</title><style>body{margin:0;background:#f3f6fb;color:#15263c;font-family:system-ui,'Malgun Gothic',sans-serif}main{max-width:820px;margin:8vh auto;padding:24px}h1{font-size:clamp(26px,5vw,40px)}p{color:#65758a;line-height:1.7}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:32px}.card{display:block;background:white;border:1px solid #dce5f0;border-radius:18px;padding:26px;text-decoration:none;color:inherit;box-shadow:0 8px 20px #19365a0b}.card strong{display:block;font-size:20px;margin-bottom:10px}.card.active:hover{border-color:#2563eb;transform:translateY(-2px)}.tag{display:inline-block;margin-top:14px;color:#2563eb;background:#eaf1ff;border-radius:20px;padding:5px 12px;font-size:13px}.muted{opacity:.6;cursor:default}</style></head><body><main><p>SEOB · ARCHITECTURE WORKSPACE</p><h1>건축 업무 자동화 시스템</h1><p>현장조사와 실측 도면 작성을 한곳에서 관리합니다.</p><div class="cards"><div class="card muted"><strong>📋 현장조사 프로그램</strong><p>시특법 현장조사 · 기존 v23<br>기존 프로그램을 백업하고 이전 검증 후 연결할 예정입니다.</p><span class="tag">이전 준비 중</span></div><a class="card active" href="./drawing/"><strong>📐 도면 작성 프로그램</strong><p>자유 드로잉 · 모서리 지정 · 치수 입력 · DXF 출력</p><span class="tag">v1 실행하기 →</span></a></div><p style="margin-top:40px;font-size:12px">주의: 공개 GitHub 저장소에는 실제 현장 도면이나 개인정보를 업로드하지 마세요.</p></main></body></html>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#12304b"><title>현장 결함 기록</title><link rel="manifest" href="/manifest.webmanifest?v=25"><link rel="apple-touch-icon" href="./icon-180.png?v=4"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><style>
+:root{font-family:'돋움',Dotum,'DotumChe',sans-serif;color:#182b3b;background:#eef2f6}*{box-sizing:border-box}body{margin:0}header{background:#12304b;color:white;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}header strong{font-size:18px}button,.button{border:1px solid #c5d1db;background:white;color:#20374a;border-radius:9px;padding:9px 12px;font:inherit;cursor:pointer}button.primary,.button.primary{background:#1874ba;color:white;border-color:#1874ba}button.active{background:#d8eaff;border-color:#1874ba}button.danger{color:#a62626;border-color:#e9b2b2}input,select,textarea{font:inherit;padding:9px;border:1px solid #cbd5df;border-radius:8px;width:100%;background:white}label{font-size:13px;font-weight:700;display:block;margin:9px 0 5px}.app{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px;padding:12px;max-width:1700px;margin:auto}.panel{background:white;border:1px solid #d8e1e8;border-radius:12px;padding:12px;min-width:0}.toolbar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}.board{height:min(70vh,850px);min-height:390px;overflow:hidden;background:#d9e0e5;position:relative;touch-action:none;border:1px solid #cbd5df;border-radius:8px}.board canvas{width:100%;height:100%;display:block;touch-action:none}.hint{font-size:12px;color:#53697c;margin:8px 0}.title{font-weight:800;font-size:17px;margin-bottom:8px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.row button{flex:initial}.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}.photo{position:relative}.photo img{width:100%;height:92px;object-fit:cover;border-radius:7px}.photo button{position:absolute;right:3px;top:3px;padding:1px 6px;background:#fff}.list{max-height:240px;overflow:auto}.item{display:flex;align-items:center;gap:8px;flex:1;min-width:0;margin:5px 0;text-align:left}.list{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:4px;align-items:center}.num{background:#145eaa;color:white;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:12px;flex:none}.item.active{background:#e7f2ff}.muted{color:#657b8b;font-size:12px}.small{font-size:12px}#status{font-size:12px;color:#d6e8f6;margin-left:auto}footer{padding:6px 16px 18px;color:#61788a;font-size:12px}.hidden{display:none!important}@media(max-width:850px){.app{grid-template-columns:1fr}.board{height:55vh;min-height:350px}#status{width:100%}}@media print{header,.toolbar,aside,footer,.hint{display:none!important}.app{display:block}.board{height:85vh}}
+ .pagebar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px;background:#f0f5fa;padding:8px;border-radius:9px}.pagebar select{width:auto;min-width:140px;max-width:250px}.pagebar input{width:140px}.pagebar button{padding:7px 9px}.pagebar .muted{font-size:11px}  .projectbar{display:flex;align-items:end;gap:8px;flex-wrap:wrap;background:#eaf1f8;border:1px solid #cad9e7;border-radius:10px;padding:10px;margin:0 0 10px}.projectbar label{margin:0;flex:1;min-width:170px}.projectbar button{white-space:nowrap}.projectbar select{margin-top:5px}.danger-note{font-size:12px;color:#a33} 
+#repairModal{position:fixed;inset:0;background:#102233b8;z-index:100;display:none;align-items:center;justify-content:center;padding:12px}
+#repairModal.open{display:flex}.repairWindow{background:white;border-radius:14px;width:min(1180px,100%);max-height:94vh;overflow:auto;padding:18px;box-shadow:0 15px 50px #0004}
+.repairWindow h2{margin:0 0 8px;font-size:21px}.repairWindow h3{margin:18px 0 8px}.repairWindow .repairTools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.repairTable{border-collapse:collapse;width:100%;font-size:12px;min-width:890px}.repairTable th,.repairTable td{border:1px solid #cdd8e2;padding:5px;text-align:center}.repairTable th{background:#e8eef5}.repairTable td:nth-child(2){text-align:left}.repairTable input,.repairTable select{font-size:12px;padding:5px;min-width:65px}.repairTable input[type=number]{width:82px}.repairTable .warning{color:#9a4d09;background:#fff4e2}.repairScroll{overflow:auto;max-height:54vh}.repairSummary{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}.repairSummary>div{background:#f0f5fa;padding:10px;border-radius:9px;min-width:140px}.repairNote{font-size:12px;color:#6c4d25;background:#fff6e7;border-radius:7px;padding:10px;margin-top:9px}
+@media print{body.repairPrinting header,body.repairPrinting main,body.repairPrinting footer{display:none!important}body.repairPrinting #repairModal{position:static;display:block!important;background:white;padding:0}body.repairPrinting .repairWindow{box-shadow:none;max-height:none;overflow:visible;width:100%;padding:0}body.repairPrinting .repairTools{display:none}body.repairPrinting .repairScroll{max-height:none;overflow:visible}body.repairPrinting .repairTable{min-width:0;font-size:9px}body.repairPrinting .repairTable input,body.repairPrinting .repairTable select{border:0;padding:0;font-size:9px}}
+
+#sketchModal{position:fixed;inset:0;background:#102233c9;z-index:120;display:none;align-items:center;justify-content:center;padding:10px}
+#sketchModal.open{display:flex}.sketchWindow{background:#fff;border-radius:13px;width:min(1100px,100%);max-height:96dvh;display:flex;flex-direction:column;padding:12px;gap:9px}
+.sketchTools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.sketchTools button{padding:8px 11px}.sketchTools label{margin:0;font-size:12px;display:flex;align-items:center;gap:5px}.sketchTools input{width:65px;padding:6px}
+.sketchPalette{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.sketchPalette button{width:30px;height:30px;padding:0;border-radius:50%;border:2px solid #d0d9e3;box-shadow:inset 0 0 0 2px white}.sketchPalette button.chosen{outline:2px solid #2563eb;outline-offset:2px}.sketchTip{font-size:12px;color:#52677a}#sketchCanvas{width:100%;height:auto;min-height:0;aspect-ratio:16/11;background:#fff;border:1px solid #b9c7d5;border-radius:5px;touch-action:none;display:block;object-fit:contain}
+
+/* v21: 독립 기기별 테마 및 간결한 현장 대시보드 */
+:root{--app-bg:#edf3f9;--surface:#ffffff;--surface-soft:#f2f6fc;--field:#fff;--ink:#1b2d46;--muted:#60748e;--line:#d6e1ee;--accent:#176ac2;--accent-hover:#0e57a6;--header:#112e4b;--board:#e3eaf3;color-scheme:light}
+body{background:var(--app-bg)!important;color:var(--ink)!important;transition:background .18s,color .18s}
+header{background:var(--header)!important;min-height:62px;padding:12px 22px!important;box-shadow:0 3px 16px #06182a1c}
+header strong{font-size:19px;letter-spacing:-.5px}
+header .small{opacity:.8}
+.theme-picker{display:flex;align-items:center;gap:8px;margin-left:auto}
+.theme-picker label{margin:0;color:#dceafa;font-size:12px;white-space:nowrap}
+.theme-picker select{width:132px;background:#ffffff18!important;border:1px solid #ffffff40!important;color:white!important;padding:8px 10px;border-radius:9px}
+.theme-picker select option{color:#1b2d46;background:white}
+#status{margin-left:6px!important;white-space:nowrap}
+.app{gap:16px!important;padding:16px!important;max-width:1800px!important;grid-template-columns:minmax(0,1fr) 340px!important}
+.panel{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:16px!important;padding:16px!important;box-shadow:0 5px 25px #102c4a0b}
+button,.button{background:var(--field)!important;color:var(--ink)!important;border:1px solid var(--line)!important;border-radius:10px!important;padding:10px 12px;transition:background .15s,border-color .15s,transform .12s}
+button:hover,.button:hover{border-color:var(--accent)!important;background:var(--surface-soft)!important}
+button:active{transform:translateY(1px)}
+button.primary,.button.primary{background:var(--accent)!important;border-color:var(--accent)!important;color:white!important}
+button.primary:hover{background:var(--accent-hover)!important}
+button.active{background:color-mix(in srgb,var(--accent) 15%,var(--surface))!important;border-color:var(--accent)!important;color:var(--ink)!important}
+button.danger{color:#dc4650!important;border-color:#eaa4ab!important}
+input,select,textarea{background:var(--field)!important;color:var(--ink)!important;border:1px solid var(--line)!important;border-radius:9px!important}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+.projectbar,.pagebar{background:var(--surface-soft)!important;border:1px solid var(--line)!important;border-radius:12px!important;padding:12px!important}
+.toolbar{padding:6px 0 12px;border-bottom:1px solid var(--line);margin-bottom:12px!important}
+.board{background:var(--board)!important;border:1px solid var(--line)!important;border-radius:12px!important}
+.title{color:var(--ink)!important;margin-bottom:14px!important}
+.muted,.hint,.sketchTip{color:var(--muted)!important}
+.item{border-radius:9px}.item.active{background:var(--surface-soft)!important}
+#editor{color:var(--ink)}
+.repairWindow,.sketchWindow{background:var(--surface)!important;color:var(--ink)!important}
+.repairTable th,.repairSummary>div{background:var(--surface-soft)!important;color:var(--ink)!important}
+.repairTable td,.repairTable th{border-color:var(--line)!important}
+#albumModal>div{background:var(--surface)!important;color:var(--ink)!important}
+hr{border-color:var(--line)!important}
+footer{color:var(--muted)!important}
+body[data-theme="dark"]{--app-bg:#0d1522;--surface:#172335;--surface-soft:#202f44;--field:#1b2a3e;--ink:#e9f1fb;--muted:#afc0d3;--line:#34465c;--accent:#4c9cf0;--accent-hover:#267fda;--header:#080f1c;--board:#253447;color-scheme:dark}
+body[data-theme="navy"]{--app-bg:#10253d;--surface:#193651;--surface-soft:#25445f;--field:#1c3b56;--ink:#eff7ff;--muted:#c1d3e5;--line:#365a77;--accent:#45a4ed;--accent-hover:#258bd3;--header:#081c30;--board:#294763;color-scheme:dark}
+body[data-theme="forest"]{--app-bg:#eaf3ed;--surface:#fff;--surface-soft:#eff6f0;--field:#fff;--ink:#183b30;--muted:#547568;--line:#cddfd4;--accent:#267a59;--accent-hover:#166347;--header:#173e33;--board:#dce9e0;color-scheme:light}
+body[data-theme="dark"] .theme-picker select,body[data-theme="navy"] .theme-picker select{color:white!important}
+@media(max-width:950px){.app{grid-template-columns:1fr!important}header{gap:8px}.theme-picker{margin-left:0}#status{margin-left:auto!important}}
+@media(max-width:550px){.app{padding:8px!important}.panel{padding:10px!important}.theme-picker label{display:none}header{padding:10px!important}header strong{font-size:16px}.theme-picker select{width:105px}#status{width:auto!important;font-size:10px}}
+@media print{.theme-picker{display:none!important}body{background:white!important;color:black!important}}
+
+/* v22: 결함표시 레이블은 캔버스에 글씨만 그리며 도면을 가리지 않음 */
+/* v22: 출력 작업 버튼 - 모든 테마에서 동일한 무채색 윤곽 버튼 */
+#repairReport,#albumOpen,#albumHwpx{
+  background:var(--field)!important;
+  color:var(--ink)!important;
+  border-color:var(--line)!important;
+  box-shadow:none!important;
+  font-weight:normal;
+}
+#repairReport:hover,#albumOpen:hover,#albumHwpx:hover{
+  background:var(--surface-soft)!important;
+  color:var(--ink)!important;
+  border-color:var(--accent)!important;
+}
+/* 사용자 선택용 추가 테마 6종 */
+body[data-theme="slate"]{--app-bg:#e8edf2;--surface:#ffffff;--surface-soft:#eef1f5;--field:#ffffff;--ink:#263442;--muted:#697d8d;--line:#cbd5de;--accent:#4d6b86;--accent-hover:#35516c;--header:#263948;--board:#dce4eb;color-scheme:light}
+body[data-theme="ocean"]{--app-bg:#e5f4f7;--surface:#faffff;--surface-soft:#e8f5f6;--field:#ffffff;--ink:#123f4b;--muted:#4f7780;--line:#bedde2;--accent:#087f96;--accent-hover:#006579;--header:#075060;--board:#d6eaf0;color-scheme:light}
+body[data-theme="sand"]{--app-bg:#f5f0e8;--surface:#fffcf6;--surface-soft:#f5eee3;--field:#fffdf8;--ink:#40362e;--muted:#827364;--line:#dfd2c2;--accent:#916b4e;--accent-hover:#745038;--header:#514337;--board:#eee3d5;color-scheme:light}
+body[data-theme="lavender"]{--app-bg:#f2effb;--surface:#fffaff;--surface-soft:#f1edfb;--field:#ffffff;--ink:#302b4b;--muted:#736b98;--line:#ddd4ef;--accent:#7155a4;--accent-hover:#5b408d;--header:#322b51;--board:#e5dffa;color-scheme:light}
+body[data-theme="rose"]{--app-bg:#faf0f0;--surface:#fffafa;--surface-soft:#fbefef;--field:#ffffff;--ink:#4b303a;--muted:#96717d;--line:#ead1da;--accent:#ab607d;--accent-hover:#914763;--header:#573647;--board:#f3e1e6;color-scheme:light}
+body[data-theme="graphite"]{--app-bg:#14171b;--surface:#22272d;--surface-soft:#2d343c;--field:#292e35;--ink:#f2f5f7;--muted:#b4c1cb;--line:#46515b;--accent:#a1b9d1;--accent-hover:#cad9e7;--header:#0b0e12;--board:#303841;color-scheme:dark}
+.theme-picker select{width:142px!important;max-width:45vw}
+.theme-picker select option{background:#fff;color:#1b2d46}
+body[data-theme="graphite"] .theme-picker select{color:#fff!important}
+@media(max-width:550px){.theme-picker select{width:116px!important}}
+
+/* v23: 구조/비구조 색상, 라벨 이동, 공사비 주석 */
+.annotationLegend{display:inline-flex;align-items:center;gap:9px;font-size:12px;white-space:nowrap;padding:5px 4px}
+.annotationLegend .red-dot{color:#cf2534}.annotationLegend .purple-dot{color:#7431bf}.annotationLegend .blue-dot{color:#1554a4}
+#canvas{cursor:crosshair} .repair-unpriced{background:var(--surface-soft,#f5f8fb);border:1px solid var(--line,#cbd5e1);border-radius:8px;padding:10px;grid-column:1/-1;color:var(--ink,#162e45)}
+#repairCostRows small{display:block;max-width:340px;white-space:normal;line-height:1.45}#repairCostRows td:nth-child(7){min-width:220px}
+@media(max-width:850px){.annotationLegend{font-size:10px;gap:5px}}
+
+/* v25: 전경사진 별도 등록 공간 (외부/내부 분류, 현장별 저장) */
+.front-workspace{grid-column:1/-1;scroll-margin-top:16px}
+.front-heading{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}
+.front-heading h2{font-size:21px;margin:5px 0 8px;color:var(--ink)}
+.front-heading p{font-size:13px;line-height:1.65;margin:0;color:var(--muted)}
+.front-eyebrow{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.08em}
+.front-heading button{flex-shrink:0}
+.front-group{padding:16px;background:var(--surface-soft);border:1px solid var(--line);border-radius:14px;margin:12px 0 18px}
+.front-group-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:13px}
+.front-group-title h3{font-size:16px;margin:0;color:var(--ink)}
+.front-group-title>span{font-size:12px;color:var(--muted)}
+.front-count{font-size:12px;color:var(--accent);margin-left:7px}
+.front-photo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.front-photo-card{min-width:0;padding:12px;border:1px solid var(--line);background:var(--surface);border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.front-photo-card .front-slot-name{font-size:12px;font-weight:700;color:var(--muted)}
+.front-photo-card .front-photo-preview{height:160px;border:1px dashed var(--line);border-radius:9px;background:var(--board);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted);font-size:13px;text-align:center}
+.front-photo-preview img{width:100%;height:100%;object-fit:cover}
+.front-photo-card label.front-label{display:block;font-size:12px;font-weight:700;color:var(--ink)}
+.front-photo-card label.front-label input{display:block;margin-top:6px;width:100%;min-width:0;padding:9px}
+.front-photo-actions{display:flex;gap:7px;flex-wrap:wrap}
+.front-photo-actions label,.front-photo-actions button{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:1;min-width:90px;font-size:12px;padding:9px 7px!important;text-align:center;border:1px solid var(--line);border-radius:9px;background:var(--field);color:var(--ink)}
+.front-photo-actions label:hover{border-color:var(--accent);background:var(--surface-soft)}
+.front-photo-actions button{flex:0 0 auto;min-width:52px}
+.front-photo-actions button:disabled{opacity:.5;cursor:default}
+.front-photo-actions input[type=file]{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.front-note{font-size:12px;line-height:1.6;color:var(--muted);margin:6px 0 0}
+#frontPhotoJump{border-color:var(--accent)!important;color:var(--accent)!important;font-weight:700}
+@media(max-width:900px){.front-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:580px){.front-heading{align-items:flex-start;flex-direction:column}.front-photo-grid{grid-template-columns:1fr}.front-photo-card .front-photo-preview{height:190px}}
+@media print{.front-workspace{display:none!important}}
+</style></head><body><header><strong>▣ 현장 결함 기록</strong><span class="small">도면 · 균열선 · 결함 사진</span><div class="theme-picker"><label for="themeSelect">화면 테마</label><select id="themeSelect" aria-label="화면 테마"><option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="forest">포레스트</option><option value="slate">슬레이트</option><option value="ocean">오션</option><option value="sand">샌드</option><option value="lavender">라벤더</option><option value="rose">로즈</option><option value="graphite">그라파이트</option><option value="system">기기 설정</option></select></div><span id="status">저장 준비</span></header><main class="app"><section class="panel"><div class="projectbar"><label>작업 현장 선택<select id="siteSelect"></select></label><button id="newSite" class="primary">＋ 새 현장</button><button id="renameSite">현장 이름 변경</button><button id="deleteSite" class="danger">현장 삭제</button><span class="muted" id="siteCount"></span></div><div class="toolbar"><label class="button" style="margin:0">＋ PDF / 사진 추가<input id="drawingFile" type="file" accept="image/*,.pdf,application/pdf" multiple hidden></label><button id="newSketch" class="primary">✏️ 현장 스케치</button><button id="editSketch">스케치 수정</button><button id="pinBtn" class="active">① 번호 찍기</button><button id="crackBtn">〰 균열선 그리기</button><button id="moveBtn">✋ 이동</button><button id="zoomIn">＋ 확대</button><button id="zoomOut">－ 축소</button><button id="fit">화면 맞춤</button><button id="undo" disabled>↶ 실행 취소</button><button id="labelToggle" aria-pressed="false">결함 표시 OFF</button><button id="frontPhotoJump" type="button" class="front-jump">📷 전경사진 등록</button><span class="annotationLegend" title="결함 종류의 선택 그룹에 따라 설명 글씨와 번호 색이 바뀝니다"><span class="red-dot">● 구조체</span><span class="purple-dot">● 비구조체</span><span class="blue-dot">● 기타</span></span></div><div class="pagebar"><button id="prevPage">◀ 이전</button><select id="pageSelect" aria-label="도면 페이지"></select><button id="nextPage">다음 ▶</button><span id="pageCounter" class="muted"></span><label style="margin:0">층/도면명 <input id="pageLabel" placeholder="예: 지상 10층"></label><button id="renamePage">이름 적용</button><button id="removePage" class="danger">현재 도면 삭제</button></div><div id="board" class="board"><canvas id="canvas"></canvas></div><div class="hint">번호 찍기: 도면 터치 · 균열선: 손가락으로 선 그리기(끝점에 번호 생성) · 이동: 드래그 · 두 손가락으로 확대/축소 · 결함 번호 터치: 상세정보 편집 · <strong>결함 표시 ON 상태에서 글씨만 손가락/마우스로 끌어서 이동</strong> (번호는 고정, 위치는 현장별 자동 저장)</div><div class="row"><label style="flex:2">현장명<input id="projectName" placeholder="예: ○○ 공동주택 신축공사"></label><label>도면명<input id="drawingName" placeholder="예: 지하 1층 평면도"></label></div></section><aside class="panel"><div class="title">결함 목록 <span id="count" class="muted">0건</span></div><div id="list" class="list"></div><hr style="border:0;border-top:1px solid #e4e9ef;margin:14px 0"><div id="editor"><div class="muted">도면을 터치해 결함을 추가하거나 목록에서 결함을 선택하세요.</div></div><hr style="border:0;border-top:1px solid #e4e9ef;margin:14px 0"><div class="title">자료 저장 및 출력</div><div class="row"><button id="export">프로젝트 내보내기</button><label class="button" style="margin:0;text-align:center">프로젝트 불러오기<input id="import" type="file" accept=".json,application/json" hidden></label></div><div class="row" style="margin-top:8px"><button id="png">외관조사망도 PNG</button><button id="csv">결함 현황표 CSV</button><button id="repairReport">보수물량·공사비</button><button id="albumHwpx">사진첩 한글(HWPX)</button></div><button id="print" class="hidden" aria-hidden="true" tabindex="-1">인쇄/PDF</button><div class="hint">현장별로 자동 저장됩니다(현재 기기). 다른 기기로 옮길 때는 현장별 프로젝트 내보내기(.json)를 사용하세요. 앱 삭제·브라우저 데이터 정리 전 반드시 백업하세요.</div></aside><section class="panel front-workspace" id="frontPhotoWorkspace" aria-label="전경사진 등록">
+<div class="front-heading"><div><div class="front-eyebrow">사진첩 자료 준비</div><h2>📷 시설물 전경사진 등록</h2><p>결함사진과 별도로 관리합니다. 이곳에 전경사진을 등록하고, 결함별 사진은 기존 결함 상세정보에서 추가하세요. 최종 사진첩은 오른쪽 「사진첩 한글(HWPX)」 버튼으로 한 번에 다운로드합니다.</p></div></div>
+<div class="front-group"><div class="front-group-title"><h3>① 외부 전경 <span class="front-count" id="frontOutsideCount">0 / 3장</span></h3><span>사진첩 2쪽 · 정면 / 좌측면 / 배면</span></div><div id="frontOutside" class="front-photo-grid"></div></div>
+<div class="front-group"><div class="front-group-title"><h3>② 내부 전경 <span class="front-count" id="frontInsideCount">0 / 6장</span></h3><span>사진첩 3쪽 · 층과 촬영 위치를 사진 설명에 입력하세요</span></div><div id="frontInside" class="front-photo-grid"></div></div>
+<p class="front-note">※ 사진 설명은 예: 「지상1층 복도 전경」처럼 수정할 수 있습니다. 사진은 현장별로 기기에 자동 저장되므로 다른 기기에서 사용하려면 프로젝트 JSON을 내보내서 불러오세요.</p>
+</section></main><div id="sketchModal" role="dialog" aria-modal="true" aria-label="현장 스케치 편집기"><div class="sketchWindow"><div class="row" style="justify-content:space-between"><strong>✏️ 현장 도면 스케치 편집기</strong><button id="sketchClose">닫기</button></div><div class="sketchTools"><button data-sktool="pen" class="active">자유 그리기</button><button data-sktool="line">직선</button><button data-sktool="rect">사각형</button><button data-sktool="erase">지우개</button><span class="sketchPalette" id="sketchPalette" aria-label="펜 색상"></span><label>선 굵기 <input id="sketchWidth" type="number" min="1" max="30" value="3"></label><button id="sketchUndo">↶ 한 획 취소</button><button id="sketchClear" class="danger">전체 지우기</button></div><div class="sketchTip">자유 그리기: 선을 그은 뒤 끝점에서 약 0.6초 멈추면 직선으로 변환됩니다. 색상은 펜·직선·사각형에 적용됩니다.</div><canvas id="sketchCanvas" width="1600" height="1100"></canvas><div class="row"><span class="muted" style="flex:3">스케치는 이 창에서만 수정됩니다. 도면에 적용한 뒤에는 결함 번호와 균열선만 추가할 수 있습니다.</span><button id="sketchSave" class="primary">✓ 도면에 적용 / 저장</button></div></div></div><div id="albumModal" role="dialog" aria-modal="true" aria-label="외관조사 사진첩" style="display:none;position:fixed;inset:0;background:#0009;z-index:1200;overflow:auto;padding:18px"><div style="max-width:850px;margin:auto;background:white;padding:22px;border-radius:12px"><div class="row"><h2 style="flex:3">외관조사 사진첩 · 자료 준비</h2><button id="albumClose">닫기</button></div><p class="hint">제공한 한글 양식의 구성에 따라 1쪽 위치도 공란, 2쪽 외부 전경, 3쪽 내부 전경, 4쪽부터 지하층→지상층→옥탑층 결함사진을 배치합니다. 한글(HWPX) 다운로드 버튼을 누르면 제공한 원본 한글 틀에 사진·결함 설명을 채웁니다. 첫 장 위치도는 공란이며 한글에서 수정할 수 있습니다.</p><h3>2쪽 · 시설물 전경사진 (외부 3장)</h3><div id="albumOutside"></div><h3>3쪽 · 시설물 부위별 사진 (내부 최대 6장)</h3><div id="albumInside"></div><div class="row" style="margin-top:15px"><button id="albumPrint" class="hidden" aria-hidden="true" tabindex="-1">인쇄/PDF</button><button id="albumHwpxInside" class="primary">한글(HWPX) 다운로드</button></div></div></div><div id="repairModal" role="dialog" aria-modal="true" aria-label="보수물량 및 개략공사비"><div class="repairWindow"><div class="row" style="justify-content:space-between"><h2>보수·보강 물량 및 개략공사비</h2><button id="repairClose">✕ 닫기</button></div><div class="repairNote">기준: <b>2026년 건설공사 표준품셈(유지관리 1-3-1~1-3-6)과 2026년 하반기 건설업 임금실태조사(2026.9.1 적용)</b>. 검증된 공종의 자동 금액은 <b>노무비만 반영한 참고값</b>이며 자재비·부대비·방청비 등을 포함한 완성 단가가 아닙니다. <b>보수물량 단위는 ㎡</b>로 통일합니다. 균열은 입력한 균열폭을 면적 환산 폭에 자동 반영합니다. 이는 임시 면적이며 실제 보수 시공 폭이 아니므로, 확정 공사비 산정 전 실제 시공 폭으로 수정해야 합니다. 보수공법과 현장조건이 명확하지 않은 결함은 자동 단가를 비워 둡니다. 모든 금액은 천원 단위입니다.</div><div class="repairTools"><label style="margin:0">제경비율 (%) <input id="overhead" type="number" min="0" max="300" step="1" value="60" style="width:85px"></label><button id="repairCsv">표 CSV 다운로드</button><button id="repairPrint">표 인쇄 / PDF</button></div><h3>5.4 보수·보강 물량 및 우선순위</h3><div class="repairScroll"><table class="repairTable"><thead><tr><th>층/도면</th><th>손상명</th><th>구분</th><th>적용공법</th><th>보수물량</th><th>단위</th><th>우선순위</th></tr></thead><tbody id="repairQtyRows"></tbody></table></div><h3>5.5 개략공사비</h3><div class="repairScroll"><table class="repairTable"><thead><tr><th>층/도면</th><th>손상명</th><th>적용공법</th><th>보수물량</th><th>단위</th><th>2026 노무비 기준 / 입력 단가 (천원/㎡)</th><th>단가 산정 근거</th><th>공사비 (천원)</th><th>우선순위</th></tr></thead><tbody id="repairCostRows"></tbody></table></div><div class="repairSummary" id="repairSummary"></div><div class="repairNote">이 결과의 자동 단가는 검증된 2026년 <b>노무비만</b> 반영합니다. 2026년 표준품셈은 일당 시공량 등의 기준이지 완성 공사비 단가표가 아닙니다. 재료비, 장비비, 고소작업, 방청처리, 폐기물, 부가세 및 공사조건을 확인하여 추가 적용해야 하며 자동값만으로 최종 공사비를 확정해서는 안 됩니다. 금액이 미확인인 결함은 합계에서 제외합니다. 제경비율은 사용자 입력 가정치이며 공식 일률 값이 아닙니다.</div></div></div><footer>현장 점검 기록 도구 · 다중 현장 관리 버전 · 보수물량·우선순위·개략공사비 산출 지원 · 실제 수량 및 단가 확인 필요</footer><script>
+// v21 테마: 기기별 로컬 저장 (현장 데이터와 별도)
+(function(){
+ const key='field-inspection-ui-theme-v21';
+ const sel=document.getElementById('themeSelect');
+ const media=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+ function apply(v){document.body.dataset.theme=v==='system'?(media&&media.matches?'dark':'light'):v;}
+ let saved='system';try{saved=localStorage.getItem(key)||'system'}catch(e){}
+ if(!['light','dark','navy','forest','slate','ocean','sand','lavender','rose','graphite','system'].includes(saved))saved='system';
+ sel.value=saved;apply(saved);
+ sel.addEventListener('change',()=>{try{localStorage.setItem(key,sel.value)}catch(e){}apply(sel.value)});
+ if(media)media.addEventListener('change',()=>{if(sel.value==='system')apply('system')});
+})();
+</script><script src="./jszip.min.js"></script><script>
+const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d'),board=$('board');let state={project:'',drawingName:'',image:null,pages:[],activePage:0,defects:[],nextId:1},img=null,selected=null,mode='pin',zoom=1,pan={x:0,y:0},drag=null,preview=null,undoStack=[],siteId=null,siteList=[],db=null,saveTimer=null;const TYPE_GROUPS=[
+{label:'① 구조체 · 주요 결함',items:['구조체 균열','구조체 망상균열','철근노출','구조체 누수흔적','구조체 누수','구조체 백태(백화)','콘크리트 손상(박리·박락·파손)','콘크리트 재료분리','구조체 천공','구조체 부식','구조체 변형·처짐','구조체 침하·변위','구조체 기타 손상']},
+{label:'② 비구조체 · 마감 결함',items:['비구조체 균열','마감재 손상(박리·박락·들뜸·탈락)','비구조체 누수흔적','비구조체 백태(백화)','비구조체 천공','비구조체 표면손상·파손','줄눈 손상','비구조체 변형·처짐','비구조체 부식','비구조체 기타 손상']},
+{label:'③ 기타',items:['체결 불량','토사 유출','기타(직접 메모)']}
+];const TYPES=TYPE_GROUPS.flatMap(g=>g.items);const LEGACY_TYPES=['균열','망상균열','누수흔적','누수','백태(백화)','마감재 박락','마감재 박리','마감재 들뜸','마감재 탈락','콘크리트 박리','콘크리트 박락','재료분리','천공','표면손상','파손','부식','변형','처짐','침하','변위','기타'];
+function typeOptions(d){let html='<option value="">종류 추가 선택</option>';for(const g of TYPE_GROUPS){html+='<optgroup label="'+escapeHtml(g.label)+'">'+g.items.map(t=>'<option value="'+escapeHtml(t)+'">'+escapeHtml(albumTypeName(t))+'</option>').join('')+'</optgroup>'}const legacy=[...new Set((d.types||[]).filter(t=>!TYPES.includes(t)))];if(legacy.length)html+='<optgroup label="기존 자료 · 분류 재확인 권장">'+legacy.map(t=>'<option value="'+escapeHtml(t)+'">'+escapeHtml(albumTypeName(t))+'</option>').join('')+'</optgroup>';return html}
+let pointers=new Map(),pinch=null;
+function normalizeState(){if(!state.albumPhotos)state.albumPhotos={outside:[],inside:[]};if(!Array.isArray(state.albumPhotos.outside))state.albumPhotos.outside=[];if(!Array.isArray(state.albumPhotos.inside))state.albumPhotos.inside=[];if(!Array.isArray(state.pages))state.pages=[];if(!state.pages.length&&state.image)state.pages=[{name:state.drawingName||'도면 1',image:state.image}];if(!Number.isInteger(state.activePage))state.activePage=0;state.activePage=Math.max(0,Math.min(state.activePage,state.pages.length-1));state.defects.forEach(d=>{if(d.pageId===undefined)d.pageId=0})}function currentDefects(){return state.defects.filter(d=>d.pageId===state.activePage)}function pageNumber(d){return currentDefects().findIndex(x=>x.id===d.id)+1}function refreshPages(){normalizeState();let sel=$('pageSelect');sel.innerHTML='';state.pages.forEach((p,i)=>{let o=document.createElement('option');o.value=i;o.textContent=`${i+1}. ${p.name}`;sel.appendChild(o)});sel.value=String(state.activePage);$('pageCounter').textContent=state.pages.length?`${state.activePage+1} / ${state.pages.length} 페이지`:'도면 없음';$('pageLabel').value=state.pages[state.activePage]?.name||'';$('prevPage').disabled=state.activePage<=0;$('nextPage').disabled=state.activePage>=state.pages.length-1}function switchPage(n){if(n<0||n>=state.pages.length)return;state.activePage=n;selected=null;preview=null;refreshPages();loadImage(state.pages[n].image);refresh();persist()}$('prevPage').onclick=()=>switchPage(state.activePage-1);$('nextPage').onclick=()=>switchPage(state.activePage+1);$('pageSelect').onchange=e=>switchPage(Number(e.target.value));$('renamePage').onclick=()=>{let p=state.pages[state.activePage];if(!p)return;p.name=$('pageLabel').value.trim()||`도면 ${state.activePage+1}`;refreshPages();persist()};function blankState(name='새 현장'){return {project:name,drawingName:'',image:null,pages:[],activePage:0,defects:[],nextId:1,albumPhotos:{outside:[],inside:[]}}}
+function uid(){return 'site-'+Date.now()+'-'+Math.random().toString(36).slice(2,9)}
+function dbOpen(){return new Promise((resolve,reject)=>{let r=indexedDB.open('field-inspection-sites-v4',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('sites'))r.result.createObjectStore('sites',{keyPath:'id'})};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+function dbAction(mode,fn){return new Promise((resolve,reject)=>{let tx=db.transaction('sites',mode),store=tx.objectStore('sites');let req=fn(store);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function getSites(){return await dbAction('readonly',s=>s.getAll())}
+async function saveNow(){if(!db||!siteId)return;try{await dbAction('readwrite',s=>s.put({id:siteId,name:state.project||'이름 없는 현장',updated:Date.now(),data:structuredClone(state)}));$('status').textContent='현장 자동 저장됨'}catch(e){$('status').textContent='저장 실패 — JSON 백업 필요';console.error(e)}}
+function persist(){if(!db)return;$('status').textContent='저장 중…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveNow(),400)}
+function snapshot(){undoStack.push(structuredClone(state));if(undoStack.length>25)undoStack.shift();updateUndo()}
+function updateUndo(){$('undo').disabled=!undoStack.length;$('undo').title=undoStack.length?'마지막 작업 되돌리기':'되돌릴 작업 없음'}
+function clearUndo(){undoStack=[];updateUndo()}
+function refreshSiteList(){let sel=$('siteSelect');sel.innerHTML='';siteList.forEach(p=>{let o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o)});sel.value=siteId;$('siteCount').textContent=siteList.length+'개 현장'}
+async function syncSiteList(){siteList=(await getSites()).sort((a,b)=>b.updated-a.updated).map(({id,name,updated})=>({id,name,updated}));refreshSiteList()}
+async function changeSite(id){if(id===siteId)return;await flushSave();let rec=await dbAction('readonly',s=>s.get(id));if(!rec)return;siteId=id;state=rec.data;normalizeState();selected=null;clearUndo();$('projectName').value=state.project||'';$('drawingName').value=state.drawingName||'';refreshPages();loadImage(state.pages[state.activePage]?.image||null);refresh();renderFrontPhotoWorkspace();refreshSiteList()}
+async function flushSave(){clearTimeout(saveTimer);await saveNow()}
+$('siteSelect').onchange=e=>changeSite(e.target.value);
+$('newSite').onclick=async()=>{let name=prompt('새 현장 이름을 입력하세요.','새 현장');if(name===null)return;name=name.trim()||'새 현장';await flushSave();siteId=uid();state=blankState(name);selected=null;clearUndo();$('projectName').value=name;$('drawingName').value='';refreshPages();loadImage(null);refresh();renderFrontPhotoWorkspace();await saveNow();await syncSiteList()};
+$('renameSite').onclick=()=>{let name=prompt('현장 이름',state.project||'');if(name===null)return;name=name.trim();if(!name)return;state.project=name;$('projectName').value=name;persist();let p=siteList.find(p=>p.id===siteId);if(p)p.name=name;refreshSiteList()};
+$('deleteSite').onclick=async()=>{if(!confirm('현재 현장 전체(모든 도면, 결함, 사진)를 삭제할까요? 먼저 프로젝트 내보내기로 백업하세요.'))return;if(!confirm('정말 삭제하시겠습니까? 이 작업은 실행 취소할 수 없습니다.'))return;clearTimeout(saveTimer);await dbAction('readwrite',s=>s.delete(siteId));let all=await getSites();if(!all.length){siteId=uid();state=blankState();await saveNow();all=await getSites()}let next=all.sort((a,b)=>b.updated-a.updated)[0];siteId=next.id;state=next.data;normalizeState();selected=null;clearUndo();$('projectName').value=state.project||'';$('drawingName').value=state.drawingName||'';refreshPages();loadImage(state.pages[state.activePage]?.image||null);refresh();renderFrontPhotoWorkspace();await syncSiteList()};
+$('removePage').onclick=()=>{if(!state.pages.length)return;let n=state.activePage,p=state.pages[n],num=state.defects.filter(d=>d.pageId===n).length;if(!confirm(`「${p.name}」 도면과 결함 ${num}건을 삭제할까요? 실행 취소할 수 있습니다.`))return;snapshot();state.pages.splice(n,1);state.defects=state.defects.filter(d=>d.pageId!==n).map(d=>({...d,pageId:d.pageId>n?d.pageId-1:d.pageId}));state.activePage=Math.max(0,Math.min(n,state.pages.length-1));selected=null;refreshPages();loadImage(state.pages[state.activePage]?.image||null);refresh();persist()};
+function loadImage(src){img=null;if(!src){draw();return}let i=new Image();i.onload=()=>{img=i;fit();draw()};i.src=src}function fit(){if(!img)return;zoom=Math.min((board.clientWidth-24)/img.width,(board.clientHeight-24)/img.height);pan={x:(board.clientWidth-img.width*zoom)/2,y:(board.clientHeight-img.height*zoom)/2};draw()}function coords(e){let r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}function world(p){return{x:(p.x-pan.x)/zoom,y:(p.y-pan.y)/zoom}}function screen(p){return{x:p.x*zoom+pan.x,y:p.y*zoom+pan.y}}function clampPoint(p){return{x:Math.max(0,Math.min(img.width,p.x)),y:Math.max(0,Math.min(img.height,p.y))}}function hit(p){for(let i=currentDefects().length-1;i>=0;i--){let d=currentDefects()[i],q=screen(d.point);if(Math.hypot(q.x-p.x,q.y-p.y)<12)return d}return null}function circled(n){const nums=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'];return nums[n-1]||String(n)}function resize(){let dpr=window.devicePixelRatio||1;canvas.width=board.clientWidth*dpr;canvas.height=board.clientHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw()}let showDefectLabels=false;
+function defectGroup(d){const types=d.types||[];const structural=types.some(t=>/^(구조체|콘크리트)|철근노출|^균열$|^재료분리$/.test(t));const nonStructural=types.some(t=>/^(비구조체|마감재|줄눈)|^마감재 /.test(t));return structural?'구조체':nonStructural?'비구조체':'기타'}
+function annotationColor(d){return defectGroup(d)==='구조체'?'#cf2534':defectGroup(d)==='비구조체'?'#7431bf':'#1554a4'}
+function cleanDefectType(t){return String(t||'').replace(/^(구조체|비구조체)\s*/,'').trim()}
+// 도면 표시, 보수표, 사진첩(HWPX 포함)의 결함 규격을 하나의 형식으로 통일합니다.
+function defectSpecText(d){
+ const parts=[d.width,d.length].map(v=>String(v??'').trim()).filter(Boolean);
+ const count=Number(d.count);
+ const size=parts.join('X');
+ const ea=Number.isInteger(count)&&count>1?`${count}EA`:'';
+ // 치수 없는 EA만 있는 경우 '3EA', 치수가 있는 경우 '0.3X2000X3EA'
+ return size&&ea?`${size}X${ea}`:size||ea;
+}
+function defectLabel(d){
+ const types=(d.types||[]).filter(Boolean).map(cleanDefectType).join('·')||'미지정';
+ const size=defectSpecText(d);
+ return size?`${types} ${size}`:types;
+}
+let annotationRects=[];
+function overlaps(a,b,pad=4){return a.x<b.x+b.w+pad&&a.x+a.w+pad>b.x&&a.y<b.y+b.h+pad&&a.y+a.h+pad>b.y}
+function drawLabel(g,p,d,bounds,fontSize,offsetFactor,occupied,markers){
+ g.save();g.font=`bold ${fontSize}px Dotum, Arial, sans-serif`;g.textBaseline='middle';g.textAlign='left';const text=defectLabel(d);const fullW=g.measureText(text).width;const maxW=Math.max(80,bounds.width-8);let display=text;
+ if(fullW>maxW){let cut=text.length;while(cut>3&&g.measureText(text.slice(0,cut)+'…').width>maxW)cut--;display=text.slice(0,cut)+'…'}
+ const tw=g.measureText(display).width,h=fontSize+6,gap=fontSize+2;
+ let x=p.x+gap,y=p.y;let movable=!!d.labelOffset&&Number.isFinite(d.labelOffset.x)&&Number.isFinite(d.labelOffset.y);
+ if(movable){x=p.x+d.labelOffset.x*offsetFactor;y=p.y+d.labelOffset.y*offsetFactor}
+ else{
+  const proposals=[{x:p.x+gap,y:p.y},{x:p.x-tw-gap,y:p.y},{x:p.x+gap,y:p.y-1.6*h},{x:p.x+gap,y:p.y+1.6*h},{x:p.x-tw-gap,y:p.y-1.6*h},{x:p.x-tw-gap,y:p.y+1.6*h}];
+  for(let dy=2;dy<=10;dy++)proposals.push({x:p.x+gap,y:p.y+dy*h},{x:p.x+gap,y:p.y-dy*h});
+  let chosen=proposals.find(q=>{const r={x:q.x,y:q.y-h/2,w:tw,h};return r.x>=2&&r.y>=1&&r.x+r.w<=bounds.width-2&&r.y+r.h<=bounds.height-1&&!occupied.some(o=>overlaps(r,o,3))&&!markers.some(m=>Math.abs(q.x-m.x)<12&&Math.abs(q.y-m.y)<12)})||proposals[0];x=Math.max(2,Math.min(bounds.width-tw-2,chosen.x));y=Math.max(h/2+1,Math.min(bounds.height-h/2-1,chosen.y));
+ }
+ g.fillStyle=annotationColor(d);g.fillText(display,x,y);g.restore();
+ const rect={x,y:y-h/2,w:tw,h,baseline:y,id:d.id};occupied.push(rect);return rect
+}
+$('labelToggle').onclick=()=>{showDefectLabels=!showDefectLabels;$('labelToggle').textContent=showDefectLabels?'결함 표시 ON':'결함 표시 OFF';$('labelToggle').classList.toggle('active',showDefectLabels);$('labelToggle').setAttribute('aria-pressed',String(showDefectLabels));draw()};
+function draw(){let dpr=window.devicePixelRatio||1,w=board.clientWidth,h=board.clientHeight;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle='#e4e9ee';ctx.fillRect(0,0,w,h);annotationRects=[];if(!img){ctx.fillStyle='#657a8d';ctx.textAlign='center';ctx.font='16px Dotum, sans-serif';ctx.fillText('도면 또는 사진을 열어주세요',w/2,h/2);return}ctx.save();ctx.translate(pan.x,pan.y);ctx.scale(zoom,zoom);ctx.drawImage(img,0,0);ctx.restore();
+const defects=currentDefects(),markers=defects.map(d=>screen(d.point));defects.forEach((d,i)=>{if(d.line&&d.line.length){ctx.beginPath();d.line.forEach((p,j)=>{let q=screen(p);j?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.strokeStyle='#e02936';ctx.lineWidth=2;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke()}let p=markers[i];ctx.beginPath();ctx.arc(p.x,p.y,selected===d.id?7:6,0,Math.PI*2);ctx.fillStyle=annotationColor(d);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.stroke();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 8px Dotum, sans-serif';ctx.fillText(String(i+1),p.x,p.y+.3)});
+if(showDefectLabels){const occupied=[];defects.forEach((d,i)=>{annotationRects.push(drawLabel(ctx,markers[i],d,{width:w,height:h},12,zoom,occupied,markers))})}
+if(preview&&preview.length>1){ctx.beginPath();preview.forEach((p,j)=>{let q=screen(p);j?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.strokeStyle='#e02936';ctx.lineWidth=2;ctx.stroke()}}
+function hitAnnotation(p){if(!showDefectLabels)return null;for(let i=annotationRects.length-1;i>=0;i--){const r=annotationRects[i];if(p.x>=r.x-5&&p.x<=r.x+r.w+5&&p.y>=r.y-5&&p.y<=r.y+r.h+5)return r}return null}
+function isCrackDefect(d){return (d.types||[]).some(t=>/균열/.test(t))}
+function hasAreaDefect(d){return (d.types||[]).some(t=>/누수|백태|박리|박락|철근노출|재료분리|마감재|도장|오염|파손|탈락|천공/.test(t))}
+function measuredQty(d){let a=Number(d.width),b=Number(d.length),count=(Number.isFinite(Number(d.count))&&Number(d.count)>0?Number(d.count):1);if(!Number.isFinite(b)||b<=0)return null;if(isCrackDefect(d)){let band=Number(d.treatmentWidth)>0?Number(d.treatmentWidth):a;return Number.isFinite(band)&&band>0?band*b/1000000*count:null}if(!Number.isFinite(a)||a<=0)return null;return a*b/1000000*count}
+function effectiveQty(d){if(d.qtyManual===true){if(isCrackDefect(d)&&d.repairQtyBasis!=='㎡')return null;let v=d.repairQty;return v===''||v===null||v===undefined?null:Number(v)}return measuredQty(d)}
+function formatQty(v){return v===null||!Number.isFinite(v)?'':String(Math.round(v*1000000)/1000000)}
+function refresh(){let el=$('list');el.innerHTML='';currentDefects().forEach((d,i)=>{let b=document.createElement('button');b.className='item'+(d.id===selected?' active':'');b.innerHTML=`<span class="num">${i+1}</span><span>${escapeHtml(d.types.join(', ')||'미지정')} <small class="muted">${d.photos.length}장 ${d.line?'· 균열선':''}</small></span>`;b.onclick=()=>{selected=d.id;refresh();draw()};el.appendChild(b);let del=document.createElement('button');del.type='button';del.className='danger';del.textContent='삭제';del.title=(i+1)+'번 결함 삭제';del.style.cssText='margin-left:4px;padding:6px 9px;flex:none';del.onclick=()=>deleteDefect(d.id);el.appendChild(del)});$('count').textContent=currentDefects().length+'건 (현재 페이지)';let d=state.defects.find(x=>x.id===selected),ed=$('editor');if(!d){ed.innerHTML='<div class="muted">결함 번호를 선택하면 종류와 사진을 편집할 수 있습니다.</div>';return}let idx=pageNumber(d),crack=isCrackDefect(d);ed.innerHTML=`<div class="title">${circled(idx)} ${idx}번 결함 상세</div><label>결함 종류 (복수 선택 가능 · 구조체 우선 표시)</label><select id="typeSelect"><option value="">종류 추가 선택</option>${typeOptions(d)}</select><div id="chips" class="row" style="margin-top:7px"></div><div class="muted" style="font-size:11px;margin-top:5px">기존 결함은 원래 명칭을 보존합니다. 필요하면 기존 종류를 제거하고 새 분류를 선택하세요.</div><label>발생 위치</label><input id="location" placeholder="예: 복도 벽체, 기계실 기둥"><div style="margin-top:10px;padding:10px;background:#edf5fc;border-radius:8px"><b>결함 규격 · 모든 치수 mm</b><div class="muted" style="font-size:12px;margin:5px 0">${crack?'균열: 균열폭 × 길이(mm) 표기 / 별도 시공 폭 입력 시 보수면적 ㎡':'면적형: 가로 × 세로(mm) → 보수면적 ㎡'} · 개수(EA)는 동일 규격 반복 시 곱합니다.</div><label id="widthLabel">${crack?'균열폭 (mm)':'가로 / 폭 (mm)'}</label><input id="width" type="number" min="0" step="any" inputmode="decimal" placeholder="${crack?'예: 0.1':'예: 300'}"><label id="lengthLabel">${crack?'균열 길이 (mm)':'세로 / 길이 (mm)'}</label><input id="length" type="number" min="0" step="any" inputmode="decimal" placeholder="${crack?'예: 2000':'예: 300'}"><label>개수 (EA)</label><input id="countEA" type="number" min="1" step="1" inputmode="numeric" placeholder="미입력 시 1EA"><div class="muted" style="font-size:12px;margin-top:6px">철근노출 300 × 300mm, 3EA → 0.27㎡ · 수량은 실제 보수범위에 맞춰 수정 가능</div></div><div id="treatmentWidthWrap" style="margin-top:10px;padding:9px;border:1px solid var(--line);border-radius:9px"><label style="margin-top:0">면적 환산 폭(mm) · 균열폭 자동 연동</label><input id="treatmentWidth" type="number" min="0" step="any" inputmode="decimal" placeholder="균열폭을 입력하면 자동 입력"><div class="muted" style="font-size:11px;margin-top:5px">결함 규격의 균열폭을 기본 적용합니다. 실제 보수 시공 폭과는 다르므로 면적 및 공사비 확정 전 반드시 수정·검토하세요.</div></div><label>보수 수량 (㎡ 자동 계산 · 필요 시 수정)</label><div style="display:flex;gap:6px;align-items:center"><input id="repairQty" type="number" min="0" step="any" inputmode="decimal" placeholder="규격을 입력하면 자동 계산"><span id="qtyUnit" style="white-space:nowrap">${escapeHtml(repairFor(d).unit)}</span></div><div class="muted" id="qtyHelp" style="font-size:12px;margin-top:4px">자동 산정값은 실제 보수범위와 다를 수 있습니다.</div><button type="button" id="qtyReset" style="margin-top:5px">↻ 자동계산으로 되돌리기</button><label>점검 메모</label><textarea id="memo" rows="3"></textarea><label>결함 사진</label><label class="button" style="display:inline-block;margin:0">＋ 사진 추가<input id="photoFile" type="file" accept="image/*" capture="environment" multiple hidden></label><label class="button" style="display:inline-block;margin:0">앨범에서 선택<input id="photoGallery" type="file" accept="image/*" multiple hidden></label><div id="photos" class="photos"></div><button id="delete" class="danger" style="margin-top:12px;width:100%">이 결함 삭제 (번호 자동 정렬)</button>`;
+$('treatmentWidthWrap').style.display=crack?'block':'none';$('treatmentWidth').value=Number(d.treatmentWidth)>0?d.treatmentWidth:(d.width??'');$('treatmentWidth').oninput=e=>{d.treatmentWidth=e.target.value;d.qtyManual=false;d.repairQty='';persist();updateQtyUI();draw()};for(let key of ['location','width','length','memo']){$(key).value=d[key]??'';$(key).oninput=e=>{d[key]=e.target.value;persist();if(key==='width'||key==='length'){if(key==='width'&&isCrackDefect(d)&&!(Number(d.treatmentWidth)>0))$('treatmentWidth').value=d.width??'';updateQtyUI()}}}$('countEA').value=(d.count==null||String(d.count).trim()===''?1:d.count);$('countEA').oninput=e=>{const n=Number(e.target.value);d.count=e.target.value.trim()===''?1:(Number.isInteger(n)&&n>=1?n:1);persist();updateQtyUI()};$('countEA').onblur=e=>{if(e.target.value.trim()===''||Number(e.target.value)<1){e.target.value='1';d.count=1;persist();updateQtyUI()}};function updateQtyUI(){let v=effectiveQty(d),unit='㎡';$('qtyUnit').textContent=unit;$('repairQty').value=formatQty(v);$('qtyHelp').textContent=d.qtyManual?'직접 수정한 면적(㎡)을 사용 중입니다.':(isCrackDefect(d)&&!(Number(d.treatmentWidth)>0)?'균열폭으로 임시 환산한 면적입니다. 실제 시공 폭 확인 후 수정하세요.':'면적(㎡) 자동 계산값입니다. 실제 보수범위를 확인하세요.')}updateQtyUI();$('repairQty').oninput=e=>{d.qtyManual=true;d.repairQty=e.target.value;d.repairQtyBasis='㎡';persist();updateQtyUI()};$('qtyReset').onclick=()=>{d.qtyManual=false;d.repairQty='';d.repairQtyBasis='㎡';persist();updateQtyUI()};$('typeSelect').onchange=e=>{if(e.target.value&&!d.types.includes(e.target.value)){snapshot();d.types.push(e.target.value);persist();refresh()}};function chips(){let c=$('chips');c.innerHTML='';d.types.forEach(t=>{let b=document.createElement('button');b.textContent=albumTypeName(t)+' ×';b.onclick=()=>{snapshot();d.types=d.types.filter(x=>x!==t);persist();refresh()};c.appendChild(b)})}chips();function photos(){let c=$('photos');c.innerHTML='';d.photos.forEach((src,i)=>{let div=document.createElement('div');div.className='photo';let pic=document.createElement('img');pic.src=src;pic.onclick=()=>window.open(src,'_blank');let b=document.createElement('button');b.textContent='×';b.onclick=()=>{if(confirm('이 사진을 삭제할까요?')){snapshot();d.photos.splice(i,1);persist();refresh()}};div.append(pic,b);c.appendChild(div)})}photos();async function addPhotos(e){if(e.target.files.length)snapshot();for(let f of e.target.files){let data=await fileToData(f);d.photos.push(await compressed(data,1500))}persist();refresh()}$('photoFile').onchange=addPhotos;$('photoGallery').onchange=addPhotos;$('delete').onclick=()=>deleteDefect(d.id)}
+function deleteDefect(id){const d=state.defects.find(x=>x.id===id);if(!d)return;const n=pageNumber(d);if(!window.confirm(n+'번 결함을 삭제할까요? 삭제 후 번호가 자동으로 정렬됩니다.'))return;snapshot();state.defects=state.defects.filter(x=>x.id!==id);selected=null;persist();refresh();draw()}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function add(point,line){snapshot();let d={id:state.nextId++,pageId:state.activePage,point:clampPoint(point),line:line||null,types:line?['구조체 균열']:[],location:'',width:'',length:'',count:1,qtyManual:false,memo:'',photos:[]};state.defects.push(d);selected=d.id;persist();refresh();draw()}function setMode(m){mode=m;for(let [id,key] of [['pinBtn','pin'],['crackBtn','crack'],['moveBtn','move']])$(id).classList.toggle('active',m===key)}$('pinBtn').onclick=()=>setMode('pin');$('crackBtn').onclick=()=>setMode('crack');$('moveBtn').onclick=()=>setMode('move');canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);let p=coords(e);pointers.set(e.pointerId,p);if(pointers.size===2){let a=[...pointers.values()];pinch={dist:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),zoom,center:{x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2},world:world({x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2})};preview=null;drag=null;return}if(!img)return;let found=hit(p);if(found){selected=found.id;refresh();draw();drag={kind:'selected'};return}let labelHit=hitAnnotation(p);if(labelHit){let d=state.defects.find(x=>x.id===labelHit.id);if(d){selected=d.id;refresh();drag={kind:'label',id:d.id,grabX:p.x-labelHit.x,grabY:p.y-labelHit.baseline,start:p,moved:false};draw();return}}if(mode==='crack'){preview=[clampPoint(world(p))];drag={kind:'crack'}}else if(mode==='move'){drag={kind:'move',last:p}}else drag={kind:'pin',start:p}});canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;let p=coords(e);pointers.set(e.pointerId,p);if(pointers.size===2&&pinch){let a=[...pointers.values()],dist=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),mid={x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2};zoom=Math.max(.05,Math.min(15,pinch.zoom*dist/pinch.dist));pan={x:mid.x-pinch.world.x*zoom,y:mid.y-pinch.world.y*zoom};draw();return}if(!drag)return;if(drag.kind==='label'){let d=state.defects.find(x=>x.id===drag.id);if(d){if(!drag.moved&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)>3){snapshot();drag.moved=true}if(drag.moved){let mark=screen(d.point);d.labelOffset={x:(p.x-drag.grabX-mark.x)/zoom,y:(p.y-drag.grabY-mark.y)/zoom};draw()}}}else if(drag.kind==='crack'){let q=clampPoint(world(p));if(Math.hypot(q.x-preview[preview.length-1].x,q.y-preview[preview.length-1].y)>2/zoom)preview.push(q);draw()}else if(drag.kind==='move'){pan.x+=p.x-drag.last.x;pan.y+=p.y-drag.last.y;drag.last=p;draw()}});canvas.addEventListener('pointerup',e=>{let p=coords(e);pointers.delete(e.pointerId);if(pinch){if(pointers.size<2)pinch=null;drag=null;return}if(!img||!drag)return;if(drag.kind==='label'&&drag.moved){persist()}if(drag.kind==='pin'&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)<14){add(world(p),null)}if(drag.kind==='crack'&&preview&&preview.length>1){let pts=preview;add(pts[pts.length-1],pts)}preview=null;drag=null;draw()});canvas.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);drag=null;preview=null;pinch=null;draw()});function zoomAt(f){let c={x:board.clientWidth/2,y:board.clientHeight/2},w=world(c);zoom=Math.max(.05,Math.min(15,zoom*f));pan={x:c.x-w.x*zoom,y:c.y-w.y*zoom};draw()}$('zoomIn').onclick=()=>zoomAt(1.25);$('zoomOut').onclick=()=>zoomAt(.8);$('fit').onclick=fit;$('undo').onclick=()=>{if(!undoStack.length)return;state=undoStack.pop();updateUndo();selected=null;normalizeState();$('projectName').value=state.project||'';$('drawingName').value=state.drawingName||'';refreshPages();loadImage(state.pages[state.activePage]?.image||null);persist();refresh()};
+function fileToData(file){return new Promise((res,rej)=>{let r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}function compressed(src,max){return new Promise(resolve=>{let im=new Image();im.onload=()=>{let sc=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.82))};im.onerror=()=>resolve(src);im.src=src})}async function openPdf(data){try{if(!window.pdfjsLib){let script=document.createElement('script');script.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';await new Promise((res,rej)=>{script.onload=res;script.onerror=rej;document.head.appendChild(script)})}pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';let raw=atob(data.split(',')[1]),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);let pdf=await pdfjsLib.getDocument({data:bytes}).promise;let pages=[];for(let n=1;n<=pdf.numPages;n++){$('status').textContent=`PDF 변환 중 ${n}/${pdf.numPages}`;await new Promise(r=>setTimeout(r,0));let page=await pdf.getPage(n),v=page.getViewport({scale:1.6}),c=document.createElement('canvas');let factor=Math.min(1,2200/Math.max(v.width,v.height));v=page.getViewport({scale:1.6*factor});c.width=Math.round(v.width);c.height=Math.round(v.height);await page.render({canvasContext:c.getContext('2d'),viewport:v}).promise;pages.push({name:`${n}페이지`,image:c.toDataURL('image/jpeg',.78)})}return pages}catch(e){alert('PDF를 열 수 없습니다. 인터넷 연결을 확인하거나 PDF를 이미지로 변환해 주세요.\n'+e.message);return null}}$('drawingFile').onchange=async e=>{const files=Array.from(e.target.files||[]);if(!files.length)return;const startCount=state.pages.length;let added=[];try{for(let k=0;k<files.length;k++){const f=files[k];$('status').textContent=`파일 추가 중 ${k+1}/${files.length}: ${f.name}`;const data=await fileToData(f);let pages;if(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf'))pages=await openPdf(data);else pages=[{name:f.name,image:await compressed(data,2500)}];if(!pages)continue;pages.forEach((p,i)=>added.push({...p,name:pages.length>1?`${f.name} · ${i+1}페이지`:p.name,sourceFile:f.name}));}if(!added.length){$('status').textContent='추가된 도면 없음';return;}snapshot();state.pages.push(...added);state.activePage=startCount;selected=null;refreshPages();loadImage(state.pages[state.activePage].image);refresh();persist();$('status').textContent=`${added.length}개 도면 추가됨 · 전체 ${state.pages.length}개`; }catch(err){alert('도면 추가 중 오류: '+err.message);$('status').textContent='도면 추가 오류';}finally{e.target.value='';}};$('projectName').oninput=e=>{state.project=e.target.value;let p=siteList.find(p=>p.id===siteId);if(p)p.name=state.project||'이름 없는 현장';refreshSiteList();persist()};$('drawingName').oninput=e=>{state.drawingName=e.target.value;persist()};function download(blob,name){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}function basename(){return (state.project||'현장점검').replace(/[\\/:*?"<>|]/g,'_')}$('export').onclick=()=>download(new Blob([JSON.stringify({...state,version:1,exportedAt:new Date().toISOString()})],{type:'application/json'}),basename()+'_점검자료.json');$('import').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let o=JSON.parse(await f.text());if(!Array.isArray(o.defects)||typeof o.nextId!=='number')throw Error();if(!confirm('불러온 자료를 새 현장으로 추가할까요? 기존 현장 자료는 유지됩니다.'))return;await flushSave();siteId=uid();clearUndo();state={project:o.project||'',drawingName:o.drawingName||'',image:o.image||null,pages:o.pages||[],activePage:o.activePage||0,defects:o.defects,nextId:o.nextId,albumPhotos:o.albumPhotos||{outside:[],inside:[]}};normalizeState();refreshPages();selected=null;$('projectName').value=state.project;$('drawingName').value=state.drawingName;normalizeState();refreshPages();loadImage(state.pages[state.activePage]?.image||null);await saveNow();await syncSiteList();refresh();renderFrontPhotoWorkspace();e.target.value=''}catch(err){alert('프로젝트 파일 형식이 올바르지 않습니다.')}};$('png').onclick=()=>{if(!img)return alert('도면을 먼저 열어주세요');let c=document.createElement('canvas');c.width=img.width;c.height=img.height;let g=c.getContext('2d');g.drawImage(img,0,0);currentDefects().forEach((d,i)=>{if(d.line){g.beginPath();d.line.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.strokeStyle='#e02936';g.lineWidth=Math.max(2,img.width/900);g.stroke()}let r=Math.max(6,img.width/250),p=d.point;g.beginPath();g.arc(p.x,p.y,r,0,Math.PI*2);g.fillStyle=annotationColor(d);g.fill();g.strokeStyle='white';g.lineWidth=1.5;g.stroke();g.fillStyle='white';g.textAlign='center';g.textBaseline='middle';g.font=`bold ${Math.max(8,r*1.1)}px Dotum, sans-serif`;g.fillText(i+1,p.x,p.y);/* 라벨은 번호를 모두 그린 뒤 별도 배치 */});if(showDefectLabels){const taken=[],markers=currentDefects().map(d=>d.point);currentDefects().forEach(d=>drawLabel(g,d.point,d,{width:c.width,height:c.height},Math.max(12,img.width/1100*12),1,taken,markers))}c.toBlob(b=>download(b,basename()+'_'+(state.pages[state.activePage]?.name||'도면')+'_외관조사망도.png'))};$('csv').onclick=()=>{let rows=[['도면/층','번호','결함종류','발생위치','균열폭(mm)','길이/범위','메모','사진수','X좌표','Y좌표'],...state.defects.map(d=>[state.pages[d.pageId]?.name||'도면',state.defects.filter(x=>x.pageId===d.pageId).findIndex(x=>x.id===d.id)+1,d.types.join('/'),d.location,d.width,d.length,d.memo,d.photos.length,Math.round(d.point.x),Math.round(d.point.y)])];let text='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download(new Blob([text],{type:'text/csv;charset=utf-8'}),basename()+'_결함현황표.csv')};$('print').onclick=()=>window.print();
+// Cost-estimation reference rates from uploaded example (천원/unit), not a current price book.
+const REPAIR_RULES={
+'균열':{method:'표면처리',unit:'m',rate:0,priority:3,group:'구조체'},
+'망상균열':{method:'표면처리',unit:'㎡',rate:0,priority:3,group:'구조체'},
+'누수흔적':{method:'표면처리',unit:'㎡',rate:0,priority:3,group:'구조체'},
+'누수':{method:'습식 주입공법',unit:'㎡',rate:0,priority:2,group:'구조체'},
+'백태(백화)':{method:'표면처리',unit:'㎡',rate:0,priority:3,group:'구조체'},
+'철근노출':{method:'방청 후 단면복구',unit:'㎡',rate:0,priority:1,group:'구조체'},
+'콘크리트 박리':{method:'단면복구',unit:'㎡',rate:0,priority:1,group:'구조체'},
+'콘크리트 박락':{method:'단면복구',unit:'㎡',rate:0,priority:1,group:'구조체'},
+'재료분리':{method:'단면복구',unit:'㎡',rate:0,priority:1,group:'구조체'},
+'마감재 박락':{method:'재시공 및 유지관리',unit:'㎡',rate:0,priority:3,group:'비구조체'},
+'마감재 박리':{method:'재시공 및 유지관리',unit:'㎡',rate:0,priority:3,group:'비구조체'},
+'마감재 탈락':{method:'재시공 및 유지관리',unit:'㎡',rate:0,priority:3,group:'비구조체'},
+'마감재 들뜸':{method:'재시공 및 유지관리',unit:'㎡',rate:0,priority:3,group:'비구조체'},
+'표면손상':{method:'단면복구',unit:'㎡',rate:0,priority:3,group:'구조체'},
+'파손':{method:'단면복구',unit:'㎡',rate:0,priority:3,group:'구조체'},
+'부식':{method:'방청 후 단면복구',unit:'㎡',rate:0,priority:1,group:'구조체'},
+'구조체 균열':{method:'표면처리',unit:'m',rate:0,priority:3,group:'구조체'},
+'구조체 망상균열':{method:'표면처리',unit:'㎡',rate:0,priority:3,group:'구조체'},
+'구조체 누수흔적':{method:'표면처리',unit:'㎡',rate:0,priority:3,group:'구조체'},
+'구조체 누수':{method:'습식 주입공법',unit:'㎡',rate:0,priority:2,group:'구조체'},
+'구조체 백태(백화)':{method:'표면처리',unit:'㎡',rate:0,priority:3,group:'구조체'},
+'콘크리트 손상(박리·박락·파손)':{method:'단면복구',unit:'㎡',rate:0,priority:1,group:'구조체'},
+'콘크리트 재료분리':{method:'단면복구',unit:'㎡',rate:0,priority:1,group:'구조체'},
+'구조체 천공':{method:'현장 확인 후 지정',unit:'개소',rate:0,priority:2,group:'구조체'},
+'구조체 부식':{method:'방청 후 단면복구',unit:'㎡',rate:0,priority:1,group:'구조체'},
+'구조체 변형·처짐':{method:'정밀검토 후 지정',unit:'개소',rate:0,priority:1,group:'구조체'},
+'구조체 침하·변위':{method:'정밀검토 후 지정',unit:'개소',rate:0,priority:1,group:'구조체'},
+'구조체 기타 손상':{method:'현장 확인 후 지정',unit:'개소',rate:0,priority:2,group:'구조체'},
+'비구조체 균열':{method:'표면처리',unit:'m',rate:0,priority:3,group:'비구조체'},
+'마감재 손상(박리·박락·들뜸·탈락)':{method:'재시공 및 유지관리',unit:'㎡',rate:0,priority:3,group:'비구조체'},
+'비구조체 누수흔적':{method:'원인 확인 후 지정',unit:'㎡',rate:0,priority:3,group:'비구조체'},
+'비구조체 백태(백화)':{method:'표면처리',unit:'㎡',rate:0,priority:3,group:'비구조체'},
+'비구조체 천공':{method:'현장 확인 후 지정',unit:'개소',rate:0,priority:3,group:'비구조체'},
+'비구조체 표면손상·파손':{method:'재시공 및 유지관리',unit:'㎡',rate:0,priority:3,group:'비구조체'},
+'줄눈 손상':{method:'줄눈 보수',unit:'m',rate:0,priority:3,group:'비구조체'},
+'비구조체 변형·처짐':{method:'현장 확인 후 지정',unit:'개소',rate:0,priority:3,group:'비구조체'},
+'비구조체 부식':{method:'현장 확인 후 지정',unit:'㎡',rate:0,priority:3,group:'비구조체'},
+'비구조체 기타 손상':{method:'현장 확인 후 지정',unit:'개소',rate:0,priority:3,group:'비구조체'}
+};
+// 2026년 표준품셈 유지관리부문 1-3 기준 * 2026 하반기 대한건설협회 공표 일 노임.
+// 주의: 이 값은 검증 가능한 노무비에 한정하며 재료비·장비·부가세·방청작업 등 미포함.
+// 출처: https://kine.or.kr/bbs/board.php?bo_table=law&wr_id=140
+//       https://info.cak.or.kr/lay1/bbs/S1T9C12/A/2/view.do?article_seq=160600
+const WAGE_2026_H2={normal:172698,special:228717,plaster:279102};
+const LABOR_2026={
+ surfaceCrack:(WAGE_2026_H2.plaster/110)/1000, // 천원/m, 품셈 1-3-1
+ injectCrack:(WAGE_2026_H2.special*2+WAGE_2026_H2.normal)/28/1000, // 천원/m, 1-3-2
+ concreteFinish:(WAGE_2026_H2.special*3+WAGE_2026_H2.normal)/81/1000, // 천원/㎡, 1-3-5
+ concreteRepair:(WAGE_2026_H2.special*3+WAGE_2026_H2.normal)/9/1000 // 천원/㎡, 1-3-6
+};
+function laborRateFor(d,r){const type=(d.types||[])[0]||'';let val=null,source='',caveat='';
+ if(type==='구조체 균열'||type==='균열'){const band=Number(d.treatmentWidth);if(!(band>0))return {rate:null,source:'균열폭 자동환산은 실제 보수 폭이 아니므로, 시공 폭을 확인·수정한 경우에만 ㎡당 노무비 환산 가능'};const injection=Number(d.width)>=.3;val=(injection?LABOR_2026.injectCrack:LABOR_2026.surfaceCrack)/(band/1000);source=`2026 품셈 1-3-${injection?'2 (주입)':'1 (표면처리)'} · ${injection?'22.505':'2.537'} 천원/m를 시공폭 ${band}mm로 ㎡ 환산`;}
+ else if(['콘크리트 손상(박리·박락·파손)','콘크리트 박락','콘크리트 박리','콘크리트 재료분리','재료분리','철근노출'].includes(type)){return {rate:null,source:'단면복구 깊이·철근 방청·보수재·현장조건 미확정: 완성 단가 자동입력 보류 (2026 품셈 해당 공종 확인 필요)'}}
+ else if(['구조체 누수흔적','누수흔적','구조체 백태(백화)','백태(백화)'].includes(type)){return {rate:null,source:'누수·백태는 원인 및 보수공법 확인 전에는 표면처리 품셈을 자동 적용하지 않습니다.'}}
+ else return {rate:null,source:'2026 공식 품셈 공종과 시공 조건의 직접 대응 미확인 · 직접 단가 입력 필요'};
+ return {rate:val,source:source+(caveat?' / '+caveat:'')+' · 노무비만'}
+}
+const fmtCost=n=>Number(n||0).toLocaleString('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1});
+function ruleFor(d){let type=(d.types||[])[0]||'기타',r={...(REPAIR_RULES[type]||{method:'직접 지정',unit:'㎡',rate:null,priority:3,group:'미분류'})};let width=parseFloat(d.width);if((type==='균열'||type==='구조체 균열')&&Number.isFinite(width)&&width>=.3){r.method='주입공법';r.priority=2}if((type==='누수흔적'||type==='구조체 누수흔적')&&/습윤/.test(d.memo||'')){r.method='습식 주입공법';r.priority=2}
+ const labor=laborRateFor(d,r);r.rate=labor.rate;r.source=labor.source;r.unit='㎡';return r}
+function repairFor(d){const base=ruleFor(d),saved=d.repair||{};return {...base,...saved,unit:'㎡',source:(saved.rate!==undefined?'사용자 지정 단가 (자동 노무비 기준값과 다를 수 있음)':'')+base.source}}
+function safeAttr(v){return escapeHtml(String(v??''))}
+function repairRows(){return state.defects.map((d,i)=>({d,i,n:state.defects.filter(x=>x.pageId===d.pageId).findIndex(x=>x.id===d.id)+1,rule:repairFor(d),page:state.pages[d.pageId]?.name||'도면'}))}
+function setRepair(id,key,value){let d=state.defects.find(x=>String(x.id)===String(id));if(!d)return;d.repair||={};if(key==='rate'){if(value==='')delete d.repair.rate;else d.repair.rate=Math.max(0,Number(value)||0)}else if(key==='priority'){d.repair.priority=Number(value)}else d.repair[key]=value;persist();renderRepair()}
+function setQty(id,value){let d=state.defects.find(x=>String(x.id)===String(id));if(!d)return;d.repairQty=value;d.qtyManual=true;d.repairQtyBasis='㎡';persist();renderRepair()}
+function renderRepair(){let rows=repairRows(),q=$('repairQtyRows'),c=$('repairCostRows');q.innerHTML='';c.innerHTML='';let net=0,priorities=[0,0,0],missing=0,unpriced=0,priced=0;
+ for(let {d,n,rule:r,page} of rows){let type=(d.types||[]).join('/')||'미지정',qty=effectiveQty(d),valid=qty!==null&&Number.isFinite(qty)&&qty>=0;const rateOk=r.rate!==null&&r.rate!==''&&r.rate!==undefined&&Number.isFinite(Number(r.rate));if(!valid)missing++;if(!rateOk)unpriced++;const canPrice=valid&&rateOk,amount=canPrice?qty*Number(r.rate):null;if(canPrice){net+=amount;priced++;priorities[Math.max(0,Math.min(2,(Number(r.priority)||3)-1))]+=amount}
+ let tr=document.createElement('tr');tr.innerHTML=`<td>${safeAttr(page)} ${n}번</td><td>${safeAttr(type)}<br><small>${safeAttr(defectSpecText(d)||'—')}</small></td><td><select data-id="${d.id}" data-key="group">${['구조체','비구조체','미분류'].map(x=>`<option ${x===r.group?'selected':''}>${x}</option>`).join('')}</select></td><td><input data-id="${d.id}" data-key="method" value="${safeAttr(r.method)}"></td><td><input type="number" min="0" step="0.0001" data-id="${d.id}" data-key="qty" value="${valid?qty:''}" placeholder="㎡ 면적 입력"></td><td>㎡</td><td><select data-id="${d.id}" data-key="priority">${[1,2,3].map(x=>`<option value="${x}" ${x===Number(r.priority)?'selected':''}>${x}순위</option>`).join('')}</select></td>`;q.appendChild(tr);
+ let tc=document.createElement('tr');tc.innerHTML=`<td>${safeAttr(page)} ${n}번</td><td>${safeAttr(type)}</td><td>${safeAttr(r.method)}</td><td class="${valid?'':'warning'}">${valid?fmtCost(qty):'미입력'}</td><td>㎡</td><td><input type="number" min="0" step="0.001" data-id="${d.id}" data-key="rate" value="${rateOk?Number(r.rate).toFixed(3):''}" placeholder="단가 미검증"></td><td><small title="${safeAttr(r.source)}">${safeAttr(r.source)}</small></td><td>${canPrice?fmtCost(amount):'미산정'}</td><td>${r.priority}순위</td>`;c.appendChild(tc)}
+ let overhead=Number($('overhead').value)||0,mul=1+overhead/100,total=net*mul;$('repairSummary').innerHTML=`<div>산정 가능 항목 노무비/입력 단가 소계<br><b>${fmtCost(net)} 천원</b></div><div>입력 제경비 가정 (${overhead}%)<br><b>${fmtCost(net*overhead/100)} 천원</b></div>${priorities.map((v,i)=>`<div>${i+1}순위 산정 항목 합계<br><b>${fmtCost(v*mul)} 천원</b></div>`).join('')}<div>산정 가능 항목 참고합계<br><b>${fmtCost(total)} 천원</b></div><div class="repair-unpriced">수량 확인 필요 ${missing}건 · 단가 확인 필요 ${unpriced}건 · 산정 완료 ${priced}/${rows.length}건<br><b>※ 전체 공사비가 아닌 부분산정 참고액입니다.</b></div>`;
+ for(let table of [q,c]){table.querySelectorAll('input,select').forEach(el=>{el.onchange=()=>{let id=el.dataset.id,k=el.dataset.key;if(k==='qty')setQty(id,el.value);else setRepair(id,k,el.value)}})}
+}
+$('repairReport').onclick=()=>{$('repairModal').classList.add('open');$('overhead').value=state.overhead??60;renderRepair()};$('repairClose').onclick=()=>$('repairModal').classList.remove('open');$('overhead').onchange=e=>{state.overhead=Math.max(0,Number(e.target.value)||0);persist();renderRepair()};
+$('repairModal').addEventListener('click',e=>{if(e.target===$('repairModal'))$('repairModal').classList.remove('open')});
+$('repairPrint').onclick=()=>{document.body.classList.add('repairPrinting');window.print();setTimeout(()=>document.body.classList.remove('repairPrinting'),1500)};window.addEventListener('afterprint',()=>document.body.classList.remove('repairPrinting'));
+$('repairCsv').onclick=()=>{let rows=[['도면/층','결함번호','손상명','구분','적용공법','보수물량(㎡)','단위','단가(천원/㎡)','부분산정(천원)','우선순위','단가 산정 근거']];let net=0,priority=[0,0,0];for(let {d,n,page,rule:r} of repairRows()){let qty=effectiveQty(d),rateOk=r.rate!==null&&r.rate!==''&&r.rate!==undefined&&Number.isFinite(Number(r.rate)),amount=qty!==null&&rateOk?qty*Number(r.rate):'';if(amount!==''){net+=amount;priority[Math.max(0,Math.min(2,Number(r.priority)-1))]+=amount}rows.push([page,n,(d.types||[]).join('/'),r.group,r.method,qty===null?'':qty,'㎡',rateOk?r.rate:'',amount,r.priority+'순위',r.source])}let o=Number($('overhead').value)||0;rows.push([],['산정 항목 소계(천원)',net],['가정 제경비('+o+'%)(천원)',net*o/100],...[0,1,2].map(i=>[(i+1)+'순위 참고액(천원)',priority[i]*(1+o/100)]),['산정 가능 항목 참고합계(천원)',net*(1+o/100)],['주의','자동 단가는 2026년 기준 노무비만, 미확인 재료비·장비비·부가세 등 미포함. 최종공사비로 사용 금지.']);let csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download(new Blob([csv],{type:'text/csv;charset=utf-8'}),basename()+'_보수물량_개략공사비.csv')};
+
+async function init(){try{db=await dbOpen();let all=await getSites();if(!all.length){let old=localStorage.getItem('inspection-v1');if(old){try{let o=JSON.parse(old);if(Array.isArray(o.defects)){siteId=uid();state=o;normalizeState();await saveNow()}}catch(e){console.warn(e)}}if(!siteId){siteId=uid();state=blankState();await saveNow()}all=await getSites()}let first=all.sort((a,b)=>b.updated-a.updated)[0];siteId=first.id;state=first.data;normalizeState();$('projectName').value=state.project||'';$('drawingName').value=state.drawingName||'';await syncSiteList();refreshPages();loadImage(state.pages[state.activePage]?.image||null);refresh();renderFrontPhotoWorkspace();$('status').textContent='현장 자동 저장 준비'}catch(e){console.error(e);$('status').textContent='저장소 사용 불가 — JSON으로 백업하세요';alert('브라우저 저장소를 사용할 수 없습니다. 일반 Safari/Chrome에서 실행해 주세요.')}window.addEventListener('resize',resize);resize();refreshPages();refresh();updateUndo()}init();if("serviceWorker" in navigator && location.protocol.startsWith("http")){navigator.serviceWorker.register("/sw.js?v=26",{scope:"/"}).catch(console.warn)}
+
+/* 현장 스케치: 편집 원본(획 데이터)과 결함 표시용 이미지 분리 */
+const SKW=1600,SKH=1100,skCanvas=$('sketchCanvas'),skCtx=skCanvas.getContext('2d');
+let skMode='pen',skStrokes=[],skCurrent=null,skEditPage=-1,skPointer=null,skColor='#26394a',skHoldTimer=null,skLastMove=0;
+const skColors=['#26394a','#e23b3b','#2563eb','#13835d','#e8a008','#8b5cf6','#f97316','#ffffff'];
+$('sketchPalette').innerHTML=skColors.map(c=>`<button type="button" data-skcolor="${c}" title="${c==='#ffffff'?'흰색':c}" style="background:${c}"></button>`).join('');
+function skPaletteRefresh(){document.querySelectorAll('[data-skcolor]').forEach(b=>{b.classList.toggle('chosen',b.dataset.skcolor===skColor);b.setAttribute('aria-pressed',String(b.dataset.skcolor===skColor))})}
+document.querySelectorAll('[data-skcolor]').forEach(b=>b.onclick=()=>{skColor=b.dataset.skcolor;skPaletteRefresh()});skPaletteRefresh();
+function skPaint(){skCtx.fillStyle='#fff';skCtx.fillRect(0,0,SKW,SKH);skCtx.lineCap='round';skCtx.lineJoin='round';for(const a of [...skStrokes,...(skCurrent?[skCurrent]:[])]){if(!a.points?.length)continue;skCtx.lineWidth=a.width;skCtx.strokeStyle=a.tool==='erase'?'#fff':(a.color||'#26394a');skCtx.beginPath();let p=a.points[0];if(a.tool==='rect'&&a.points.length>1){let q=a.points[a.points.length-1];skCtx.strokeRect(p.x,p.y,q.x-p.x,q.y-p.y);continue}skCtx.moveTo(p.x,p.y);if((a.tool==='line'||a.straight)&&a.points.length>1){let q=a.points[a.points.length-1];skCtx.lineTo(q.x,q.y)}else{for(const q of a.points.slice(1))skCtx.lineTo(q.x,q.y);if(a.points.length===1)skCtx.lineTo(p.x+.01,p.y+.01)}skCtx.stroke()}}
+function skCoords(e){const r=skCanvas.getBoundingClientRect();return{x:Math.max(0,Math.min(SKW,(e.clientX-r.left)*SKW/r.width)),y:Math.max(0,Math.min(SKH,(e.clientY-r.top)*SKH/r.height))}}
+function skClearHold(){if(skHoldTimer!==null){clearTimeout(skHoldTimer);skHoldTimer=null}}
+function skArmHold(){skClearHold();if(!skCurrent||skCurrent.tool!=='pen'||skCurrent.straight||skCurrent.points.length<2)return;const target=skCurrent;skHoldTimer=setTimeout(()=>{skHoldTimer=null;if(skCurrent!==target||skPointer===null||skCurrent.points.length<2)return;const start=skCurrent.points[0],end=skCurrent.points[skCurrent.points.length-1];if(Math.hypot(end.x-start.x,end.y-start.y)<12)return;skCurrent.straight=true;skCurrent.points=[start,end];skPaint()},600)}
+function openSketch(edit){skClearHold();if(edit){let p=state.pages[state.activePage];if(!p||!p.sketch){alert('현재 도면은 스케치 도면이 아닙니다. 스케치 도면을 선택해 주세요.');return}skEditPage=state.activePage;skStrokes=structuredClone(p.sketch.strokes||[])}else{skEditPage=-1;skStrokes=[]}skCurrent=null;skPointer=null;skPaint();$('sketchModal').classList.add('open')}
+$('newSketch').onclick=()=>openSketch(false);$('editSketch').onclick=()=>openSketch(true);$('sketchClose').onclick=()=>{skClearHold();$('sketchModal').classList.remove('open')};
+document.querySelectorAll('[data-sktool]').forEach(b=>b.onclick=()=>{skMode=b.dataset.sktool;document.querySelectorAll('[data-sktool]').forEach(x=>x.classList.toggle('active',x===b))});
+skCanvas.addEventListener('pointerdown',e=>{if(skPointer!==null)return;e.preventDefault();skCanvas.setPointerCapture(e.pointerId);skPointer=e.pointerId;let p=skCoords(e);skCurrent={tool:skMode,color:skColor,width:skMode==='erase'?Math.max(22,Number($('sketchWidth').value)*6):Math.max(1,Number($('sketchWidth').value)||3),points:[p]};skPaint()});
+skCanvas.addEventListener('pointermove',e=>{if(skPointer!==e.pointerId||!skCurrent)return;e.preventDefault();let p=skCoords(e);const last=skCurrent.points[skCurrent.points.length-1];if(Math.hypot(p.x-last.x,p.y-last.y)<2)return;if(skMode==='line'||skMode==='rect'||skCurrent.straight)skCurrent.points=[skCurrent.points[0],p];else skCurrent.points.push(p);skPaint();if(skMode==='pen'&&!skCurrent.straight)skArmHold()});
+function skEnd(e){if(skPointer!==e.pointerId)return;skClearHold();skPointer=null;if(skCurrent){skStrokes.push(skCurrent);skCurrent=null;skPaint()}}skCanvas.addEventListener('pointerup',skEnd);skCanvas.addEventListener('pointercancel',skEnd);
+$('sketchUndo').onclick=()=>{skStrokes.pop();skPaint()};$('sketchClear').onclick=()=>{if(confirm('스케치의 모든 선을 지울까요?')){skStrokes=[];skPaint()}};
+$('sketchSave').onclick=()=>{if(skEditPage===-1&&state.pages.length&&!confirm('새 스케치 도면을 현재 현장에 추가할까요? 기존 도면과 결함은 유지됩니다.'))return;snapshot();skPaint();let image=skCanvas.toDataURL('image/png');let sketch={strokes:structuredClone(skStrokes),width:SKW,height:SKH};if(skEditPage>=0){state.pages[skEditPage].image=image;state.pages[skEditPage].sketch=sketch;state.activePage=skEditPage}else{let name=prompt('새 스케치 도면 이름을 입력하세요.','현장 스케치 '+(state.pages.length+1))||('현장 스케치 '+(state.pages.length+1));state.pages.push({name,image,sketch});state.activePage=state.pages.length-1}selected=null;refreshPages();loadImage(image);refresh();persist();$('sketchModal').classList.remove('open');$('status').textContent='스케치 도면 저장됨'};
+function sketchButtonState(){let p=state.pages[state.activePage];$('editSketch').disabled=!(p&&p.sketch)}
+const oldRefreshPages=refreshPages;refreshPages=function(){oldRefreshPages();sketchButtonState()};
+
+// 외관조사 사진첩: 현장별 외부·내부 전경 및 결함 사진 자동 배치
+const ALBUM_OUT=['정면 전경','좌측면 전경','배면 전경'];
+const ALBUM_IN=['지상층 복도 전경','지상층 계단실 전경','옥탑층 옥상 전경','옥탑층 기계실 전경','지하층 전경','기타 내부 전경'];
+function albumSlot(kind,i){const a=state.albumPhotos[kind]||[];return a[i]||{label:(kind==='outside'?ALBUM_OUT:ALBUM_IN)[i],image:''}}
+// 메인 화면 전경사진 공간: 결함 사진과 분리해 현장별 albumPhotos에 보관합니다.
+function renderFrontPhotoWorkspace(){
+ normalizeState();
+ for(const [kind,labels,targetId,countId] of [
+  ['outside',ALBUM_OUT,'frontOutside','frontOutsideCount'],
+  ['inside',ALBUM_IN,'frontInside','frontInsideCount']
+ ]){
+  const root=$(targetId);if(!root)continue;
+  root.replaceChildren();
+  let registered=0;
+  labels.forEach((defaultLabel,i)=>{
+   const slot=albumSlot(kind,i);if(slot.image)registered++;
+   const card=document.createElement('div');card.className='front-photo-card';
+   const slotName=document.createElement('div');slotName.className='front-slot-name';slotName.textContent=`${i+1}번 · ${kind==='outside'?'외부':'내부'} 전경`;
+   const preview=document.createElement('div');preview.className='front-photo-preview';
+   if(slot.image){const image=document.createElement('img');image.src=slot.image;image.alt=slot.label||defaultLabel;image.loading='lazy';preview.appendChild(image)}
+   else preview.textContent='사진을 촬영하거나 업로드하세요';
+   const title=document.createElement('label');title.className='front-label';title.textContent='사진 설명 / 층·위치';
+   const name=document.createElement('input');name.type='text';name.value=slot.label??defaultLabel;name.placeholder=defaultLabel;name.setAttribute('aria-label',`${kind==='outside'?'외부':'내부'} ${i+1}번 전경 설명`);
+   name.addEventListener('change',()=>{
+    while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});
+    state.albumPhotos[kind][i]={...state.albumPhotos[kind][i],label:name.value.trim()||defaultLabel};persist();
+    if($('albumModal').style.display==='block')albumEditor(kind);
+   });
+   title.appendChild(name);
+   const actions=document.createElement('div');actions.className='front-photo-actions';
+   function photoInput(text,capture){
+    const control=document.createElement('label');control.textContent=text;
+    const file=document.createElement('input');file.type='file';file.accept='image/*';
+    if(capture)file.setAttribute('capture','environment');
+    file.setAttribute('aria-label',`${name.value} ${text}`);
+    file.addEventListener('change',async()=>{
+     const chosen=file.files?.[0];if(!chosen)return;
+     const label=name.value.trim()||defaultLabel;
+     control.style.opacity='.5';
+     try{
+      const image=await compressed(await fileToData(chosen),1600);
+      while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});
+      state.albumPhotos[kind][i]={...state.albumPhotos[kind][i],label,image};
+      persist();renderFrontPhotoWorkspace();
+      if($('albumModal').style.display==='block')albumEditor(kind);
+     }catch(e){alert('사진을 등록하지 못했습니다: '+e.message);control.style.opacity='1'}
+    });
+    control.appendChild(file);return control;
+   }
+   actions.append(photoInput('📷 촬영',true),photoInput('사진 선택',false));
+   const remove=document.createElement('button');remove.type='button';remove.textContent='삭제';remove.disabled=!slot.image;
+   remove.addEventListener('click',()=>{
+    if(!confirm('이 전경사진을 삭제할까요?'))return;
+    state.albumPhotos[kind][i]={label:name.value.trim()||defaultLabel,image:''};
+    persist();renderFrontPhotoWorkspace();
+    if($('albumModal').style.display==='block')albumEditor(kind);
+   });
+   actions.appendChild(remove);card.append(slotName,preview,title,actions);root.appendChild(card);
+  });
+  $(countId).textContent=`${registered} / ${labels.length}장`;
+ }
+ const uploaded=ALBUM_OUT.filter((_,i)=>!!albumSlot('outside',i).image).length+ALBUM_IN.filter((_,i)=>!!albumSlot('inside',i).image).length;
+ $('frontPhotoJump').textContent=`📷 전경사진 등록 (${uploaded}/9)`;
+}
+$('frontPhotoJump').onclick=()=>{$('frontPhotoWorkspace').scrollIntoView({behavior:'smooth',block:'start'})};
+
+function albumEditor(kind){const root=$(kind==='outside'?'albumOutside':'albumInside');const labels=kind==='outside'?ALBUM_OUT:ALBUM_IN;root.innerHTML='';labels.forEach((label,i)=>{const slot=albumSlot(kind,i);let div=document.createElement('div');div.style.cssText='display:grid;grid-template-columns:1fr 1.5fr auto;gap:8px;align-items:center;margin:7px 0';let input=document.createElement('input');input.value=slot.label||label;input.setAttribute('aria-label','사진 이름');input.onchange=()=>{while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});state.albumPhotos[kind][i]={...state.albumPhotos[kind][i],label:input.value};persist();renderFrontPhotoWorkspace()};let file=document.createElement('input');file.type='file';file.accept='image/*';file.setAttribute('aria-label',label+' 사진 선택');file.onchange=async()=>{if(!file.files[0])return;let data=await compressed(await fileToData(file.files[0]),1600);while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});state.albumPhotos[kind][i]={label:input.value,image:data};persist();albumEditor(kind);renderFrontPhotoWorkspace()};let del=document.createElement('button');del.textContent=slot.image?'사진 삭제':'미등록';del.disabled=!slot.image;del.onclick=()=>{state.albumPhotos[kind][i]={label:input.value,image:''};persist();albumEditor(kind);renderFrontPhotoWorkspace()};div.append(input,file,del);if(slot.image){let preview=document.createElement('img');preview.src=slot.image;preview.style.cssText='width:95px;height:60px;object-fit:cover';div.append(preview)}root.append(div)})}
+
+$('albumClose').onclick=()=>$('albumModal').style.display='none';
+function albumFloor(name){name=String(name||'').replace(/\s/g,'');let m=name.match(/(?:지하|B)(\d+)/i);if(m)return -Number(m[1]);m=name.match(/(?:지상|지상층|)(\d+)층/);if(m)return Number(m[1]);if(/옥탑|옥상|ROOF/i.test(name))return 1000;return 500}
+function albumTypeName(t){return String(t||'미지정').replace(/^구조체\s*/,'').replace(/^비구조체\s*/,'')}
+function albumSpec(d){return defectSpecText(d)}
+function albumCard(src,number,caption){return `<div class="photoCard"><div class="photoImg">${src?`<img src="${src}" alt="사진 ${number}">`:''}</div><div class="photoFoot"><div class="photoNum">사진${number}</div><div class="photoDesc">${escapeHtml(caption||'')}</div></div></div>`}
+function albumPage(title,cards,first=false){return `<section class="albumPage"><h2>${escapeHtml(title)}</h2><div class="photoGrid">${cards.join('')}</div></section>`}
+$('albumPrint').onclick=()=>{
+ normalizeState();let outside=ALBUM_OUT.map((x,i)=>albumSlot('outside',i)),inside=ALBUM_IN.map((x,i)=>albumSlot('inside',i));
+ let defects=state.defects.map((d,i)=>({d,order:i,page:state.pages[d.pageId]?.name||''})).filter(x=>(x.d.photos||[]).length).sort((a,b)=>albumFloor(a.page)-albumFloor(b.page)||a.order-b.order);
+ let cards=[],n=0;for(const {d,page} of defects){for(const src of d.photos){n++;let desc=[page,d.location||'',(d.types||[]).map(albumTypeName).join(' 및 '),albumSpec(d)].filter(Boolean).join(' ');cards.push(albumCard(src,n,desc))}}
+ let pages=[`<section class="albumPage"><h2>시설물의 위치도</h2><div class="mapBlank"></div></section>`,albumPage('시설물의 전경사진',outside.map((v,i)=>albumCard(v.image,i+1,v.label))),albumPage('시설물의 부위별 사진',inside.map((v,i)=>albumCard(v.image,i+1,v.label)))];
+ for(let i=0;i<cards.length;i+=6)pages.push(albumPage('외관조사 사진첩',cards.slice(i,i+6)));
+ const style=`@page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:Dotum,'돋움',sans-serif;color:#111;margin:0}.albumPage{width:186mm;height:273mm;break-after:page;page-break-after:always;overflow:hidden;padding:2mm}.albumPage:last-child{break-after:auto;page-break-after:auto}.albumPage h2{text-align:center;font-size:16pt;margin:2mm 0 6mm}.mapBlank{height:240mm;border:1px solid #333}.photoGrid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,77mm);gap:4mm 3mm}.photoCard{border:1px solid #333;min-height:0;display:flex;flex-direction:column;overflow:hidden}.photoImg{height:61mm;padding:2mm;display:flex;align-items:center;justify-content:center}.photoImg img{width:100%;height:100%;object-fit:contain}.photoFoot{height:16mm;display:grid;grid-template-columns:22mm 1fr;border-top:1px solid #333;font-size:9pt;text-align:center;align-items:center}.photoNum{height:100%;border-right:1px solid #333;display:flex;align-items:center;justify-content:center}.photoDesc{padding:1mm;overflow-wrap:anywhere;line-height:1.3}@media screen{body{background:#e5e9ee}.albumPage{margin:15px auto;background:#fff;box-shadow:0 2px 8px #999}}`;
+ let win=window.open('','_blank');if(!win){alert('팝업이 차단되어 있습니다. 팝업을 허용한 뒤 다시 시도해 주세요.');return}win.document.open();win.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>외관조사 사진첩</title><style>'+style+'</style></head><body>'+pages.join('')+'</body></html>');win.document.close();
+};
+
+// 사용자 제공 HWPX 원본 틀의 표/쪽 배치를 유지하여 편집 가능한 한글 파일 생성
+async function exportAlbumHwpx(){
+ normalizeState();
+ if(typeof JSZip==='undefined'){alert('HWPX 압축 모듈을 불러오지 못했습니다. 웹앱을 다시 열어주세요.');return}
+ const defects=state.defects.map((d,i)=>({d,order:i,page:state.pages[d.pageId]?.name||''})).filter(x=>(x.d.photos||[]).length).sort((a,b)=>albumFloor(a.page)-albumFloor(b.page)||a.order-b.order);
+ const entries=[];
+ for(const {d,page} of defects)for(const photo of d.photos){entries.push({image:photo,location:page,description:[d.location||'',(d.types||[]).map(albumTypeName).join(' 및 '),albumSpec(d)].filter(Boolean).join(' ')})}
+ if(entries.length>59){alert('제공한 원본 한글 틀은 결함사진 59장까지만 지원합니다. 59장까지만 한글로 내보냅니다. 나머지는 JSON 원본에 유지됩니다.')}
+ try{
+ const resp=await fetch('./photo_album_template.hwpx');if(!resp.ok)throw Error('원본 한글 틀을 불러올 수 없습니다.');
+ const zip=await JSZip.loadAsync(await resp.arrayBuffer());
+ const xmlPath='Contents/section0.xml';const parser=new DOMParser();const doc=parser.parseFromString(await zip.file(xmlPath).async('string'),'application/xml');
+ if(doc.querySelector('parsererror'))throw Error('한글 XML 해석 실패');
+ const hpNS='http://www.hancom.co.kr/hwpml/2011/paragraph';
+ const paras=[...doc.getElementsByTagNameNS(hpNS,'p')];
+ const pText=p=>[...p.getElementsByTagNameNS(hpNS,'t')].map(n=>n.textContent).join('').trim();
+ function setPara(p,value){if(!p)return;const ts=[...p.getElementsByTagNameNS(hpNS,'t')];if(!ts.length)return;ts[0].textContent=value;ts.slice(1).forEach(t=>t.textContent='')}
+ // 내부 전경 6장의 설명을 사용자가 입력한 층·위치명으로 변경합니다.
+ const insideDefaults=['내부 복도 전경','지하1층 전경','주변도로 전경','주차장 전경','옥탑층 전경','옥탑층 기계실 전경'];
+ const indoorTable=[...doc.getElementsByTagNameNS(hpNS,'tbl')].find(tbl=>{
+  const ps=[...tbl.getElementsByTagNameNS(hpNS,'p')];
+  return ps.some(p=>pText(p)===insideDefaults[0])&&ps.some(p=>pText(p)===insideDefaults[5]);
+ });
+ if(indoorTable){
+  const ps=[...indoorTable.getElementsByTagNameNS(hpNS,'p')];
+  insideDefaults.forEach((old,i)=>{
+   const target=ps.find(p=>pText(p)===old);
+   if(target)setPara(target,albumSlot('inside',i).label||ALBUM_IN[i]);
+  });
+ }
+ // 사진1~사진59는 원본 양식의 사진번호/층/결함내용 3개 셀로 구성됨
+ for(let i=0;i<paras.length;i++){
+  const m=pText(paras[i]).match(/^사진(\d+)$/);if(!m)continue;
+  const n=Number(m[1]);if(n<1||n>59)continue;
+  const entry=entries[n-1];
+  const a=paras[i+1],b=paras[i+2];
+  // 원본 표의 다음 셀이 층/내용인지 확인하여 교체
+  if(a&&b){setPara(a,entry?entry.location:'');setPara(b,entry?entry.description:'')}
+ }
+ // 등록된 결함사진이 없는 뒤쪽 원본 표(사진31~59 등)는 한글 문서에서 통째로 삭제합니다.
+ // 표 하나당 결함사진 6장씩 배치된 원본 양식을 기준으로 합니다.
+ const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>{
+  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
+  return nums.some(n=>n>=1&&n<=59)
+ });
+ for(const tbl of defectTables){
+  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
+  if(nums.length&&Math.min(...nums)>entries.length){
+   // 원본 표를 포함하는 문단까지 제거해야 빈 페이지가 남지 않습니다.
+   const para=tbl.parentNode?.parentNode;
+   if(para&&para.localName==='p'&&para.parentNode)para.parentNode.removeChild(para);
+  }
+ }
+ // 표의 병합 셀에 중복 기록된 기존 설명도 공백으로 교체
+ const oldCaptions=['바닥 균열','바닥 파손','외벽 균열','조적벽체 균열','조적벽체 도장열화'];
+ const out=ALBUM_OUT.map((_,i)=>albumSlot('outside',i));const inside=ALBUM_IN.map((_,i)=>albumSlot('inside',i));
+ const blankCanvas=document.createElement('canvas');blankCanvas.width=800;blankCanvas.height=600;const cx=blankCanvas.getContext('2d');cx.fillStyle='#ffffff';cx.fillRect(0,0,800,600);const blank=blankCanvas.toDataURL('image/jpeg',0.75);
+ function asBase64(data){return (data||blank).split(',')[1]}
+ async function jpegBytes(src){
+  return await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=1000;c.height=750;const x=c.getContext('2d');x.fillStyle='white';x.fillRect(0,0,c.width,c.height);const k=Math.min(c.width/im.width,c.height/im.height);x.drawImage(im,(c.width-im.width*k)/2,(c.height-im.height*k)/2,im.width*k,im.height*k);resolve(c.toDataURL('image/jpeg',0.85).split(',')[1])};im.onerror=()=>reject(Error('사진 처리 실패'));im.src=src||blank})
+ }
+ // 원본 위치도는 공백 BMP로 교체하여 편집할 수 있도록 유지
+ const bmpW=1130,bmpH=820,row=((bmpW*3+3)>>2)<<2,size=54+row*bmpH;
+ const bmp=new Uint8Array(size);const dv=new DataView(bmp.buffer);bmp[0]=66;bmp[1]=77;dv.setUint32(2,size,true);dv.setUint32(10,54,true);dv.setUint32(14,40,true);dv.setInt32(18,bmpW,true);dv.setInt32(22,bmpH,true);dv.setUint16(26,1,true);dv.setUint16(28,24,true);dv.setUint32(34,size-54,true);bmp.fill(255,54);zip.file('BinData/image1.bmp',bmp);
+ // 원본의 일부 그림은 같은 파일을 재사용하므로 사진마다 개별 이미지 항목을 만든다.
+ const pics=[...doc.getElementsByTagNameNS(hpNS,'pic')];
+ const hpfPath='Contents/content.hpf';const hpfDoc=parser.parseFromString(await zip.file(hpfPath).async('string'),'application/xml');
+ const manifest=[...hpfDoc.getElementsByTagName('*')].find(e=>e.localName==='manifest');
+ const itemExample=[...hpfDoc.getElementsByTagName('*')].find(e=>e.localName==='item'&&e.getAttribute('id')==='image17');
+ for(let i=1;i<pics.length;i++){
+  const img=[...pics[i].getElementsByTagName('*')].find(e=>e.localName==='img'&&e.hasAttribute('binaryItemIDRef'));
+  if(!img)continue;
+  const key='albumPhoto'+i;
+  img.setAttribute('binaryItemIDRef',key);
+  const el=itemExample.cloneNode(true);el.setAttribute('id',key);el.setAttribute('href','BinData/'+key+'.jpg');el.setAttribute('media-type','image/jpeg');manifest.appendChild(el);
+  const src=i<=3?out[i-1]?.image:i<=9?inside[i-4]?.image:entries[i-10]?.image;
+  zip.file('BinData/'+key+'.jpg',await jpegBytes(src),{base64:true});
+ }
+ zip.file(hpfPath,new XMLSerializer().serializeToString(hpfDoc));
+ // 내부/외부 전경 설명 업데이트: 사진 설명은 원본 문서에서 수정 가능
+ const xml=new XMLSerializer().serializeToString(doc);zip.file(xmlPath,xml);
+ const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+ download(blob,basename()+'_외관조사사진첩.hwpx');
+ }catch(err){console.error(err);alert('한글 파일 생성 실패: '+err.message)}
+}
+$('albumHwpx').onclick=exportAlbumHwpx;
+$('albumHwpxInside').onclick=exportAlbumHwpx;
+</script></body></html>
