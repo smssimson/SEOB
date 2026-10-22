@@ -1,0 +1,97 @@
+name: SEOB ZIP automatic deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'survey-update-*.zip'
+      - 'drawing-update-*.zip'
+      - 'site-update-*.zip'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: seob-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prepare site and apply uploaded ZIP files
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path, PurePosixPath
+          from zipfile import ZipFile
+          import shutil, subprocess
+
+          root = Path.cwd()
+          output = root / '_seob_public'
+          output.mkdir(exist_ok=True)
+          skip = {'.git', '.github', '_seob_public'}
+          for item in root.iterdir():
+              if item.name in skip or item.name.endswith('.zip'):
+                  continue
+              dest = output / item.name
+              if item.is_dir():
+                  shutil.copytree(item, dest, dirs_exist_ok=True)
+              elif item.is_file():
+                  shutil.copy2(item, dest)
+
+          packages = []
+          for kind in ('survey', 'drawing', 'site'):
+              for archive in root.glob(f'{kind}-update-*.zip'):
+                  stamp = subprocess.check_output(
+                      ['git', 'log', '-1', '--format=%ct', '--', archive.name], text=True
+                  ).strip()
+                  packages.append((int(stamp or '0'), archive.name, kind, archive))
+          packages.sort()
+
+          for _, _, kind, archive in packages:
+              with ZipFile(archive) as z:
+                  entries = [i for i in z.infolist() if not i.is_dir()]
+                  paths = [PurePosixPath(i.filename.replace('\\', '/')) for i in entries]
+                  # Strip a single wrapping folder, if present.
+                  first = {p.parts[0] for p in paths if p.parts}
+                  strip = bool(len(first) == 1 and all(len(p.parts) > 1 for p in paths))
+                  for info, path in zip(entries, paths):
+                      parts = path.parts[1:] if strip else path.parts
+                      if not parts or any(part in ('', '.', '..') for part in parts):
+                          continue
+                      if path.is_absolute() or info.filename.startswith('/'):
+                          raise ValueError(f'Unsafe ZIP path: {info.filename}')
+                      if parts[0] in ('.git', '.github'):
+                          raise ValueError(f'Forbidden ZIP path: {info.filename}')
+                      if kind in ('survey', 'drawing') and parts[0] == kind:
+                          parts = parts[1:]
+                      if not parts:
+                          continue
+                      target = output.joinpath(*(([kind] if kind != 'site' else []) + list(parts)))
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      with z.open(info) as src, target.open('wb') as dst:
+                          shutil.copyfileobj(src, dst)
+              print(f'Applied: {archive.name} -> {kind}')
+          print('Site prepared:', output)
+          PY
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _seob_public
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
