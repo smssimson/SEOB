@@ -6,8 +6,10 @@ on:
     paths:
       - 'survey-update-*.zip'
       - '현장조사.v*.zip'
+      - 'SEOB_survey_v*.zip'
       - 'drawing-update-*.zip'
       - '도면작성.v*.zip'
+      - 'SEOB_drawing_v*.zip'
       - 'site-update-*.zip'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
@@ -56,8 +58,8 @@ jobs:
           packages = []
           for kind in ('survey', 'drawing', 'site'):
               patterns = [f'{kind}-update-*.zip']
-              if kind == 'survey': patterns.append('현장조사.v*.zip')
-              if kind == 'drawing': patterns.append('도면작성.v*.zip')
+              if kind == 'survey': patterns.extend(['현장조사.v*.zip', 'SEOB_survey_v*.zip'])
+              if kind == 'drawing': patterns.extend(['도면작성.v*.zip', 'SEOB_drawing_v*.zip'])
               for archive in [a for pattern in patterns for a in root.glob(pattern)]:
                   stamp = subprocess.check_output(
                       ['git', 'log', '-1', '--format=%ct', '--', archive.name], text=True
