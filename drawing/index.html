@@ -49,7 +49,32 @@ body[data-theme] .smetric-brand{font-family:Dotum,'돋움',Arial,sans-serif!impo
 .smetric-quality button:focus-visible{outline:2px solid var(--sm-accent,#60a5fa)}
 .smetric-quality .quality-warning{color:#f9bd68}.smetric-quality .quality-ok{color:#71d8b1}
 @media(max-width:650px){.smetric-quality .quality-result{flex-basis:100%;order:3}}
-</style></head><body>
+</style><style id="smetric-v17-design">
+:root{--sm-space:12px;--sm-radius:12px;--sm-border:var(--border,#334b67)}
+.smetric-v17-workspace{box-sizing:border-box;width:min(100%,1900px);margin:0 auto;padding:14px 16px 4px;display:flex;flex-direction:column;gap:12px}
+.smetric-v17-card{box-sizing:border-box;background:var(--panel,#1b2c42);border:1px solid var(--line,#39516c);border-radius:12px;padding:14px 16px;min-width:0;box-shadow:0 2px 9px rgba(0,0,0,.055)}
+.smetric-v17-card .smetric-v17-heading{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;font-weight:700;letter-spacing:.1px}
+.smetric-v17-card .smetric-sitebar{display:grid!important;grid-template-columns:minmax(180px,1fr) auto auto auto auto!important;align-items:center!important;gap:8px!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;width:100%!important;min-height:0!important}
+.smetric-v17-card .smetric-sitebar .site-title{display:none!important}
+.smetric-v17-card .smetric-sitebar select{width:100%!important;min-width:0!important;max-width:none!important;flex:1!important;height:38px!important;box-sizing:border-box!important}
+.smetric-v17-card .smetric-sitebar button{white-space:nowrap!important;min-height:38px!important;box-sizing:border-box!important;margin:0!important;padding:7px 12px!important;border-radius:8px!important}
+.smetric-v17-card .smetric-sitebar .site-add{background:#348be3!important;border-color:#348be3!important;color:#fff!important}
+.smetric-v17-card .smetric-sitebar .site-remove{color:#ff9aa8!important;border-color:#b66b78!important;background:transparent!important}
+.smetric-v17-card .smetric-sitebar .site-count{font-size:11px!important;white-space:nowrap!important;opacity:.75}
+.smetric-v17-card .smetric-sitebar input[type=hidden]{display:none!important}
+.smetric-v17-card .smetric-quality{display:grid!important;grid-template-columns:minmax(120px,1fr) auto auto!important;gap:8px!important;align-items:center!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;width:100%!important;min-height:0!important}
+.smetric-v17-card .smetric-quality strong{display:none!important}
+.smetric-v17-card .smetric-quality .quality-result{font-size:12px!important;opacity:.8;min-width:0}
+.smetric-v17-card .smetric-quality button{min-height:36px!important;border-radius:8px!important;padding:7px 12px!important;white-space:nowrap!important;margin:0!important}
+.smetric-v17-workspace + main,.smetric-v17-workspace + .app{margin-top:0!important}
+.smetric-app-header{min-height:52px!important;box-sizing:border-box!important;padding:8px 16px!important;display:flex!important;align-items:center!important;justify-content:space-between!important}
+.smetric-app-header .smetric-brand{font-family:Dotum,'돋움',sans-serif!important;font-size:16px!important}
+.smetric-v17-workspace button,.smetric-v17-workspace select{font-family:Dotum,'돋움',sans-serif!important;font-size:13px!important}
+.smetric-v17-section-title{font-size:13px;font-weight:700;margin:0 0 10px;padding:0;letter-spacing:.1px}
+@media(max-width:800px){.smetric-v17-workspace{padding:10px 9px 4px;gap:9px}.smetric-v17-card{padding:11px}.smetric-v17-card .smetric-sitebar{grid-template-columns:minmax(0,1fr) repeat(3,auto)!important}.smetric-v17-card .smetric-sitebar .site-count{grid-column:1/-1}.smetric-v17-card .smetric-sitebar button{padding:7px!important;font-size:11px!important}.smetric-v17-card .smetric-quality{grid-template-columns:minmax(0,1fr) auto auto!important}.smetric-v17-card .smetric-quality button{font-size:11px!important;padding:6px!important}}
+@media(max-width:520px){.smetric-v17-card .smetric-sitebar{grid-template-columns:repeat(3,minmax(0,1fr))!important}.smetric-v17-card .smetric-sitebar select{grid-column:1/-1}.smetric-v17-card .smetric-sitebar button{width:100%!important}.smetric-v17-card .smetric-quality{grid-template-columns:1fr 1fr!important}.smetric-v17-card .smetric-quality .quality-result{grid-column:1/-1}.smetric-v17-card .smetric-quality button{width:100%!important}}
+</style>
+</head><body>
 <header class="smetric-app-header"><strong class="smetric-brand">SMETRIC · 도면 작성</strong><div class="smetric-head-controls"><a class="smetric-home" href="../" title="SMETRIC 메인 화면으로 이동">⌂ 홈</a><label for="theme">화면 테마 <select id="theme" onchange="document.body.dataset.theme=this.value"><option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="slate">슬레이트</option></select></label></div></header>
 <div class="toolbar"><button id="modeSelect" class="active" onclick="mode('select')">↖ 선택·이동</button><button id="modePoints" onclick="mode('points')">⬡ 모서리 지정</button><button id="modeFree" onclick="mode('free')">✎ 자유 드로잉</button><button onclick="closeShape()">외곽 닫기</button><button onclick="undo()">↶ 실행 취소</button><button id="repeatToggle" onclick="toggleRepeat()" title="ON 상태에서 캔버스를 누르면 마지막으로 만든 선 또는 부재가 같은 크기로 복제됩니다">⧉ 이전 작업 반복 OFF</button><button id="modeErase" onclick="mode('erase')">⌫ 지우개</button><select id="eraseMode" aria-label="지우개 방식"><option value="stroke">한 선 지우기</option><option value="partial">펜 굵기로 부분 지우기</option></select><label class="eraserSize">지우개 크기 <input id="eraseSize" type="range" min="8" max="55" value="20"></label><label class="eraserSize">펜 색상 <input type="color" id="penColor" value="#2563eb" title="펜 색상"></label><button onclick="newSheet()">＋ 새 도면</button><label class="eraserSize"><input id="penOnly" type="checkbox" style="width:auto" checked> 펜 전용</label><button onclick="zoom(1.25)">＋ 확대</button><button onclick="zoom(.8)">－ 축소</button><button onclick="zoomReset()">화면 맞춤</button><label class="eraserSize"><input id="autoRightTop" type="checkbox" style="width:auto" onchange="render()"> 직각 보정</label></div>
 <div class="groupTitle">외벽 · 평면 형상 (버튼 선택 후 도면을 드래그)</div><div class="toolbar"><button id="modeRect" onclick="mode('rect')">▭ 사각형 외벽</button><button id="modeLshape" onclick="mode('lshape')">⌞ ㄱ자 외벽</button><button id="modeUshape" onclick="mode('ushape')">⊔ ㄷ자 외벽</button><button id="modeWall" onclick="mode('wall')">╱ 내부 벽체</button><label class="eraserSize">기본 벽 두께(mm) <input id="defaultThickness" type="number" min="1" value="200" style="width:88px"></label></div>
@@ -233,4 +258,21 @@ refreshSheets();render();setInterval(()=>{if(!interaction)autosave()},1500);wind
  apply(initial);
  window.addEventListener('storage',function(event){if(event.key===key&&allowed.includes(event.newValue))apply(event.newValue)});
 })();
-</script><script id="smetric-quality-drawing-v16">(function(){const $=id=>document.getElementById(id);function rows(){if(typeof sheets==='undefined')return [];if(typeof stashSheet==='function')stashSheet();return sheets.map(sh=>{let issues=[],n=0;if(!sh.measured)issues.push('실측 기준 길이 미설정');if(!(Number(sh.unitScale)>0))issues.push('축척 값 확인');for(let p of sh.paths||[]){n++;if(!Array.isArray(p.pts)||p.pts.length<2)issues.push('미완성 선');else if(p.pts.some(v=>!Number.isFinite(v.x)||!Number.isFinite(v.y)))issues.push('좌표 오류');else if(p.pts.some((v,i)=>i&&Math.hypot(v.x-p.pts[i-1].x,v.y-p.pts[i-1].y)<.001))issues.push('중복 점')}for(let m of sh.members||[]){n++;if(!(m.w>0&&m.h>0))issues.push('부재 치수 확인')}return {name:sh.name||'이름 없는 도면',count:n,issues:[...new Set(issues)]}})}function check(){let r=rows(),bad=r.filter(x=>x.issues.length),el=$('qualityResult');el.textContent=`현재 현장 도면 ${r.length}장 · 확인 필요 ${bad.length}장 · 실측 축척 및 CAD 출력은 별도 대조 필요`;el.className='quality-result '+(bad.length?'quality-warning':'quality-ok');return r}function csv(){let r=check(),data=[['도면명','객체수','점검결과'],...r.map(x=>[x.name,x.count,x.issues.join('; ')||'기본 점검 통과'])];let txt='\ufeff'+data.map(a=>a.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');let url=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='SMETRIC_도면작성_기본점검.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}$('qualityCheck').onclick=check;$('qualityExport').onclick=csv;})();</script></body></html>
+</script><script id="smetric-quality-drawing-v16">(function(){const $=id=>document.getElementById(id);function rows(){if(typeof sheets==='undefined')return [];if(typeof stashSheet==='function')stashSheet();return sheets.map(sh=>{let issues=[],n=0;if(!sh.measured)issues.push('실측 기준 길이 미설정');if(!(Number(sh.unitScale)>0))issues.push('축척 값 확인');for(let p of sh.paths||[]){n++;if(!Array.isArray(p.pts)||p.pts.length<2)issues.push('미완성 선');else if(p.pts.some(v=>!Number.isFinite(v.x)||!Number.isFinite(v.y)))issues.push('좌표 오류');else if(p.pts.some((v,i)=>i&&Math.hypot(v.x-p.pts[i-1].x,v.y-p.pts[i-1].y)<.001))issues.push('중복 점')}for(let m of sh.members||[]){n++;if(!(m.w>0&&m.h>0))issues.push('부재 치수 확인')}return {name:sh.name||'이름 없는 도면',count:n,issues:[...new Set(issues)]}})}function check(){let r=rows(),bad=r.filter(x=>x.issues.length),el=$('qualityResult');el.textContent=`현재 현장 도면 ${r.length}장 · 확인 필요 ${bad.length}장 · 실측 축척 및 CAD 출력은 별도 대조 필요`;el.className='quality-result '+(bad.length?'quality-warning':'quality-ok');return r}function csv(){let r=check(),data=[['도면명','객체수','점검결과'],...r.map(x=>[x.name,x.count,x.issues.join('; ')||'기본 점검 통과'])];let txt='\ufeff'+data.map(a=>a.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');let url=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='SMETRIC_도면작성_기본점검.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}$('qualityCheck').onclick=check;$('qualityExport').onclick=csv;})();</script><script id="smetric-v17-layout">
+(function(){
+function apply(){
+ const header=document.querySelector('.smetric-app-header');
+ const site=document.querySelector('.smetric-sitebar');
+ const quality=document.querySelector('.smetric-quality');
+ if(!header||!site||!quality||document.querySelector('.smetric-v17-workspace'))return;
+ const dock=document.createElement('div');dock.className='smetric-v17-workspace';dock.setAttribute('aria-label','SMETRIC 공통 작업 관리');
+ header.insertAdjacentElement('afterend',dock);
+ function card(title,node){const el=document.createElement('section');el.className='smetric-v17-card';const h=document.createElement('div');h.className='smetric-v17-heading';h.textContent=title;el.appendChild(h);el.appendChild(node);dock.appendChild(el);}
+ card('작업 현장 선택',site);
+ card('자료 점검',quality);
+ // 기존 이벤트 핸들러가 연결된 요소를 이동하므로 작업 데이터와 기능은 유지합니다.
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+})();
+</script>
+</body></html>
