@@ -1,1 +1,48 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102a43"><title>SMETRIC · 기울기</title><style>*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:linear-gradient(135deg,#edf5fa,#f8fafc);font-family:Dotum,'돋움',Arial,sans-serif;color:#19354c;display:grid;place-items:center;padding:24px}.panel{max-width:520px;width:100%;background:#fff;border-radius:24px;padding:40px;box-shadow:0 20px 60px #173d5b15;text-align:center}.icon{margin:0 auto 18px;width:74px;height:74px;border-radius:20px;background:#e8f3f9;display:grid;place-items:center;color:#247d96}.icon svg{width:45px;height:45px}h1{font-size:30px;margin:0 0 14px}p{line-height:1.8;color:#6b8190}.status{display:inline-block;border-radius:30px;background:#edf4fa;color:#4b758f;padding:8px 17px;font-size:13px;margin:8px 0 22px}a{display:inline-block;padding:13px 24px;border-radius:12px;background:#163d5c;color:white;text-decoration:none}</style></head><body><main class="panel"><div class="icon"><svg viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 51h40M18 47V18h29v29M18 47l29-29M25 36a12 12 0 0 1 12-12M27 47v-6m12 6v-6"/></svg></div><h1>기울기</h1><span class="status">신규 모듈 · 준비 중</span><p>건축물 기울기 측정 및 결과 비교<br>측정 기능은 추후 업데이트될 예정입니다.<br>현재는 측정하거나 결과를 저장할 수 없습니다.</p><a href="../">← SMETRIC 홈으로</a></main></body></html>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102a43"><title>SMETRIC · 기울기</title><style>*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:linear-gradient(135deg,#edf5fa,#f8fafc);font-family:Dotum,'돋움',Arial,sans-serif;color:#19354c;display:grid;place-items:center;padding:24px}.panel{max-width:520px;width:100%;background:#fff;border-radius:24px;padding:40px;box-shadow:0 20px 60px #173d5b15;text-align:center}.icon{margin:0 auto 18px;width:74px;height:74px;border-radius:20px;background:#e8f3f9;display:grid;place-items:center;color:#247d96}.icon svg{width:45px;height:45px}h1{font-size:30px;margin:0 0 14px}p{line-height:1.8;color:#6b8190}.status{display:inline-block;border-radius:30px;background:#edf4fa;color:#4b758f;padding:8px 17px;font-size:13px;margin:8px 0 22px}a{display:inline-block;padding:13px 24px;border-radius:12px;background:#163d5c;color:white;text-decoration:none}</style><style id="smetric-unified-header-css">
+.smetric-home{display:inline-flex!important;align-items:center;justify-content:center;gap:7px;background:#fff!important;color:#15345a!important;border:1px solid #d8e5f2!important;border-radius:9px!important;padding:8px 13px!important;text-decoration:none!important;font-size:13px!important;font-weight:bold!important;line-height:1.3!important;white-space:nowrap;min-height:37px;box-shadow:0 2px 8px #00000010}
+.smetric-home:hover{background:#e9f4ff!important;color:#15559b!important}
+.smetric-head-controls{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-left:auto}
+.smetric-head-controls label{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:12px;color:#e5f0fc!important}
+.smetric-head-controls select{background:#23354c!important;color:white!important;border:1px solid #526a84!important;border-radius:8px!important;padding:8px!important;min-height:37px;max-width:155px}
+header.smetric-app-header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important;min-height:58px!important;padding:10px 16px!important;background:#112238!important;color:#f4f8ff!important;border-bottom:1px solid #2c4460!important}
+header.smetric-app-header .smetric-brand{font-size:17px!important;font-weight:bold!important;color:#fff!important;letter-spacing:0!important}
+@media(max-width:620px){header.smetric-app-header{padding:9px!important}.smetric-head-controls{gap:6px}.smetric-head-controls label{font-size:11px}.smetric-home{padding:8px 10px!important}.smetric-head-controls select{max-width:115px}}
+</style><style id="smetric-shared-theme-v14">
+/* SMETRIC single palette, shared by all four modules. */
+body[data-theme="light"]{--sm-bg:#edf3f9;--sm-panel:#ffffff;--sm-panel2:#f4f7fc;--sm-text:#162b43;--sm-muted:#52677e;--sm-line:#d0dce9;--sm-button:#f7faff;--sm-accent:#2677c9;--sm-field:#ffffff;--sm-head:#102941}
+body[data-theme="dark"]{--sm-bg:#101a2a;--sm-panel:#19283b;--sm-panel2:#20334a;--sm-text:#e8f0fa;--sm-muted:#acbfd3;--sm-line:#354b63;--sm-button:#253950;--sm-accent:#60a5fa;--sm-field:#142238;--sm-head:#0b1828}
+body[data-theme="navy"]{--sm-bg:#0c2440;--sm-panel:#143352;--sm-panel2:#1b4163;--sm-text:#eaf5ff;--sm-muted:#b2d0e8;--sm-line:#35607f;--sm-button:#224c70;--sm-accent:#67c3f5;--sm-field:#102d4c;--sm-head:#081c34}
+body[data-theme="slate"]{--sm-bg:#262d38;--sm-panel:#343e4c;--sm-panel2:#3d4858;--sm-text:#f0f2f7;--sm-muted:#c3cbd7;--sm-line:#566273;--sm-button:#465365;--sm-accent:#a5b8d7;--sm-field:#303947;--sm-head:#202631}
+body[data-theme]{background:var(--sm-bg)!important;color:var(--sm-text)!important;color-scheme:normal!important;--panel:var(--sm-panel);--panel2:var(--sm-panel2);--text:var(--sm-text);--muted:var(--sm-muted);--line:var(--sm-line);--bg:var(--sm-bg)}
+body[data-theme] header.smetric-app-header{background:var(--sm-head)!important;border-color:var(--sm-line)!important;color:#fff!important}
+body[data-theme] .panel,body[data-theme] .side,body[data-theme] aside,body[data-theme] .toolbar,body[data-theme] .site-manager,body[data-theme] .projectbar,body[data-theme] .groupTitle,body[data-theme] .entry,body[data-theme] .modal-content,body[data-theme] .modal .box{background:var(--sm-panel)!important;color:var(--sm-text)!important;border-color:var(--sm-line)!important}
+body[data-theme] .tools .group,body[data-theme] .entry .head,body[data-theme] .group-items,body[data-theme] .status,body[data-theme] .pill{background:var(--sm-panel2)!important;color:var(--sm-text)!important;border-color:var(--sm-line)!important}
+body[data-theme] button:not(.primary):not(.danger):not(.active):not(.smetric-home),body[data-theme] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="file"]),body[data-theme] select:not(.smetric-head-controls select),body[data-theme] textarea{background:var(--sm-field)!important;color:var(--sm-text)!important;border-color:var(--sm-line)!important}
+body[data-theme] .hint,body[data-theme] .muted,body[data-theme] .help,body[data-theme] .side label,body[data-theme] footer{color:var(--sm-muted)!important}
+body[data-theme] .canvasWrap,body[data-theme] .board,body[data-theme] .canvas-wrap{border-color:var(--sm-line)!important}
+body[data-theme] .smetric-head-controls select{background:#20374f!important;color:#fff!important;border-color:#60758c!important}
+body[data-theme] .smetric-head-controls label{color:#f0f6ff!important}
+body[data-theme] .smetric-home{background:#fff!important;color:#14304b!important}
+body[data-theme] .smetric-brand{font-family:Dotum,'돋움',Arial,sans-serif!important}
+</style></head><body><header class="smetric-app-header"><strong class="smetric-brand">SMETRIC · 기울기</strong><div class="smetric-head-controls"><a class="smetric-home" href="../" title="SMETRIC 메인 화면으로 이동">⌂ 홈</a><label for="tiltTheme">화면 테마 <select id="tiltTheme" aria-label="화면 테마"><option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="slate">슬레이트</option></select></label></div></header><main class="panel"><div class="icon"><svg viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 51h40M18 47V18h29v29M18 47l29-29M25 36a12 12 0 0 1 12-12M27 47v-6m12 6v-6"/></svg></div><h1>기울기</h1><span class="status">신규 모듈 · 준비 중</span><p>건축물 기울기 측정 및 결과 비교<br>측정 기능은 추후 업데이트될 예정입니다.<br>현재는 측정하거나 결과를 저장할 수 없습니다.</p><a href="../">← SMETRIC 홈으로</a></main><script>(function(){const e=document.getElementById('tiltTheme');if(!e)return;e.value=localStorage.getItem('smetric-tilt-theme')||'dark';e.addEventListener('change',()=>{localStorage.setItem('smetric-tilt-theme',e.value);document.body.style.background=e.value==='light'?'#eef4fa':'#0c1422';document.body.style.color=e.value==='light'?'#19324e':'#f1f6fd'});e.dispatchEvent(new Event('change'));})();</script><script id="smetric-shared-theme-controller-v14">
+(function(){
+ const select=document.querySelector('.smetric-app-header .smetric-head-controls select');
+ if(!select)return;
+ const key='smetric-shared-theme-v14';
+ const allowed=['light','dark','navy','slate'];
+ let stored;try{stored=localStorage.getItem(key)}catch(e){}
+ const initial=allowed.includes(stored)?stored:'dark';
+ // All modules use the exact same four labels and one persistent preference.
+ select.innerHTML='<option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="slate">슬레이트</option>';
+ function apply(value){
+  const v=allowed.includes(value)?value:'dark';
+  document.body.dataset.theme=v;
+  select.value=v;
+  try{localStorage.setItem(key,v)}catch(e){}
+ }
+ // Use capture to stop legacy module-specific theme handlers from diverging.
+ select.addEventListener('change',function(event){event.stopImmediatePropagation();apply(select.value)},true);
+ apply(initial);
+ window.addEventListener('storage',function(event){if(event.key===key&&allowed.includes(event.newValue))apply(event.newValue)});
+})();
+</script></body></html>
