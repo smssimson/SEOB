@@ -1,0 +1,1 @@
+Fix: removed zoomIn/zoomOut/fit buttons caused a JavaScript exception before site-management handlers were bound. Site create, rename and delete handlers now initialize normally. Equipment module only.
