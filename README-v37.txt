@@ -1,0 +1,1 @@
+SMETRIC v37: survey and equipment photo X controls on click; tilt individual photo delete while retaining measurement; drawing preserved unchanged because it has no per-point camera photo collection. Backup JSON before updating.
