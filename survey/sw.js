@@ -1,4 +1,8 @@
-const CACHE='field-inspection-v28';
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(c=>c.add('./index.html')));self.skipWaiting()});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('field-inspection-')&&k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
-self.addEventListener('fetch',event=>{const r=event.request;if(r.method!=='GET'||new URL(r.url).origin!==self.location.origin)return;event.respondWith(fetch(r).then(resp=>{if(resp.ok&&r.mode==='navigate'){const copy=resp.clone();caches.open(CACHE).then(c=>c.put('./index.html',copy))}return resp}).catch(()=>caches.match(r).then(cached=>cached||caches.match('./index.html'))))});
+// SMETRIC offline worker v41 — survey
+const CACHE='smetric-survey-v41';const CORE=['./','./index.html'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('smetric-survey-')&&k!==CACHE).map(k=>caches.delete(k)))),self.clients.claim()]))});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const req=e.request;const url=new URL(req.url);if(url.protocol!=='https:'&&url.protocol!=='http:')return;
+if(req.mode==='navigate'){e.respondWith(fetch(req).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(req,copy))}return r}).catch(async()=>await caches.match(req)||await caches.match('./index.html')));return}
+e.respondWith(caches.match(req).then(hit=>hit||fetch(req).then(r=>{if(r.ok||r.type==='opaque'){const copy=r.clone();caches.open(CACHE).then(c=>c.put(req,copy)).catch(()=>{})}return r})));
+});
