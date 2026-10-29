@@ -1,5 +1,5 @@
-// SMETRIC offline worker v41 — survey
-const CACHE='smetric-survey-v41';const CORE=['./','./index.html'];
+// SMETRIC offline worker v46 — survey
+const CACHE='smetric-survey-v46';const CORE=['./','./index.html'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('smetric-survey-')&&k!==CACHE).map(k=>caches.delete(k)))),self.clients.claim()]))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const req=e.request;const url=new URL(req.url);if(url.protocol!=='https:'&&url.protocol!=='http:')return;

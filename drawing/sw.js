@@ -1,5 +1,5 @@
-// SMETRIC offline worker v41 — drawing
-const CACHE='smetric-drawing-v41';const CORE=['./','./index.html'];
+// SMETRIC offline worker v46 — drawing
+const CACHE='smetric-drawing-v46';const CORE=['./','./index.html'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('smetric-drawing-')&&k!==CACHE).map(k=>caches.delete(k)))),self.clients.claim()]))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const req=e.request;const url=new URL(req.url);if(url.protocol!=='https:'&&url.protocol!=='http:')return;
