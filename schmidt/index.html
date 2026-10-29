@@ -111,6 +111,42 @@ window.SMETRICSafety={ok:ok,failed:failed,error:error,status:status};
 window.addEventListener('error',function(e){if(e.message&&e.message!=='Script error.')error('프로그램 오류',e.message)});
 window.addEventListener('unhandledrejection',function(e){error('비동기 작업 오류',e.reason)});
 })();</script><meta name="smetric-build" content="v41-20261029">
+
+<style id="smetric-v43-unified-workflow">
+.sm43-header-audit{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid #435a74!important;border-radius:9px!important;background:#22364d!important;color:#e9f2fc!important;padding:8px 12px!important;min-height:37px;white-space:nowrap;font-size:12px!important}
+.sm43-header-audit:hover{background:#31516e!important}
+.sm43-hide-quality{display:none!important}
+.sm43-tool-panel{background:#18293e;border:1px solid #334b65;border-radius:13px;margin:10px 0;padding:12px 14px;color:#e9f3ff}
+.sm43-tabs{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.sm43-tab{border:1px solid #415c7c!important;background:#21344d!important;color:#d7e7f8!important;border-radius:9px!important;padding:9px 16px!important;font-weight:600!important;min-height:39px}
+.sm43-tab[aria-selected=true]{background:#3386dc!important;border-color:#3386dc!important;color:#fff!important;box-shadow:0 2px 9px #0a294a66}
+.sm43-deck{display:flex;align-items:stretch;gap:9px;min-height:58px}
+.sm43-group{display:flex;flex-wrap:wrap;align-content:center;align-items:center;gap:8px;overflow:hidden;border-radius:11px;border:1px solid #334d68;background:#20334b;padding:10px 12px;min-width:0;transition:flex-grow .28s ease, flex-basis .28s ease, background-color .28s ease, opacity .28s ease,padding .28s ease;flex:1 1 0}
+.sm43-group.sm43-expanded{flex:9 1 0;background:#233953;opacity:1}
+.sm43-group.sm43-compact{flex:0 0 105px;opacity:.8;padding:8px;justify-content:center;cursor:pointer}
+.sm43-group-title{font-size:11px;color:#bed5ef;white-space:nowrap;min-width:0;width:100%;font-weight:700;letter-spacing:.1px}
+.sm43-group.sm43-compact .sm43-group-title{text-align:center;width:auto}
+.sm43-group-content{display:flex;flex-wrap:wrap;align-items:center;gap:8px;max-width:100%;opacity:1;transform:scale(1);transform-origin:left center;transition:opacity .2s,transform .25s;overflow:visible}
+.sm43-group.sm43-compact .sm43-group-content{opacity:0;transform:scale(.72);max-width:0;max-height:0;overflow:hidden;pointer-events:none}
+.sm43-group button{white-space:nowrap}
+.sm43-group button:not(.primary):not(.active){background:#1d3049;border:1px solid #425c7c;color:#e5f0fc}
+.sm43-group button.primary,.sm43-group button.active{background:#398ce0;border-color:#398ce0;color:#fff}
+.sm43-group .sm43-camera{font-size:15px!important;min-height:45px!important;padding:10px 19px!important}
+.sm43-group label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.sm43-group .annotationLegend{display:inline-flex;gap:8px}
+.sm43-group .sm43-muted-control{font-size:12px}
+.sm43-tools-compact .sm43-deck{min-height:54px}
+.sm43-tools-compact .sm43-group{padding:8px 10px}
+.sm43-group-content .tools,.sm43-group-content .toolbar,.sm43-group-content .controls{background:transparent!important;border:0!important;padding:0!important;margin:0!important;box-shadow:none!important;max-width:none!important}
+.sm43-group-content .groupTitle{display:none!important}
+.sm43-group-content .tools{display:flex!important;flex-wrap:wrap;align-items:center;gap:8px}
+.sm43-group-content .toolbar{display:flex!important;flex-wrap:wrap;align-items:center;gap:8px}
+.sm43-group-content .controls{display:flex!important;flex-wrap:wrap;align-items:center;gap:8px}
+.sm43-tool-panel + .sheetbar,.sm43-tool-panel + .pagebar{margin-top:8px!important}
+.sm43-tool-panel .sm43-group button:focus-visible,.sm43-tab:focus-visible{outline:2px solid #7cb8ff;outline-offset:2px}
+@media(max-width:760px){.sm43-tool-panel{padding:9px}.sm43-group.sm43-compact{flex-basis:84px}.sm43-group.sm43-expanded{flex:6 1 0}.sm43-tab{padding:8px 11px!important}.sm43-group-content{gap:6px}.sm43-group button{font-size:12px!important}}
+@media(prefers-reduced-motion:reduce){.sm43-group,.sm43-group-content{transition:none!important}}
+</style>
 </head><body><header class="smetric-app-header"><strong class="smetric-brand">SMETRIC · 장비조사</strong><div class="smetric-head-controls"><a class="smetric-home" href="../" title="SMETRIC 홈으로 이동">⌂ 홈</a><label for="equipmentTheme">화면 테마 <select id="equipmentTheme" aria-label="화면 테마"><option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="slate">슬레이트</option></select></label></div><span id="smSaveIndicator" class="sm-save-indicator" aria-live="polite"></span></header><main class="layout"><section class="panel"><section class="smetric-quality" aria-label="자료 점검 및 백업"><strong>자료 점검</strong><span class="quality-result" id="qualityResult" role="status">현재 현장의 자료를 점검할 수 있습니다.</span><button type="button" id="qualityCheck">누락 점검</button><button type="button" id="qualityExport">점검 결과 CSV</button></section><div class="site-manager smetric-sitebar"><span class="site-title">작업 현장 선택</span><select id="siteSelect" aria-label="작업 현장 선택"></select><button id="newSite" class="site-add">＋ 새 현장</button><button id="renameSite">현장 이름 변경</button><button id="deleteSite" class="site-remove">현장 삭제</button><span id="siteCount" class="site-count"></span><input id="siteName" type="hidden"></div><div class="tools"><label class="button" style="margin:0">＋ PDF / 사진 추가<input id="files" type="file" accept="image/*,.pdf,application/pdf" multiple></label><button id="sketchNew" class="primary">✏️ 현장 스케치</button><button id="sketchEdit">스케치 수정</button><button id="markMode" class="active">▣ 조사 위치 표시</button><button id="labelToggle">조사 표시 OFF</button><button id="moveMode">✋ 이동</button><label class="sm-finger-toggle" title="기본은 손가락으로 도면 이동, 펜으로 조사 표시"><input type="checkbox" id="smFingerDraw">손가락 표시 허용</label><button id="undo">↶ 실행 취소</button></div><div class="tools"><div class="group"><span class="toolbar-title">조사 선택</span><label><input type="checkbox" id="ckSH" checked>슈미트해머</label><label><input type="checkbox" id="ckPH">탄산화</label><label><input type="checkbox" id="ckFS">철근탐사</label></div><label>부재 <select id="member"><option>슬래브</option><option>보</option><option>기둥</option><option>벽체</option></select></label><label>타격 각도 <select id="angle"><option value="0">0°</option><option value="90">90°</option><option value="45">45°</option><option value="-90">-90°</option></select></label><button id="camera" class="primary">📷 카메라 촬영</button><label><input type="checkbox" id="autoCamera" checked>촬영 자동 실행</label></div><div class="tools"><button id="prev">◀ 이전</button><select id="pageSelect" aria-label="도면 선택"></select><button id="next">다음 ▶</button><span id="pageCount" class="muted"></span><label>층/도면명 <input id="floor" placeholder="예: 지상1층" style="width:145px"></label><button id="rename">이름 적용</button><button id="deletePage" class="danger">현재 도면 삭제</button></div><div class="canvas-wrap" id="wrap"><canvas id="board"></canvas></div><p class="hint">조사 위치 표시: 도면에서 시작점을 누르고 원하는 크기까지 드래그한 뒤 놓으면 점선 조사 범위를 생성합니다. 빨간색 SH · 파란색 PH · 보라색 FS. 조사 표시 ON에서는 층·부재·조사번호 표가 나타납니다. 표는 드래그해 이동하고 빨간 화살표를 드래그하면 연결선 꺾임 위치를 수정할 수 있습니다. 두 손가락 확대·축소 / 이동 모드에서 한 손가락 이동. 카메라 창에서 촬영 후 다음 조사로 자동 전환됩니다.</p></section><aside class="panel"><div class="title">조사 목록 <span class="muted" id="count">0건</span></div><div class="list" id="list"></div><div id="editor" class="editor"><p class="muted">도면에서 조사 위치를 표시하면 여기에서 부재·각도·사진을 관리할 수 있어요.</p></div><div class="separator"></div><div class="title">자료 저장 및 출력</div><div class="tools"><button id="export">프로젝트 내보내기</button><label class="button">프로젝트 불러오기<input type="file" id="import" accept=".json,application/json"></label><button id="png">조사 위치도 PNG</button><button id="csv">조사 현황표 CSV</button><button id="shExcel" class="primary">슈미트 시험일지 Excel (.xlsx)</button></div><div class="hint">현장별 자료는 현재 브라우저에 자동 저장됩니다. 기기 변경·앱 삭제 전 프로젝트 JSON 파일을 내보내 백업하세요.</div><div id="status" class="status">준비 완료</div></aside></main><div class="modal" id="sketchModal"><div class="modal-box"><div class="row"><strong>✏️ 현장 스케치 편집기</strong><button id="sketchClose">닫기</button></div><div class="tools"><button data-tool="pen" class="active">자유 그리기</button><button data-tool="line">직선</button><button data-tool="rect">사각형</button><button data-tool="erase">지우개</button><label>색상 <input type="color" id="penColor" value="#17283f"></label><label>굵기 <input type="number" id="penWidth" min="1" max="30" value="3" style="width:65px"></label><button id="sketchUndo">↶ 한 획 취소</button><button id="sketchClear" class="danger">전체 지우기</button></div><canvas class="modal-canvas" id="sketchCanvas" width="1600" height="1100"></canvas><div class="row"><span class="muted">선·사각형·자유 그리기 지원. 도면에 적용하면 이미지로 저장됩니다.</span><button id="sketchSave" class="primary">✓ 도면에 적용 / 저장</button></div></div></div><div class="modal" id="cameraModal"><div class="modal-box" style="max-width:670px"><div class="row" style="justify-content:space-between"><strong id="cameraTitle">조사 사진 촬영</strong><button id="cameraClose" class="danger">촬영 종료</button></div><video id="cameraVideo" autoplay playsinline muted style="width:100%;max-height:60vh;object-fit:contain;background:#080d15;border-radius:9px"></video><canvas id="cameraStill" style="display:none"></canvas><div id="cameraHelp" class="hint">사진을 촬영한 뒤 저장하면 다음 조사로 자동 전환됩니다.</div><div class="row"><button id="cameraTake" class="primary">📷 촬영하고 다음 조사</button><button id="cameraFallback">사진첩 / 기기 카메라 사용</button><button id="cameraSkip">이번 조사 건너뛰기</button></div></div></div><input type="file" id="photoInput" accept="image/*" capture="environment" hidden><script>
 'use strict';const $=id=>document.getElementById(id),K='smetric-equipment-v1',types={SH:{name:'슈미트해머',color:'#f13c48'},PH:{name:'탄산화',color:'#2176e6'},FS:{name:'철근탐사',color:'#8b50e3'}};let sites=[],site=null,selected=null,expandedGroup=null,mode='mark',showLabels=false,zoom=1,pan={x:0,y:0},img=null,pointers=new Map(),drag=null,pinch=null,photoQueue=[],photoTarget=null,undoStack=[],saveTimer=null,sketchTool='pen',strokes=[],workingStroke=null,sketchExisting=false;
 const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);function freshSite(name='새 현장'){return{id:uid(),name,pages:[{id:uid(),name:'현장 스케치 1',image:null}],active:0,marks:[]}}function page(){return site.pages[site.active]}function currentMarks(){return site.marks.filter(m=>m.pageId===page().id)}function msg(s){$('status').textContent=s}function save(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{let tx=db.transaction('data','readwrite');tx.objectStore('data').put({sites,active:site.id},K);tx.oncomplete=()=>{msg('자동 저장 완료');window.SMETRICSafety?.ok()};tx.onerror=()=>{msg('저장 실패: 저장 공간을 확인하세요');window.SMETRICSafety?.failed(tx.error||'IndexedDB 저장 오류')}}catch(e){msg('저장 오류: '+e.message);window.SMETRICSafety?.failed(e)}},350)}let db;function initDB(){let req=indexedDB.open('smetric-equipment-db',1);req.onupgradeneeded=()=>req.result.createObjectStore('data');req.onsuccess=()=>{db=req.result;let r=db.transaction('data').objectStore('data').get(K);r.onsuccess=()=>{let data=r.result;if(data?.sites?.length){sites=data.sites;site=sites.find(x=>x.id===data.active)||sites[0]}else{sites=[freshSite()];site=sites[0]}syncUI();loadPage()}};req.onerror=()=>{msg('브라우저 저장소를 열 수 없습니다.');sites=[freshSite()];site=sites[0];syncUI();loadPage()}}initDB();function snapshot(){undoStack.push(JSON.stringify(site));if(undoStack.length>25)undoStack.shift();$('undo').disabled=false}function undo(){if(!undoStack.length)return;let prev=JSON.parse(undoStack.pop());let idx=sites.findIndex(s=>s.id===site.id);sites[idx]=prev;site=prev;selected=null;syncUI();loadPage();save();$('undo').disabled=!undoStack.length}
@@ -302,4 +338,104 @@ let wi=files.findIndex(x=>x[0]==='xl/workbook.xml');if(wi>=0){let wd=xml(new Tex
 let blob=await makeZip(files),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=(site.name||'SMETRIC').replace(/[\\/:*?"<>|]/g,'_')+'_슈미트시험일지_원본양식.xlsx';link.click();setTimeout(()=>URL.revokeObjectURL(url),30000);alert(`v3 원본 양식으로 SH ${marks.length}개 출력했습니다. 미사용 구간은 숨김 처리했습니다. 재령 ${age}일, 적용계수 ${a}. 타격값은 비교용 가상값입니다.`)}catch(e){console.error(e);alert('원본 양식 출력 오류: '+e.message)}finally{btn.disabled=false;btn.textContent='슈미트 시험일지 Excel (.xlsx)'}}
 btn?.addEventListener('click',output);
 })();
-</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=40',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script></body></html>
+</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=40',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script>
+<script id="smetric-v43-unified-script">
+(function(){
+"use strict";
+function init(){
+const mod=(location.pathname.match(/\/(survey|drawing|schmidt|tilt)\/?/)||[])[1]||"";
+const header=document.querySelector(".smetric-head-controls");
+const q=mod==="survey"?document.getElementById("smSurveyQualityButton"):mod==="drawing"?document.getElementById("smDrawingQualityButton"):mod==="schmidt"?document.getElementById("qualityCheck"):document.getElementById("audit");
+const quality=q&&q.closest(".sm-quality-bar,.smetric-quality");
+if(header&&q){q.textContent="☑ 누락 점검";q.classList.add("sm43-header-audit");header.insertBefore(q,header.firstChild);}
+if(quality)quality.classList.add("sm43-hide-quality");
+const panel=document.createElement("section");panel.className="sm43-tool-panel sm43-tools-compact";
+panel.setAttribute("aria-label","작업 도구");
+const tabs=document.createElement("div");tabs.className="sm43-tabs";tabs.setAttribute("role","tablist");
+const deck=document.createElement("div");deck.className="sm43-deck";
+function makeGroup(label){const g=document.createElement("div");g.className="sm43-group";const title=document.createElement("div");title.className="sm43-group-title";title.textContent=label;const content=document.createElement("div");content.className="sm43-group-content";g.append(title,content);deck.appendChild(g);return {g,content};}
+const field=makeGroup("현장조사 도구"),util=makeGroup("기타 도구");
+const bField=document.createElement("button"),bUtil=document.createElement("button");
+bField.type=bUtil.type="button";bField.className=bUtil.className="sm43-tab";
+bField.textContent=mod==="drawing"?"✏ 도면작성":mod==="tilt"?"↗ 기울기 조사":mod==="schmidt"?"▣ 장비조사":"✏ 현장조사";
+bUtil.textContent="⚙ 기타 도구";
+bField.setAttribute("role","tab");bUtil.setAttribute("role","tab");
+tabs.append(bField,bUtil);panel.append(tabs,deck);
+function activate(which){const isField=which==="field";field.g.classList.toggle("sm43-expanded",isField);field.g.classList.toggle("sm43-compact",!isField);util.g.classList.toggle("sm43-expanded",!isField);util.g.classList.toggle("sm43-compact",isField);bField.setAttribute("aria-selected",String(isField));bUtil.setAttribute("aria-selected",String(!isField));}
+bField.onclick=()=>activate("field");bUtil.onclick=()=>activate("util");
+field.g.addEventListener("click",()=>{if(field.g.classList.contains("sm43-compact"))activate("field")});
+util.g.addEventListener("click",()=>{if(util.g.classList.contains("sm43-compact"))activate("util")});
+function move(id,dest){const el=document.getElementById(id);if(el){dest.appendChild(el);return el;}return null;}
+function wrapChildren(ids,dest){ids.forEach(id=>move(id,dest));}
+function icon(id,emoji){const el=document.getElementById(id);if(el&&el.tagName==="BUTTON"&&!el.textContent.trim().startsWith(emoji))el.textContent=emoji+" "+el.textContent.trim();}
+if(mod==="survey"){
+ const old=document.querySelector(".sm-survey-tools");if(!old)return;
+ old.parentNode.insertBefore(panel,old);
+ const ids=["newSketch","editSketch","pinBtn","crackBtn","cameraBtn"];
+ wrapChildren(ids,field.content);
+ const camera=document.querySelector(".quick-camera-toggle");if(camera)field.content.appendChild(camera);
+ const other=["undo","labelToggle","frontPhotoJump"];wrapChildren(other,util.content);
+ const finger=document.querySelector(".sm-finger-toggle");if(finger)util.content.insertBefore(finger,util.content.firstChild);
+ const legend=document.querySelector(".annotationLegend");if(legend)util.content.appendChild(legend);
+ old.remove();
+ icon("editSketch","✎");icon("labelToggle","◉");icon("frontPhotoJump","▧");
+ const cameraBtn=document.getElementById("cameraBtn");if(cameraBtn)cameraBtn.classList.add("sm43-camera");
+ const exportBtn=document.getElementById("export");if(exportBtn&&!exportBtn.textContent.includes("⇩"))exportBtn.textContent="⇩ "+exportBtn.textContent;
+}else if(mod==="drawing"){
+ const bar=document.querySelector("body > .toolbar");if(!bar)return;
+ bar.parentNode.insertBefore(panel,bar);
+ const fieldIds=["modeSelect","modePoints","modeFree","modeErase","repeatToggle"];
+ wrapChildren(fieldIds,field.content);
+ const more=document.createElement("div");more.className="sm43-draw-secondary";
+ const structural=document.querySelectorAll(".groupTitle");
+ const wallToolbar=structural[0]&&structural[0].nextElementSibling;
+ const structToolbar=structural[1]&&structural[1].nextElementSibling;
+ if(wallToolbar&&wallToolbar.classList.contains("toolbar"))field.content.appendChild(wallToolbar);
+ if(structToolbar&&structToolbar.classList.contains("toolbar"))field.content.appendChild(structToolbar);
+ // keep all remaining drawing controls and their original handlers together
+ while(bar.firstChild)util.content.appendChild(bar.firstChild);
+ bar.remove();
+ structural.forEach(x=>x.remove());
+ const undoBtn=Array.from(util.content.querySelectorAll("button")).find(x=>x.textContent.includes("실행 취소"));
+ if(undoBtn)undoBtn.textContent="↶ 실행 취소";
+}else if(mod==="schmidt"){
+ const site=document.querySelector(".smetric-sitebar");
+ const tools=Array.from(document.querySelectorAll("main.layout > section.panel > .tools"));
+ if(!tools.length)return;
+ tools[0].parentNode.insertBefore(panel,tools[0]);
+ const fieldIds=["sketchNew","sketchEdit","markMode","camera","ckSH","ckPH","ckFS","member","angle","autoCamera"];
+ wrapChildren(["sketchNew","sketchEdit","markMode"],field.content);
+ const controls=tools[1];if(controls){field.content.appendChild(controls);}
+ wrapChildren(["labelToggle","moveMode","undo"],util.content);
+ const finger=document.querySelector(".sm-finger-toggle");if(finger)util.content.appendChild(finger);
+ const upload=tools[0].querySelector('label.button');if(upload)util.content.appendChild(upload);
+ tools[0].remove();
+ icon("sketchEdit","✎");icon("labelToggle","◉");icon("export","⇩");
+}else if(mod==="tilt"){
+ const tool=document.querySelector(".card.toolbar");
+ if(!tool)return;
+ tool.parentNode.insertBefore(panel,tool);
+ const ctr=tool.querySelector(".controls");
+ if(ctr){wrapChildren(["arrowMode","selectMode"],field.content);wrapChildren(["smTiltUndo"],util.content);
+ const finger=tool.querySelector(".sm-finger-toggle");if(finger)util.content.appendChild(finger);}
+ const status=tool.querySelector("#status");if(status){status.classList.add("sm43-muted-control");util.content.appendChild(status);}
+ tool.remove();
+ icon("selectMode","✎");icon("export","⇩");
+}
+// Apply the same compact icon vocabulary to common actions without changing their handlers.
+const commonIcons=[
+ [/^스케치 수정$/, "✎"],[/^결함 표시 (?:ON|OFF)$/, "◉"],[/^조사 표시 (?:ON|OFF)$/, "◉"],
+ [/^프로젝트 내보내기$/, "⇩"],[/^프로젝트 불러오기$/, "⇧"],
+ [/^도면 이름 변경$/, "✎"],[/^이름 변경$/, "✎"],[/^현장 이름 변경$/, "✎"],
+ [/^현재 도면 삭제$/, "⌫"],[/^도면 삭제$/, "⌫"]
+];
+document.querySelectorAll("button,label.button").forEach(el=>{
+ const txt=el.textContent.trim();
+ for(const [pattern,ico] of commonIcons){if(pattern.test(txt)){el.insertBefore(document.createTextNode(ico+" "),el.firstChild);break;}}
+});
+activate("field");
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+</body></html>
