@@ -211,7 +211,7 @@ body[data-theme="light"] .sm-quality-bar button{background:#f7faff;color:#1f4169
 @media(max-width:760px){.sm43-tool-panel{padding:9px}.sm43-group.sm43-compact{flex-basis:84px}.sm43-group.sm43-expanded{flex:6 1 0}.sm43-tab{padding:8px 11px!important}.sm43-group-content{gap:6px}.sm43-group button{font-size:12px!important}}
 @media(prefers-reduced-motion:reduce){.sm43-group,.sm43-group-content{transition:none!important}}
 </style>
-</head><body><header class="smetric-app-header"><strong class="smetric-brand">SMETRIC · 현장조사</strong><div class="smetric-head-controls"><a class="smetric-home" href="../" title="SMETRIC 홈으로 이동">⌂ 홈</a><div class="theme-picker"><label for="themeSelect">화면 테마</label><select id="themeSelect" aria-label="화면 테마"><option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="forest">포레스트</option><option value="slate">슬레이트</option><option value="ocean">오션</option><option value="sand">샌드</option><option value="lavender">라벤더</option><option value="rose">로즈</option><option value="graphite">그라파이트</option><option value="system">기기 설정</option></select></div><span id="status"></span></div><span id="smSaveIndicator" class="sm-save-indicator" aria-live="polite"></span></header><main class="app"><section class="panel"><div class="projectbar"><label>작업 현장 선택<select id="siteSelect"></select></label><button id="newSite" class="primary">＋ 새 현장</button><button id="renameSite">현장 이름 변경</button><button id="deleteSite" class="danger">현장 삭제</button><span class="muted" id="siteCount"></span></div><section class="sm-quality-bar"><strong>자료 점검</strong><span id="smSurveyQualityResult">현재 현장의 자료를 점검할 수 있습니다.</span><button id="smSurveyQualityButton" type="button">누락 점검</button></section><div class="sm-survey-tools">
+<style id="sm44-fix">.sm43-group.sm43-compact{pointer-events:auto!important}.sm43-group.sm43-expanded .sm43-group-content{max-height:none!important;max-width:100%!important;overflow:visible!important}.sm43-group.sm43-compact .sm43-group-content{display:none!important}</style></head><body><header class="smetric-app-header"><strong class="smetric-brand">SMETRIC · 현장조사</strong><div class="smetric-head-controls"><a class="smetric-home" href="../" title="SMETRIC 홈으로 이동">⌂ 홈</a><div class="theme-picker"><label for="themeSelect">화면 테마</label><select id="themeSelect" aria-label="화면 테마"><option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="forest">포레스트</option><option value="slate">슬레이트</option><option value="ocean">오션</option><option value="sand">샌드</option><option value="lavender">라벤더</option><option value="rose">로즈</option><option value="graphite">그라파이트</option><option value="system">기기 설정</option></select></div><span id="status"></span></div><span id="smSaveIndicator" class="sm-save-indicator" aria-live="polite"></span></header><main class="app"><section class="panel"><div class="projectbar"><label>작업 현장 선택<select id="siteSelect"></select></label><button id="newSite" class="primary">＋ 새 현장</button><button id="renameSite">현장 이름 변경</button><button id="deleteSite" class="danger">현장 삭제</button><span class="muted" id="siteCount"></span></div><section class="sm-quality-bar"><strong>자료 점검</strong><span id="smSurveyQualityResult">현재 현장의 자료를 점검할 수 있습니다.</span><button id="smSurveyQualityButton" type="button">누락 점검</button></section><div class="sm-survey-tools">
 <div class="sm-mode-tabs" role="tablist" aria-label="작업 도구 분류">
 <button type="button" id="smFieldTab" class="sm-tab-active">✏ 현장조사</button>
 <button type="button" id="smUtilityTab">⚙ 기타 도구</button>
@@ -545,8 +545,97 @@ $('albumPrint').onclick=()=>{
  let pages=[`<section class="albumPage"><h2>시설물의 위치도</h2><div class="mapBlank"></div></section>`,albumPage('시설물의 전경사진',outside.map((v,i)=>albumCard(v.image,i+1,v.label))),albumPage('시설물의 부위별 사진',inside.map((v,i)=>albumCard(v.image,i+1,v.label)))];
  for(let i=0;i<cards.length;i+=6)pages.push(albumPage('외관조사 사진첩',cards.slice(i,i+6)));
  const style=`@page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:Dotum,'돋움',sans-serif;color:#111;margin:0}.albumPage{width:186mm;height:273mm;break-after:page;page-break-after:always;overflow:hidden;padding:2mm}.albumPage:last-child{break-after:auto;page-break-after:auto}.albumPage h2{text-align:center;font-size:16pt;margin:2mm 0 6mm}.mapBlank{height:240mm;border:1px solid #333}.photoGrid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,77mm);gap:4mm 3mm}.photoCard{border:1px solid #333;min-height:0;display:flex;flex-direction:column;overflow:hidden}.photoImg{height:61mm;padding:2mm;display:flex;align-items:center;justify-content:center}.photoImg img{width:100%;height:100%;object-fit:contain}.photoFoot{height:16mm;display:grid;grid-template-columns:22mm 1fr;border-top:1px solid #333;font-size:9pt;text-align:center;align-items:center}.photoNum{height:100%;border-right:1px solid #333;display:flex;align-items:center;justify-content:center}.photoDesc{padding:1mm;overflow-wrap:anywhere;line-height:1.3}@media screen{body{background:#e5e9ee}.albumPage{margin:15px auto;background:#fff;box-shadow:0 2px 8px #999}}`;
- let win=window.open('','_blank');if(!win){alert('팝업이 차단되어 있습니다. 팝업을 허용한 뒤 다시 시도해 주세요.');return}win.document.open();win.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>외관조사 사진첩</title><style>'+style+'</style></head><body>'+pages.join('')+'
-<script id="smetric-v43-unified-script">
+ let win=window.open('','_blank');if(!win){alert('팝업이 차단되어 있습니다. 팝업을 허용한 뒤 다시 시도해 주세요.');return}win.document.open();win.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>외관조사 사진첩</title><style>'+style+'</style></head><body>'+pages.join('')+'</body></html>');win.document.close();
+};
+
+// 사용자 제공 HWPX 원본 틀의 표/쪽 배치를 유지하여 편집 가능한 한글 파일 생성
+async function exportAlbumHwpx(){
+ normalizeState();
+ if(typeof JSZip==='undefined'){alert('HWPX 압축 모듈을 불러오지 못했습니다. 웹앱을 다시 열어주세요.');return}
+ const defects=state.defects.map((d,i)=>({d,order:i,page:state.pages[d.pageId]?.name||''})).filter(x=>(x.d.photos||[]).length).sort((a,b)=>albumFloor(a.page)-albumFloor(b.page)||a.order-b.order);
+ const entries=[];
+ for(const {d,page} of defects)for(const photo of d.photos){entries.push({image:photo,location:page,description:[d.location||'',(d.types||[]).map(albumTypeName).join(' 및 '),albumSpec(d)].filter(Boolean).join(' ')})}
+ if(entries.length>59){alert('제공한 원본 한글 틀은 결함사진 59장까지만 지원합니다. 59장까지만 한글로 내보냅니다. 나머지는 JSON 원본에 유지됩니다.')}
+ try{
+ const resp=await fetch('./photo_album_template.hwpx');if(!resp.ok)throw Error('원본 한글 틀을 불러올 수 없습니다.');
+ const zip=await JSZip.loadAsync(await resp.arrayBuffer());
+ const xmlPath='Contents/section0.xml';const parser=new DOMParser();const doc=parser.parseFromString(await zip.file(xmlPath).async('string'),'application/xml');
+ if(doc.querySelector('parsererror'))throw Error('한글 XML 해석 실패');
+ const hpNS='http://www.hancom.co.kr/hwpml/2011/paragraph';
+ const paras=[...doc.getElementsByTagNameNS(hpNS,'p')];
+ const pText=p=>[...p.getElementsByTagNameNS(hpNS,'t')].map(n=>n.textContent).join('').trim();
+ function setPara(p,value){if(!p)return;const ts=[...p.getElementsByTagNameNS(hpNS,'t')];if(!ts.length)return;ts[0].textContent=value;ts.slice(1).forEach(t=>t.textContent='')}
+ // 내부 전경 6장의 설명을 사용자가 입력한 층·위치명으로 변경합니다.
+ const insideDefaults=['내부 복도 전경','지하1층 전경','주변도로 전경','주차장 전경','옥탑층 전경','옥탑층 기계실 전경'];
+ const indoorTable=[...doc.getElementsByTagNameNS(hpNS,'tbl')].find(tbl=>{
+  const ps=[...tbl.getElementsByTagNameNS(hpNS,'p')];
+  return ps.some(p=>pText(p)===insideDefaults[0])&&ps.some(p=>pText(p)===insideDefaults[5]);
+ });
+ if(indoorTable){
+  const ps=[...indoorTable.getElementsByTagNameNS(hpNS,'p')];
+  insideDefaults.forEach((old,i)=>{
+   const target=ps.find(p=>pText(p)===old);
+   if(target)setPara(target,albumSlot('inside',i).label||ALBUM_IN[i]);
+  });
+ }
+ // 사진1~사진59는 원본 양식의 사진번호/층/결함내용 3개 셀로 구성됨
+ for(let i=0;i<paras.length;i++){
+  const m=pText(paras[i]).match(/^사진(\d+)$/);if(!m)continue;
+  const n=Number(m[1]);if(n<1||n>59)continue;
+  const entry=entries[n-1];
+  const a=paras[i+1],b=paras[i+2];
+  // 원본 표의 다음 셀이 층/내용인지 확인하여 교체
+  if(a&&b){setPara(a,entry?entry.location:'');setPara(b,entry?entry.description:'')}
+ }
+ // 등록된 결함사진이 없는 뒤쪽 원본 표(사진31~59 등)는 한글 문서에서 통째로 삭제합니다.
+ // 표 하나당 결함사진 6장씩 배치된 원본 양식을 기준으로 합니다.
+ const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>{
+  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
+  return nums.some(n=>n>=1&&n<=59)
+ });
+ for(const tbl of defectTables){
+  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
+  if(nums.length&&Math.min(...nums)>entries.length){
+   // 원본 표를 포함하는 문단까지 제거해야 빈 페이지가 남지 않습니다.
+   const para=tbl.parentNode?.parentNode;
+   if(para&&para.localName==='p'&&para.parentNode)para.parentNode.removeChild(para);
+  }
+ }
+ // 표의 병합 셀에 중복 기록된 기존 설명도 공백으로 교체
+ const oldCaptions=['바닥 균열','바닥 파손','외벽 균열','조적벽체 균열','조적벽체 도장열화'];
+ const out=ALBUM_OUT.map((_,i)=>albumSlot('outside',i));const inside=ALBUM_IN.map((_,i)=>albumSlot('inside',i));
+ const blankCanvas=document.createElement('canvas');blankCanvas.width=800;blankCanvas.height=600;const cx=blankCanvas.getContext('2d');cx.fillStyle='#ffffff';cx.fillRect(0,0,800,600);const blank=blankCanvas.toDataURL('image/jpeg',0.75);
+ function asBase64(data){return (data||blank).split(',')[1]}
+ async function jpegBytes(src){
+  return await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=1000;c.height=750;const x=c.getContext('2d');x.fillStyle='white';x.fillRect(0,0,c.width,c.height);const k=Math.min(c.width/im.width,c.height/im.height);x.drawImage(im,(c.width-im.width*k)/2,(c.height-im.height*k)/2,im.width*k,im.height*k);resolve(c.toDataURL('image/jpeg',0.85).split(',')[1])};im.onerror=()=>reject(Error('사진 처리 실패'));im.src=src||blank})
+ }
+ // 원본 위치도는 공백 BMP로 교체하여 편집할 수 있도록 유지
+ const bmpW=1130,bmpH=820,row=((bmpW*3+3)>>2)<<2,size=54+row*bmpH;
+ const bmp=new Uint8Array(size);const dv=new DataView(bmp.buffer);bmp[0]=66;bmp[1]=77;dv.setUint32(2,size,true);dv.setUint32(10,54,true);dv.setUint32(14,40,true);dv.setInt32(18,bmpW,true);dv.setInt32(22,bmpH,true);dv.setUint16(26,1,true);dv.setUint16(28,24,true);dv.setUint32(34,size-54,true);bmp.fill(255,54);zip.file('BinData/image1.bmp',bmp);
+ // 원본의 일부 그림은 같은 파일을 재사용하므로 사진마다 개별 이미지 항목을 만든다.
+ const pics=[...doc.getElementsByTagNameNS(hpNS,'pic')];
+ const hpfPath='Contents/content.hpf';const hpfDoc=parser.parseFromString(await zip.file(hpfPath).async('string'),'application/xml');
+ const manifest=[...hpfDoc.getElementsByTagName('*')].find(e=>e.localName==='manifest');
+ const itemExample=[...hpfDoc.getElementsByTagName('*')].find(e=>e.localName==='item'&&e.getAttribute('id')==='image17');
+ for(let i=1;i<pics.length;i++){
+  const img=[...pics[i].getElementsByTagName('*')].find(e=>e.localName==='img'&&e.hasAttribute('binaryItemIDRef'));
+  if(!img)continue;
+  const key='albumPhoto'+i;
+  img.setAttribute('binaryItemIDRef',key);
+  const el=itemExample.cloneNode(true);el.setAttribute('id',key);el.setAttribute('href','BinData/'+key+'.jpg');el.setAttribute('media-type','image/jpeg');manifest.appendChild(el);
+  const src=i<=3?out[i-1]?.image:i<=9?inside[i-4]?.image:entries[i-10]?.image;
+  zip.file('BinData/'+key+'.jpg',await jpegBytes(src),{base64:true});
+ }
+ zip.file(hpfPath,new XMLSerializer().serializeToString(hpfDoc));
+ // 내부/외부 전경 설명 업데이트: 사진 설명은 원본 문서에서 수정 가능
+ const xml=new XMLSerializer().serializeToString(doc);zip.file(xmlPath,xml);
+ const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+ download(blob,basename()+'_외관조사사진첩.hwpx');
+ }catch(err){console.error(err);alert('한글 파일 생성 실패: '+err.message)}
+}
+$('albumHwpx').onclick=exportAlbumHwpx;
+$('albumHwpxInside').onclick=exportAlbumHwpx;
+</script><script id="sm-survey-board-open-v43">document.addEventListener('DOMContentLoaded',function(){var open=document.getElementById('smBoardOpen'),file=document.getElementById('drawingFile');if(!open||!file)return;open.onclick=function(){file.click()};function update(){var hasImage=(typeof img!=='undefined'&&!!img);open.style.display=hasImage?'none':''}setInterval(update,1500);update()});</script><script id="smetric-v43-unified-script">
 (function(){
 "use strict";
 function init(){
@@ -645,94 +734,4 @@ activate("field");
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script>
-</body></html>');win.document.close();
-};
-
-// 사용자 제공 HWPX 원본 틀의 표/쪽 배치를 유지하여 편집 가능한 한글 파일 생성
-async function exportAlbumHwpx(){
- normalizeState();
- if(typeof JSZip==='undefined'){alert('HWPX 압축 모듈을 불러오지 못했습니다. 웹앱을 다시 열어주세요.');return}
- const defects=state.defects.map((d,i)=>({d,order:i,page:state.pages[d.pageId]?.name||''})).filter(x=>(x.d.photos||[]).length).sort((a,b)=>albumFloor(a.page)-albumFloor(b.page)||a.order-b.order);
- const entries=[];
- for(const {d,page} of defects)for(const photo of d.photos){entries.push({image:photo,location:page,description:[d.location||'',(d.types||[]).map(albumTypeName).join(' 및 '),albumSpec(d)].filter(Boolean).join(' ')})}
- if(entries.length>59){alert('제공한 원본 한글 틀은 결함사진 59장까지만 지원합니다. 59장까지만 한글로 내보냅니다. 나머지는 JSON 원본에 유지됩니다.')}
- try{
- const resp=await fetch('./photo_album_template.hwpx');if(!resp.ok)throw Error('원본 한글 틀을 불러올 수 없습니다.');
- const zip=await JSZip.loadAsync(await resp.arrayBuffer());
- const xmlPath='Contents/section0.xml';const parser=new DOMParser();const doc=parser.parseFromString(await zip.file(xmlPath).async('string'),'application/xml');
- if(doc.querySelector('parsererror'))throw Error('한글 XML 해석 실패');
- const hpNS='http://www.hancom.co.kr/hwpml/2011/paragraph';
- const paras=[...doc.getElementsByTagNameNS(hpNS,'p')];
- const pText=p=>[...p.getElementsByTagNameNS(hpNS,'t')].map(n=>n.textContent).join('').trim();
- function setPara(p,value){if(!p)return;const ts=[...p.getElementsByTagNameNS(hpNS,'t')];if(!ts.length)return;ts[0].textContent=value;ts.slice(1).forEach(t=>t.textContent='')}
- // 내부 전경 6장의 설명을 사용자가 입력한 층·위치명으로 변경합니다.
- const insideDefaults=['내부 복도 전경','지하1층 전경','주변도로 전경','주차장 전경','옥탑층 전경','옥탑층 기계실 전경'];
- const indoorTable=[...doc.getElementsByTagNameNS(hpNS,'tbl')].find(tbl=>{
-  const ps=[...tbl.getElementsByTagNameNS(hpNS,'p')];
-  return ps.some(p=>pText(p)===insideDefaults[0])&&ps.some(p=>pText(p)===insideDefaults[5]);
- });
- if(indoorTable){
-  const ps=[...indoorTable.getElementsByTagNameNS(hpNS,'p')];
-  insideDefaults.forEach((old,i)=>{
-   const target=ps.find(p=>pText(p)===old);
-   if(target)setPara(target,albumSlot('inside',i).label||ALBUM_IN[i]);
-  });
- }
- // 사진1~사진59는 원본 양식의 사진번호/층/결함내용 3개 셀로 구성됨
- for(let i=0;i<paras.length;i++){
-  const m=pText(paras[i]).match(/^사진(\d+)$/);if(!m)continue;
-  const n=Number(m[1]);if(n<1||n>59)continue;
-  const entry=entries[n-1];
-  const a=paras[i+1],b=paras[i+2];
-  // 원본 표의 다음 셀이 층/내용인지 확인하여 교체
-  if(a&&b){setPara(a,entry?entry.location:'');setPara(b,entry?entry.description:'')}
- }
- // 등록된 결함사진이 없는 뒤쪽 원본 표(사진31~59 등)는 한글 문서에서 통째로 삭제합니다.
- // 표 하나당 결함사진 6장씩 배치된 원본 양식을 기준으로 합니다.
- const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>{
-  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
-  return nums.some(n=>n>=1&&n<=59)
- });
- for(const tbl of defectTables){
-  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
-  if(nums.length&&Math.min(...nums)>entries.length){
-   // 원본 표를 포함하는 문단까지 제거해야 빈 페이지가 남지 않습니다.
-   const para=tbl.parentNode?.parentNode;
-   if(para&&para.localName==='p'&&para.parentNode)para.parentNode.removeChild(para);
-  }
- }
- // 표의 병합 셀에 중복 기록된 기존 설명도 공백으로 교체
- const oldCaptions=['바닥 균열','바닥 파손','외벽 균열','조적벽체 균열','조적벽체 도장열화'];
- const out=ALBUM_OUT.map((_,i)=>albumSlot('outside',i));const inside=ALBUM_IN.map((_,i)=>albumSlot('inside',i));
- const blankCanvas=document.createElement('canvas');blankCanvas.width=800;blankCanvas.height=600;const cx=blankCanvas.getContext('2d');cx.fillStyle='#ffffff';cx.fillRect(0,0,800,600);const blank=blankCanvas.toDataURL('image/jpeg',0.75);
- function asBase64(data){return (data||blank).split(',')[1]}
- async function jpegBytes(src){
-  return await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=1000;c.height=750;const x=c.getContext('2d');x.fillStyle='white';x.fillRect(0,0,c.width,c.height);const k=Math.min(c.width/im.width,c.height/im.height);x.drawImage(im,(c.width-im.width*k)/2,(c.height-im.height*k)/2,im.width*k,im.height*k);resolve(c.toDataURL('image/jpeg',0.85).split(',')[1])};im.onerror=()=>reject(Error('사진 처리 실패'));im.src=src||blank})
- }
- // 원본 위치도는 공백 BMP로 교체하여 편집할 수 있도록 유지
- const bmpW=1130,bmpH=820,row=((bmpW*3+3)>>2)<<2,size=54+row*bmpH;
- const bmp=new Uint8Array(size);const dv=new DataView(bmp.buffer);bmp[0]=66;bmp[1]=77;dv.setUint32(2,size,true);dv.setUint32(10,54,true);dv.setUint32(14,40,true);dv.setInt32(18,bmpW,true);dv.setInt32(22,bmpH,true);dv.setUint16(26,1,true);dv.setUint16(28,24,true);dv.setUint32(34,size-54,true);bmp.fill(255,54);zip.file('BinData/image1.bmp',bmp);
- // 원본의 일부 그림은 같은 파일을 재사용하므로 사진마다 개별 이미지 항목을 만든다.
- const pics=[...doc.getElementsByTagNameNS(hpNS,'pic')];
- const hpfPath='Contents/content.hpf';const hpfDoc=parser.parseFromString(await zip.file(hpfPath).async('string'),'application/xml');
- const manifest=[...hpfDoc.getElementsByTagName('*')].find(e=>e.localName==='manifest');
- const itemExample=[...hpfDoc.getElementsByTagName('*')].find(e=>e.localName==='item'&&e.getAttribute('id')==='image17');
- for(let i=1;i<pics.length;i++){
-  const img=[...pics[i].getElementsByTagName('*')].find(e=>e.localName==='img'&&e.hasAttribute('binaryItemIDRef'));
-  if(!img)continue;
-  const key='albumPhoto'+i;
-  img.setAttribute('binaryItemIDRef',key);
-  const el=itemExample.cloneNode(true);el.setAttribute('id',key);el.setAttribute('href','BinData/'+key+'.jpg');el.setAttribute('media-type','image/jpeg');manifest.appendChild(el);
-  const src=i<=3?out[i-1]?.image:i<=9?inside[i-4]?.image:entries[i-10]?.image;
-  zip.file('BinData/'+key+'.jpg',await jpegBytes(src),{base64:true});
- }
- zip.file(hpfPath,new XMLSerializer().serializeToString(hpfDoc));
- // 내부/외부 전경 설명 업데이트: 사진 설명은 원본 문서에서 수정 가능
- const xml=new XMLSerializer().serializeToString(doc);zip.file(xmlPath,xml);
- const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
- download(blob,basename()+'_외관조사사진첩.hwpx');
- }catch(err){console.error(err);alert('한글 파일 생성 실패: '+err.message)}
-}
-$('albumHwpx').onclick=exportAlbumHwpx;
-$('albumHwpxInside').onclick=exportAlbumHwpx;
-</script><script id="sm-survey-board-open-v43">document.addEventListener('DOMContentLoaded',function(){var open=document.getElementById('smBoardOpen'),file=document.getElementById('drawingFile');if(!open||!file)return;open.onclick=function(){file.click()};function update(){var hasImage=(typeof img!=='undefined'&&!!img);open.style.display=hasImage?'none':''}setInterval(update,1500);update()});</script></body></html>
+</body></html>
