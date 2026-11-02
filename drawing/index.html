@@ -131,6 +131,33 @@ window.SM47Export={
 .sm43-group.sm43-expanded{padding:10px!important}
 .sm43-group-title{display:none}
 .sm43-group.sm43-compact .sm43-group-title{display:block}
+</style><style id="smetric-fixed-camera-v52">
+/* Keep camera outside the animated tool deck, on the same horizontal row. */
+.sm43-tool-panel{display:flex!important;flex-wrap:wrap!important;align-items:stretch!important;gap:9px!important;min-width:0!important}
+.sm43-tool-panel>.sm43-tabs{flex:0 0 100%!important;margin:0!important}
+.sm43-tool-panel>.sm43-deck{flex:1 1 0!important;min-width:0!important;margin:0!important}
+.sm43-tool-panel>.sm52-camera{flex:0 0 92px!important;width:92px!important;height:88px!important;min-width:92px!important;max-width:92px!important;align-self:stretch!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;border:1px solid #348d98!important;border-radius:11px!important;background:#257f8b!important;color:white!important;font-size:22px!important;font-weight:600!important;white-space:normal!important;padding:8px!important;transition:background-color .15s!important;box-shadow:none!important;transform:none!important}
+.sm43-tool-panel>.sm52-camera:hover{background:#2c919d!important}
+.sm43-tool-panel>.sm52-camera span{font-size:12px!important;line-height:1.25!important}
+.sm43-tool-panel .sm43-group.sm43-expanded>.sm43-group-title{display:none!important}
+.sm43-tool-panel .sm43-group.sm43-compact>.sm43-group-title{display:block!important}
+.sm43-tool-panel .sm43-group{transition:flex-grow .28s ease,flex-basis .28s ease,background-color .28s ease,opacity .28s ease,padding .28s ease!important}
+@media(max-width:680px){.sm43-tool-panel>.sm52-camera{flex-basis:68px!important;width:68px!important;min-width:68px!important;max-width:68px!important;height:75px!important}.sm43-tool-panel{gap:5px!important}}
+@media(prefers-reduced-motion:reduce){.sm43-tool-panel .sm43-group{transition:none!important}}
+</style><style id="smetric-v57-consistency">
+/* Two tool groups animate; camera remains in a dedicated fixed-size grid cell. */
+.sm43-tool-panel{display:grid!important;grid-template-columns:minmax(0,1fr) 92px!important;grid-template-rows:auto auto!important;gap:8px!important;align-items:stretch!important}
+.sm43-tool-panel>.sm43-tabs{grid-column:1/-1!important;grid-row:1!important;min-width:0}
+.sm43-tool-panel>.sm43-deck{grid-column:1!important;grid-row:2!important;min-width:0!important;min-height:88px!important;align-self:stretch!important}
+.sm43-tool-panel>#sm52FixedCamera{grid-column:2!important;grid-row:2!important;position:relative!important;left:auto!important;top:auto!important;transform:none!important;margin:0!important;padding:5px!important;width:92px!important;min-width:92px!important;max-width:92px!important;height:88px!important;min-height:88px!important;max-height:88px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;border-radius:11px!important;background:#398de1!important;border:1px solid #4799e9!important;color:#fff!important;box-sizing:border-box!important;white-space:normal!important}
+.sm43-tool-panel>#sm52FixedCamera span{font-size:12px!important;line-height:1.2!important}
+.sm43-tool-panel>#sm52FixedCamera span:first-child{font-size:24px!important}
+.sm43-group.sm43-expanded>.sm43-group-title{display:none!important}
+.sm43-group.sm43-compact>.sm43-group-title{display:block!important}
+.sm57-undo{white-space:nowrap!important;min-height:37px!important;align-self:center!important}
+.sm43-group-content .sm57-undo{display:inline-flex!important;align-items:center!important;justify-content:center!important}
+.sm43-group.sm43-compact .sm57-undo{display:none!important}
+@media(max-width:680px){.sm43-tool-panel{grid-template-columns:minmax(0,1fr) 72px!important}.sm43-tool-panel>#sm52FixedCamera{width:72px!important;min-width:72px!important;max-width:72px!important;height:76px!important;min-height:76px!important;max-height:76px!important}.sm43-tool-panel>.sm43-deck{min-height:76px!important}}
 </style></head><body data-theme="dark">
 <header class="smetric-app-header"><strong class="smetric-brand">SMETRIC · 도면 작성</strong><div class="smetric-head-controls"><a class="smetric-home" href="../" title="SMETRIC 홈으로 이동">⌂ 홈</a><label for="headerThemeProxy">화면 테마 <select id="headerThemeProxy" aria-label="화면 테마"><option value="light">라이트</option><option value="dark" selected>다크</option><option value="paper">도면지</option><option value="blueprint">블루프린트</option><option value="mint">민트</option><option value="sand">샌드</option><option value="slate">슬레이트</option></select></label></div><span id="smSaveIndicator" class="sm-save-indicator" aria-live="polite"></span></header>
 <section class="sm-draw-sitebar" aria-label="작업 현장 선택"><div class="sm-draw-site-title">작업 현장 선택</div><div class="sm-draw-site-row"><select id="smDrawSiteSelect" aria-label="작업 현장 선택"></select><button type="button" id="smDrawNewSite">＋ 새 현장</button><button type="button" id="smDrawRenameSite">현장 이름 변경</button><button type="button" id="smDrawDeleteSite" class="sm-draw-danger">현장 삭제</button><span id="smDrawSiteCount"></span></div></section><section class="sm-quality-bar"><strong>자료 점검</strong><span id="smDrawingQualityResult">현재 현장의 도면을 점검할 수 있습니다.</span><button id="smDrawingQualityButton" type="button">누락 점검</button></section><div class="toolbar"><button id="modeSelect" class="active" onclick="mode('select')">↖ 선택·이동</button><button id="modePoints" onclick="mode('points')">⬡ 모서리 지정</button><button id="modeFree" onclick="mode('free')">✎ 자유 드로잉</button><button onclick="closeShape()">외곽 닫기</button><button onclick="undo()">↶ 실행 취소</button><button id="repeatToggle" onclick="toggleRepeat()" title="ON 상태에서 캔버스를 누르면 마지막으로 만든 선 또는 부재가 같은 크기로 복제됩니다">⧉ 이전 작업 반복 OFF</button><button id="modeErase" onclick="mode('erase')">⌫ 지우개</button><select id="eraseMode" aria-label="지우개 방식"><option value="stroke">한 선 지우기</option><option value="partial">펜 굵기로 부분 지우기</option></select><label class="eraserSize">지우개 크기 <input id="eraseSize" type="range" min="8" max="55" value="20"></label><label class="eraserSize">펜 색상 <input type="color" id="penColor" value="#2563eb" title="펜 색상"></label><label class="eraserSize"><input id="penOnly" type="checkbox" style="width:auto" checked> 펜 전용</label><label class="eraserSize">테마 <select id="theme" onchange="document.body.dataset.theme=this.value"><option value="light">라이트</option><option value="dark">다크</option><option value="paper">도면지</option><option value="blueprint">블루프린트</option><option value="mint">민트</option><option value="sand">샌드</option><option value="slate">슬레이트</option></select></label><input id="autoRightTop" type="checkbox" hidden aria-hidden="true"></div>
@@ -144,16 +171,16 @@ const svg=document.getElementById('drawing'),shape=document.getElementById('shap
 const $=id=>document.getElementById(id);
 let sheets=[{id:"sheet-1",name:"도면 1",paths:[],members:[],doors:[],unitScale:1,measured:false}],sheetId="sheet-1",touchPoints=new Map(),touchGesture=null;
 const DRAW_SITE_INDEX='smetric-drawing-sites-index-v40',DRAW_SITE_PREFIX='smetric-drawing-site-v40-';let smDrawSites=[],smDrawSiteId=null;
-let repeatOn=false,lastCreated=null,joinFirst=null;let doors=[],members=[],paths=[],tool='select',selected=null,history=[],interaction=null,free=[],unitScale=1,measured=false,preview=null,pressTimer=null,zoomFactor=1,freeLast=null,freeHoldTimer=null,beamStart=null;
+let sm58OpenPath=-1;let repeatOn=false,lastCreated=null,joinFirst=null;let doors=[],members=[],paths=[],tool='select',selected=null,history=[],interaction=null,free=[],unitScale=1,measured=false,preview=null,pressTimer=null,zoomFactor=1,freeLast=null,freeHoldTimer=null,beamStart=null;
 const deep=x=>JSON.parse(JSON.stringify(x));
 function state(){return {paths:deep(paths),members:deep(members),doors:deep(doors),unitScale,measured}}
 function snapshot(){history.push(state());if(history.length>100)history.shift()}
 function stashSheet(){let sh=sheets.find(x=>x.id===sheetId);if(sh)Object.assign(sh,state())}
-function refreshSheets(){let sel=$('sheetSelect');if(!sel)return;sel.innerHTML='';for(let sh of sheets){let op=document.createElement('option');op.value=sh.id;op.textContent=sh.name;sel.append(op)}sel.value=sheetId;const active=sheets.find(x=>x.id===sheetId);if($('sm46SheetName'))$('sm46SheetName').value=active?.name||''} function switchSheet(id){if(id===sheetId)return;lastCreated=null;joinFirst=null;repeatOn=false;$('repeatToggle').classList.remove('active');$('repeatToggle').textContent='⧉ 이전 작업 반복 OFF';stashSheet();let sh=sheets.find(x=>x.id===id);if(!sh)return;sheetId=id;paths=deep(sh.paths);members=deep(sh.members);doors=deep(sh.doors||[]);unitScale=sh.unitScale||1;measured=!!sh.measured;history=[];selected=null;free=[];preview=null;mode('select');refreshSheets();autosave();msg(sh.name+' 도면을 열었습니다.')}
+function refreshSheets(){let sel=$('sheetSelect');if(!sel)return;sel.innerHTML='';for(let sh of sheets){let op=document.createElement('option');op.value=sh.id;op.textContent=sh.name;sel.append(op)}sel.value=sheetId;const active=sheets.find(x=>x.id===sheetId);if($('sm46SheetName'))$('sm46SheetName').value=active?.name||''} function switchSheet(id){if(id===sheetId)return;lastCreated=null;joinFirst=null;repeatOn=false;$('repeatToggle').classList.remove('active');$('repeatToggle').textContent='⧉ 이전 작업 반복 OFF';stashSheet();let sh=sheets.find(x=>x.id===id);if(!sh)return;sheetId=id;paths=deep(sh.paths);members=deep(sh.members);doors=deep(sh.doors||[]);unitScale=sh.unitScale||1;measured=!!sh.measured;history=[];selected=null;sm58OpenPath=-1;free=[];preview=null;mode('select');refreshSheets();autosave();msg(sh.name+' 도면을 열었습니다.')}
 function newSheet(){stashSheet();let id='sheet-'+Date.now()+'-'+Math.floor(Math.random()*10000);let sh={id,name:'도면 '+(sheets.length+1),paths:[],members:[],doors:[],unitScale:1,measured:false};sheets.splice(Math.max(0,sheets.findIndex(x=>x.id===sheetId)+1),0,sh);switchSheet(id)}
 function renameSheet(){let sh=sheets.find(x=>x.id===sheetId);if(!sh)return;let n=prompt('도면 이름',sh.name);if(n&&n.trim()){sh.name=n.trim().slice(0,60);refreshSheets();autosave()}}
 function duplicateSheet(){stashSheet();let old=sheets.find(x=>x.id===sheetId);let sh={...deep(old),id:'sheet-'+Date.now(),name:old.name+' 복사'};sheets.push(sh);switchSheet(sh.id)}
-function deleteSheet(){if(!confirm('현재 도면을 삭제할까요?'))return;let idx=sheets.findIndex(x=>x.id===sheetId);sheets.splice(idx,1);if(!sheets.length)sheets.push({id:'sheet-'+Date.now(),name:'도면 1',paths:[],members:[],doors:[],unitScale:1,measured:false});sheetId='';let next=sheets[Math.max(0,Math.min(idx,sheets.length-1))];sheetId=next.id;paths=deep(next.paths);members=deep(next.members);doors=deep(next.doors||[]);unitScale=next.unitScale||1;measured=!!next.measured;history=[];selected=null;mode('select');refreshSheets();autosave()}
+function deleteSheet(){if(!confirm('현재 도면을 삭제할까요?'))return;let idx=sheets.findIndex(x=>x.id===sheetId);sheets.splice(idx,1);if(!sheets.length)sheets.push({id:'sheet-'+Date.now(),name:'도면 1',paths:[],members:[],doors:[],unitScale:1,measured:false});sheetId='';let next=sheets[Math.max(0,Math.min(idx,sheets.length-1))];sheetId=next.id;paths=deep(next.paths);members=deep(next.members);doors=deep(next.doors||[]);unitScale=next.unitScale||1;measured=!!next.measured;history=[];selected=null;sm58OpenPath=-1;mode('select');refreshSheets();autosave()}
 function autosave(){try{stashSheet();let content=JSON.stringify({version:7,sheets,activeSheetId:sheetId,...state()});if(smDrawSiteId){localStorage.setItem(DRAW_SITE_PREFIX+smDrawSiteId,content);let meta=smDrawSites.find(x=>x.id===smDrawSiteId);if(meta)meta.updated=Date.now();localStorage.setItem(DRAW_SITE_INDEX,JSON.stringify({sites:smDrawSites,active:smDrawSiteId}))}else localStorage.setItem('smetric-drawing-autosave-v5',content);window.SMETRICSafety?.ok()}catch(e){msg('자동 저장 공간이 부족합니다. 프로젝트를 내보내세요.');window.SMETRICSafety?.failed(e)}}
 // Keep graph paper visible across the entire viewport after zooming or panning.
 // The 25-unit grid remains aligned to drawing coordinates, not the screen.
@@ -176,17 +203,26 @@ function repeatAt(p){if(!lastCreated){msg('반복할 이전 작업이 없습니�
 function beginJoin(){if(!selected||!['edge','vertex'].includes(selected.type))return msg('먼저 연결할 선을 선택하세요.');joinFirst=selected.pi;repeatOn=false;$('repeatToggle').classList.remove('active');$('repeatToggle').textContent='⧉ 이전 작업 반복 OFF';msg('JOIN: 연결할 다른 열린 선을 선택하세요.')}
 function joinWith(pi){let ai=joinFirst;joinFirst=null;if(ai===pi)return msg('서로 다른 두 선을 선택하세요.');let a=paths[ai],b=paths[pi];if(!a||!b||a.closed||b.closed||a.pts.length<2||b.pts.length<2)return msg('JOIN은 서로 다른 열린 선 2개에 사용할 수 있습니다.');let combos=[{d:distance(a.pts.at(-1),b.pts[0]),av:false,bv:false},{d:distance(a.pts.at(-1),b.pts.at(-1)),av:false,bv:true},{d:distance(a.pts[0],b.pts[0]),av:true,bv:false},{d:distance(a.pts[0],b.pts.at(-1)),av:true,bv:true}].sort((x,y)=>x.d-y.d),best=combos[0];snapshot();let ap=best.av?[...a.pts].reverse():[...a.pts],bp=best.bv?[...b.pts].reverse():[...b.pts];let joined=[...ap,...bp];if(distance(ap.at(-1),bp[0])<2)joined.splice(ap.length,1);paths[ai]={...a,pts:joined,closed:false};paths.splice(pi,1);selected={type:'edge',pi:pi<ai?ai-1:ai,i:0};render();autosave();msg('JOIN 완료: 두 열린 선을 하나로 연결했습니다.')}
 function filletSelected(){if(!selected||!['edge','vertex'].includes(selected.type))return msg('먼저 모서리나 선분을 선택하세요.');let pi=selected.pi,p=paths[pi],n=p.pts.length;if(n<3)return msg('모깎기에는 연결된 선 2개 이상이 필요합니다.');let idx=selected.type==='vertex'?selected.i:selected.i+1;if(p.closed)idx%=n;else if(idx<=0||idx>=n-1)return msg('열린 선의 양끝은 모깎기할 수 없습니다.');let prev=p.pts[(idx-1+n)%n],v=p.pts[idx],next=p.pts[(idx+1)%n],l1=distance(prev,v),l2=distance(v,next),r=Number($('filletRadius').value)/unitScale;if(!(r>0))return msg('반지름을 입력하세요.');let ux=(prev.x-v.x)/l1,uy=(prev.y-v.y)/l1,vx=(next.x-v.x)/l2,vy=(next.y-v.y)/l2,theta=Math.acos(Math.max(-1,Math.min(1,ux*vx+uy*vy)));if(theta<.03||Math.PI-theta<.03)return msg('두 선의 각도가 모깎기에 적합하지 않습니다.');let t=r/Math.tan(theta/2);if(t>=Math.min(l1,l2)*.95)return msg('반지름이 너무 큽니다. 작은 값을 입력하세요.');let a={x:v.x+ux*t,y:v.y+uy*t},b={x:v.x+vx*t,y:v.y+vy*t};let bis={x:ux+vx,y:uy+vy},bl=Math.hypot(bis.x,bis.y),center={x:v.x+bis.x/bl*r/Math.sin(theta/2),y:v.y+bis.y/bl*r/Math.sin(theta/2)};let start=Math.atan2(a.y-center.y,a.x-center.x),end=Math.atan2(b.y-center.y,b.x-center.x),delta=((end-start+Math.PI*3)%(Math.PI*2))-Math.PI;let arc=Array.from({length:13},(_,i)=>({x:center.x+r*Math.cos(start+delta*i/12),y:center.y+r*Math.sin(start+delta*i/12)}));snapshot();p.pts.splice(idx,1,...arc);selected=null;render();autosave();msg('FILLET: 반지름 '+Math.round(r*unitScale)+'mm 모깎기를 적용했습니다.')}
-function mode(m){if(m!=='erase'){$('eraserCursor').setAttribute('visibility','hidden');$('eraserCursor').setAttribute('cx',-100)}tool=m;selected=null;beamStart=null;['select','points','free','erase','rect','lshape','ushape','wall','column','steel','beam','smallbeam','steelbeam'].forEach(k=>{let b=$('mode'+k[0].toUpperCase()+k.slice(1));if(b)b.classList.toggle('active',m===k)});render()}
+function mode(m){if(m!=='points'&&m!=='select')sm58OpenPath=-1;if(m!=='erase'){$('eraserCursor').setAttribute('visibility','hidden');$('eraserCursor').setAttribute('cx',-100)}tool=m;selected=null;beamStart=null;['select','points','free','erase','rect','lshape','ushape','wall','column','steel','beam','smallbeam','steelbeam'].forEach(k=>{let b=$('mode'+k[0].toUpperCase()+k.slice(1));if(b)b.classList.toggle('active',m===k)});render()}
 function msg(s){$('message').textContent=s}
 function resetAll(){if((paths.length||members.length)&&!confirm('현재 도면을 지우고 새로 시작할까요?'))return;snapshot();paths=[];members=[];doors=[];unitScale=1;measured=false;selected=null;render();autosave()}
-function currentOpen(){let i=paths.length-1;return i>=0&&paths[i].kind==='polygon'&&!paths[i].closed?i:-1}
-function closeShape(){let i=currentOpen();if(i<0||paths[i].pts.length<3){msg('닫을 외곽의 모서리 3개 이상이 필요합니다.');return}snapshot();paths[i].closed=true;mode('select');autosave();msg('외곽을 닫았습니다.')}
+function currentOpen(){return sm58OpenPath>=0&&paths[sm58OpenPath]?.kind==='polygon'&&!paths[sm58OpenPath].closed?sm58OpenPath:-1}
+function closeShape(){let i=currentOpen();if(i<0||paths[i].pts.length<3){msg('닫을 외곽의 모서리 3개 이상이 필요합니다.');return}snapshot();paths[i].closed=true;sm58OpenPath=-1;mode('select');autosave();msg('외곽을 닫았습니다.')}
 function point(e){let p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
 function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
 function seg(p,i){return[p.pts[i],p.pts[(i+1)%p.pts.length]]}
 function segLen(p,i){return distance(...seg(p,i))*unitScale}
 function svgEl(tag,attrs,parent=shape){let e=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));parent.appendChild(e);return e}
-function render(){updateGridBackdrop();shape.innerHTML='';doorsLayer.innerHTML='';overlays.innerHTML='';const currentSheet=sheets.find(x=>x.id===sheetId);if(currentSheet?.background){svgEl('image',{href:currentSheet.background,x:0,y:0,width:900,height:650,preserveAspectRatio:'xMidYMid meet','pointer-events':'none'});} paths.forEach((path,pi)=>{let pts=path.pts;if(!pts.length)return;let coords=pts.map(p=>`${p.x},${p.y}`).join(' '),isPoly=path.kind==='polygon';svgEl(isPoly&&path.closed?'polygon':'polyline',{points:coords,fill:'none',stroke:path.color||'#2563eb','stroke-width':path.kind==='wall'?Math.max(2,(path.thickness||200)/unitScale):3,'stroke-linejoin':'round','stroke-linecap':'round','pointer-events':'none'});let n=path.closed?pts.length:pts.length-1;for(let i=0;i<n;i++){let [a,b]=seg(path,i);svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'transparent','stroke-width':Math.max(16,path.kind==='wall'?(path.thickness||200)/unitScale+10:16),'data-path':pi,'data-edge':i});if(selected?.type==='edge'&&selected.pi===pi&&selected.i===i)svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#f59e0b','stroke-width':4,'pointer-events':'none'});if(measured&&selected?.pi===pi){let t=svgEl('text',{x:(a.x+b.x)/2,y:(a.y+b.y)/2-9,'font-size':13,'text-anchor':'middle',fill:'#334155','paint-order':'stroke',stroke:'#fff','stroke-width':4,'pointer-events':'none'});t.textContent=Math.round(segLen(path,i)).toLocaleString('ko-KR')}}if(isPoly&&selected?.pi===pi)pts.forEach((p,i)=>svgEl('circle',{cx:p.x,cy:p.y,r:6,fill:selected?.type==='vertex'&&selected.i===i?'#f59e0b':'white',stroke:'#2563eb','stroke-width':2.5,'data-path':pi,'data-vertex':i}));});renderMembers();renderDoors();if(preview&&preview.length>1)svgEl('polyline',{points:preview.map(p=>`${p.x},${p.y}`).join(' '),stroke:$('penColor').value,'stroke-width':2,'stroke-dasharray':'7 5',fill:'none','pointer-events':'none'},overlays);if(free.length>1)svgEl('polyline',{points:free.map(p=>`${p.x},${p.y}`).join(' '),stroke:$('penColor').value,'stroke-width':3,fill:'none','pointer-events':'none'},overlays);updatePanel();$('side').classList.toggle('visible',!!selected);$('status').textContent=tool==='free'?'펜을 0.65초 멈춰 직선 보정 후, 펜을 떼지 말고 움직여 각도를 조절하세요.':tool==='erase'?'회색 원이 지워지는 범위입니다.':tool==='beam'?'첫 번째 기둥과 두 번째 기둥을 차례로 터치하면 큰보가 연결됩니다.':tool==='points'?'모서리를 차례로 찍고 시작점을 다시 누르면 외곽이 닫힙니다.':tool==='select'?'선이나 부재를 선택하면 오른쪽 편집창이 열립니다.':'그리기를 마치면 자동으로 선택 모드로 돌아갑니다.'}
+function render(){updateGridBackdrop();shape.innerHTML='';doorsLayer.innerHTML='';overlays.innerHTML='';const currentSheet=sheets.find(x=>x.id===sheetId);if(currentSheet?.background){svgEl('image',{href:currentSheet.background,x:0,y:0,width:900,height:650,preserveAspectRatio:'xMidYMid meet','pointer-events':'none'});} paths.forEach((path,pi)=>{let pts=path.pts;if(!pts.length)return;let coords=pts.map(p=>`${p.x},${p.y}`).join(' '),isPoly=path.kind==='polygon';if(path.kind==='wall'){
+ const t=Math.max(1,(path.thickness||200)/unitScale);
+ for(let wi=0;wi<pts.length-1;wi++){
+  const a=pts[wi],b=pts[wi+1],len=Math.hypot(b.x-a.x,b.y-a.y);
+  if(len<0.001)continue;
+  const nx=-(b.y-a.y)/len*t/2,ny=(b.x-a.x)/len*t/2;
+  const corners=[[a.x+nx,a.y+ny],[b.x+nx,b.y+ny],[b.x-nx,b.y-ny],[a.x-nx,a.y-ny]];
+  svgEl('polygon',{points:corners.map(c=>c.join(',')).join(' '),fill:'none',stroke:path.color||'#2563eb','stroke-width':2,'stroke-linejoin':'miter','pointer-events':'none'});
+ }
+}else svgEl(isPoly&&path.closed?'polygon':'polyline',{points:coords,fill:'none',stroke:path.color||'#2563eb','stroke-width':3,'stroke-linejoin':'miter','stroke-linecap':'butt','pointer-events':'none'});let n=path.closed?pts.length:pts.length-1;for(let i=0;i<n;i++){let [a,b]=seg(path,i);svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'transparent','stroke-width':Math.max(16,path.kind==='wall'?(path.thickness||200)/unitScale+10:16),'data-path':pi,'data-edge':i});if(selected?.type==='edge'&&selected.pi===pi&&selected.i===i)svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#f59e0b','stroke-width':4,'pointer-events':'none'});if(measured&&selected?.pi===pi){let t=svgEl('text',{x:(a.x+b.x)/2,y:(a.y+b.y)/2-9,'font-size':13,'text-anchor':'middle',fill:'#334155','paint-order':'stroke',stroke:'#fff','stroke-width':4,'pointer-events':'none'});t.textContent=Math.round(segLen(path,i)).toLocaleString('ko-KR')}}if(isPoly&&(selected?.pi===pi||(tool==='points'&&pi===currentOpen())))pts.forEach((p,i)=>svgEl('circle',{cx:p.x,cy:p.y,r:6,fill:selected?.type==='vertex'&&selected.i===i?'#f59e0b':'white',stroke:'#2563eb','stroke-width':2.5,'data-path':pi,'data-vertex':i}));});renderMembers();renderDoors();if(preview&&preview.length>1)svgEl('polyline',{points:preview.map(p=>`${p.x},${p.y}`).join(' '),stroke:$('penColor').value,'stroke-width':2,'stroke-dasharray':'7 5',fill:'none','pointer-events':'none'},overlays);if(free.length>1)svgEl('polyline',{points:free.map(p=>`${p.x},${p.y}`).join(' '),stroke:$('penColor').value,'stroke-width':3,fill:'none','pointer-events':'none'},overlays);updatePanel();$('side').classList.toggle('visible',!!selected);$('status').textContent=tool==='free'?'펜을 0.65초 멈춰 직선 보정 후, 펜을 떼지 말고 움직여 각도를 조절하세요.':tool==='erase'?'회색 원이 지워지는 범위입니다.':tool==='beam'?'첫 번째 기둥과 두 번째 기둥을 차례로 터치하면 큰보가 연결됩니다.':tool==='points'?'빈 공간을 눌러 새 외곽을 그립니다. 기존 모서리는 잡고 이동할 수 있습니다. 시작점을 다시 누르면 닫힙니다.':tool==='select'?'선이나 부재를 선택하면 오른쪽 편집창이 열립니다.':'그리기를 마치면 자동으로 선택 모드로 돌아갑니다.'}
 function getSelected(){return selected&&selected.type!=='member'?paths[selected.pi]:null}
 function updatePanel(){
  const isMember=selected?.type==='member',m=isMember?members[selected.i]:null;
@@ -237,7 +273,24 @@ function presetPoints(kind,a,b){let x=Math.min(a.x,b.x),y=Math.min(a.y,b.y),w=Ma
 function clearPress(){if(pressTimer){clearTimeout(pressTimer);pressTimer=null}}
 function onDown(e){if(e.pointerType==='touch')return;if(e.pointerType==='touch'&&e.isPrimary===false)return;let p=point(e);
  if(repeatOn&&tool==='select'){repeatAt(p);return}
- if(tool==='points'){let pi=currentOpen();if(pi>=0&&paths[pi].pts.length>=3&&distance(p,paths[pi].pts[0])<22){closeShape();return}snapshot();if(pi<0)paths.push({kind:'polygon',closed:false,pts:[p],color:color()});else{let q=paths[pi].pts;q.push(snap(p,q.at(-1)))}render();return}
+ if(tool==='points'){
+  const hitVertex=e.target.closest('[data-vertex][data-path]');
+  if(hitVertex){
+    const pi=Number(hitVertex.getAttribute('data-path')),vi=Number(hitVertex.getAttribute('data-vertex'));
+    if(paths[pi]?.pts[vi]){
+      selected={type:'vertex',pi,i:vi};
+      interaction={type:'drag',id:e.pointerId,pi,i:vi,start:p,original:{...paths[pi].pts[vi]},moved:false};
+      svg.setPointerCapture(e.pointerId);render();return;
+    }
+  }
+  let pi=currentOpen();
+  if(pi>=0&&paths[pi].pts.length>=3&&distance(p,paths[pi].pts[0])<15){closeShape();return}
+  snapshot();
+  if(pi<0){paths.push({kind:'polygon',closed:false,pts:[p],color:color()});sm58OpenPath=paths.length-1;}
+  else {let q=paths[pi].pts;q.push(snap(p,q.at(-1)))}
+  selected={type:'vertex',pi:sm58OpenPath,i:paths[sm58OpenPath].pts.length-1};
+  render();autosave();return;
+ }
  if(tool==='beam'){let hit=e.target.closest('[data-member]');if(!hit){msg('큰보는 기둥 중심을 차례로 터치하세요.');return}let i=+hit.getAttribute('data-member');if(beamStart===null){beamStart=i;msg('연결할 두 번째 기둥을 터치하세요.');return}if(i===beamStart)return;let a=members[beamStart],b=members[i];snapshot();paths.push({kind:'wall',closed:false,pts:[{x:a.x,y:a.y},{x:b.x,y:b.y}],thickness:300,color:color()});beamStart=null;mode('select');autosave();msg('기둥 사이 큰보를 연결했습니다.');return}
  if(['column','steel','steelbeam'].includes(tool)){snapshot();let beam=tool.includes('beam');members.push({kind:tool,x:p.x,y:p.y,w:beam?500:400,h:beam?250:400});rememberCreated('member',members.length-1);selected={type:'member',i:members.length-1};mode('select');selected={type:'member',i:members.length-1};render();msg('구조부재를 배치했습니다. 치수와 위치를 수정하세요.');return}
  if(['rect','lshape','ushape','wall','smallbeam'].includes(tool)){interaction={type:'preset',id:e.pointerId,start:p,end:p,kind:tool};svg.setPointerCapture(e.pointerId);return}
@@ -274,7 +327,16 @@ function exportSVG(){download(new Blob([makeSVG()],{type:'image/svg+xml'}),'현�
 function exportJPG(){rasterExport('image/jpeg','현장도면.jpg')}
 function rasterExport(mime,name){let src=URL.createObjectURL(new Blob([makeSVG()],{type:'image/svg+xml'})),im=new Image();im.onload=()=>{let c=document.createElement('canvas');c.width=1800;c.height=1300;let ctx=c.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0,c.width,c.height);SM47Export.padded(c).toBlob(b=>download(b,name),mime,.92);URL.revokeObjectURL(src)};im.src=src}
 function exportPNG(){let src=URL.createObjectURL(new Blob([makeSVG()],{type:'image/svg+xml'})),im=new Image();im.onload=()=>{let c=document.createElement('canvas');c.width=1800;c.height=1300;let ctx=c.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0,c.width,c.height);SM47Export.downloadCanvas(c,b=>download(b,'현장도면.png'));URL.revokeObjectURL(src)};im.src=src}
-function exportDXF(){if(!paths.some(p=>p.pts.length>=2)&&!members.length)return msg('도면을 먼저 그려주세요.');let s='0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n4\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n';for(let p of paths){let n=p.closed?p.pts.length:p.pts.length-1;for(let i=0;i<n;i++){let [a,b]=seg(p,i);s+=`0\nLINE\n8\nOUTLINE\n10\n${(a.x*unitScale).toFixed(3)}\n20\n${(-a.y*unitScale).toFixed(3)}\n30\n0\n11\n${(b.x*unitScale).toFixed(3)}\n21\n${(-b.y*unitScale).toFixed(3)}\n31\n0\n`}}for(let m of members){let x=m.x*unitScale,y=m.y*unitScale,w=m.w/2,h=m.h/2;let pts=[[x-w,y-h],[x+w,y-h],[x+w,y+h],[x-w,y+h]];for(let i=0;i<4;i++){let a=pts[i],b=pts[(i+1)%4];s+=`0\nLINE\n8\nSTRUCTURE\n10\n${a[0]}\n20\n${-a[1]}\n30\n0\n11\n${b[0]}\n21\n${-b[1]}\n31\n0\n`}}for(let d of doors){let pts=doorGeometry(d);let chain=[d.hinge,d.leaf];for(let i=0;i<chain.length-1;i++){let a=chain[i],b=chain[i+1];s+=`0\nLINE\n8\nDOOR\n10\n${(a.x*unitScale).toFixed(3)}\n20\n${(-a.y*unitScale).toFixed(3)}\n30\n0\n11\n${(b.x*unitScale).toFixed(3)}\n21\n${(-b.y*unitScale).toFixed(3)}\n31\n0\n`;}for(let i=1;i<pts.length;i++){let a=pts[i-1],b=pts[i];s+=`0\nLINE\n8\nDOOR_SWING\n10\n${(a.x*unitScale).toFixed(3)}\n20\n${(-a.y*unitScale).toFixed(3)}\n30\n0\n11\n${(b.x*unitScale).toFixed(3)}\n21\n${(-b.y*unitScale).toFixed(3)}\n31\n0\n`;}}s+='0\nENDSEC\n0\nEOF\n';download(new Blob([s],{type:'application/dxf'}),'현장도면.dxf')}
+function exportDXF(){if(!paths.some(p=>p.pts.length>=2)&&!members.length)return msg('도면을 먼저 그려주세요.');let s='0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n4\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n';for(let p of paths){let n=p.closed?p.pts.length:p.pts.length-1;for(let i=0;i<n;i++){
+ let [a,b]=seg(p,i);
+ if(p.kind==='wall'){
+  const len=Math.hypot(b.x-a.x,b.y-a.y);if(len<.001)continue;
+  const t=(p.thickness||200)/unitScale/2,nx=-(b.y-a.y)/len*t,ny=(b.x-a.x)/len*t;
+  const c=[{x:a.x+nx,y:a.y+ny},{x:b.x+nx,y:b.y+ny},{x:b.x-nx,y:b.y-ny},{x:a.x-nx,y:a.y-ny}];
+  for(let k=0;k<4;k++){const u=c[k],v=c[(k+1)%4];s+=`0\nLINE\n8\nWALL\n10\n${(u.x*unitScale).toFixed(3)}\n20\n${(-u.y*unitScale).toFixed(3)}\n30\n0\n11\n${(v.x*unitScale).toFixed(3)}\n21\n${(-v.y*unitScale).toFixed(3)}\n31\n0\n`;}
+  continue;
+ }
+ s+=`0\nLINE\n8\nOUTLINE\n10\n${(a.x*unitScale).toFixed(3)}\n20\n${(-a.y*unitScale).toFixed(3)}\n30\n0\n11\n${(b.x*unitScale).toFixed(3)}\n21\n${(-b.y*unitScale).toFixed(3)}\n31\n0\n`}}for(let m of members){let x=m.x*unitScale,y=m.y*unitScale,w=m.w/2,h=m.h/2;let pts=[[x-w,y-h],[x+w,y-h],[x+w,y+h],[x-w,y+h]];for(let i=0;i<4;i++){let a=pts[i],b=pts[(i+1)%4];s+=`0\nLINE\n8\nSTRUCTURE\n10\n${a[0]}\n20\n${-a[1]}\n30\n0\n11\n${b[0]}\n21\n${-b[1]}\n31\n0\n`}}for(let d of doors){let pts=doorGeometry(d);let chain=[d.hinge,d.leaf];for(let i=0;i<chain.length-1;i++){let a=chain[i],b=chain[i+1];s+=`0\nLINE\n8\nDOOR\n10\n${(a.x*unitScale).toFixed(3)}\n20\n${(-a.y*unitScale).toFixed(3)}\n30\n0\n11\n${(b.x*unitScale).toFixed(3)}\n21\n${(-b.y*unitScale).toFixed(3)}\n31\n0\n`;}for(let i=1;i<pts.length;i++){let a=pts[i-1],b=pts[i];s+=`0\nLINE\n8\nDOOR_SWING\n10\n${(a.x*unitScale).toFixed(3)}\n20\n${(-a.y*unitScale).toFixed(3)}\n30\n0\n11\n${(b.x*unitScale).toFixed(3)}\n21\n${(-b.y*unitScale).toFixed(3)}\n31\n0\n`;}}s+='0\nENDSEC\n0\nEOF\n';download(new Blob([s],{type:'application/dxf'}),'현장도면.dxf')}
 function saveJSON(){stashSheet();download(new Blob([JSON.stringify({version:7,sheets,activeSheetId:sheetId,...state()},null,2)],{type:'application/json'}),'현장도면_프로젝트.json')}
 async function loadJSON(e){try{let obj=JSON.parse(await e.target.files[0].text());let incoming=Array.isArray(obj.paths)?obj.paths:Array.isArray(obj.pts)?[{kind:'polygon',closed:!!obj.closed,pts:obj.pts}]:null;if(!incoming)throw Error('잘못된 형식');snapshot();if(Array.isArray(obj.sheets)&&obj.sheets.length){sheets=obj.sheets;sheetId=obj.activeSheetId&&sheets.some(s=>s.id===obj.activeSheetId)?obj.activeSheetId:sheets[0].id;let sh=sheets.find(s=>s.id===sheetId);paths=deep(sh.paths||[]);members=deep(sh.members||[]);doors=deep(sh.doors||[]);unitScale=sh.unitScale||1;measured=!!sh.measured}else{paths=incoming;members=Array.isArray(obj.members)?obj.members:[];doors=Array.isArray(obj.doors)?obj.doors:[];unitScale=obj.unitScale||1;measured=!!obj.measured;sheets=[{id:'sheet-1',name:'도면 1',...state()}];sheetId='sheet-1'}selected=null;history=[];mode('select');refreshSheets();render();autosave();msg('프로젝트를 불러왔습니다.')}catch(err){msg('불러오기 실패: '+err.message)}e.target.value=''}
 function smDrawInitSites(){try{let data=JSON.parse(localStorage.getItem(DRAW_SITE_INDEX)||'null');if(data&&Array.isArray(data.sites)&&data.sites.length){smDrawSites=data.sites;smDrawSiteId=smDrawSites.some(x=>x.id===data.active)?data.active:smDrawSites[0].id}else{smDrawSiteId='drawing-'+Date.now();smDrawSites=[{id:smDrawSiteId,name:'기존 현장',updated:Date.now()}];localStorage.setItem(DRAW_SITE_INDEX,JSON.stringify({sites:smDrawSites,active:smDrawSiteId}))}}catch(e){window.SMETRICSafety?.failed(e);smDrawSiteId='drawing-temporary';smDrawSites=[{id:smDrawSiteId,name:'현재 현장'}]}smDrawRefreshSites()}
@@ -286,7 +348,9 @@ function smDrawSwitchSite(id,skipSave=false){if(id===smDrawSiteId&&!skipSave)ret
 $('smDrawSiteSelect').addEventListener('change',e=>smDrawSwitchSite(e.target.value));
 $('smDrawNewSite').onclick=()=>{let name=prompt('새 현장 이름','새 현장');if(name===null)return;autosave();let id='drawing-'+Date.now()+'-'+Math.floor(Math.random()*100000);smDrawSites.push({id,name:name.trim()||'새 현장',updated:Date.now()});smDrawSwitchSite(id,true)};
 $('smDrawRenameSite').onclick=()=>{let item=smDrawSites.find(x=>x.id===smDrawSiteId);if(!item)return;let name=prompt('현장 이름 변경',item.name);if(name===null||!name.trim())return;item.name=name.trim();try{smDrawSaveIndex();smDrawRefreshSites()}catch(e){window.SMETRICSafety?.failed(e)}};
-$('smDrawDeleteSite').onclick=()=>{if(smDrawSites.length<2)return alert('마지막 현장은 삭제할 수 없습니다.');if(!confirm('현재 현장의 모든 도면을 삭제합니다. 백업 후 진행하시겠습니까?'))return;let id=smDrawSiteId;let next=smDrawSites.find(x=>x.id!==id)?.id;try{smDrawSites=smDrawSites.filter(x=>x.id!==id);localStorage.removeItem(DRAW_SITE_PREFIX+id);smDrawSwitchSite(next,true)}catch(e){window.SMETRICSafety?.failed(e)}};
+$('smDrawDeleteSite').onclick=()=>{if(!confirm('현재 현장의 모든 도면을 삭제합니다. 백업 후 진행하시겠습니까?'))return;let id=smDrawSiteId;let next=smDrawSites.find(x=>x.id!==id)?.id;try{smDrawSites=smDrawSites.filter(x=>x.id!==id);localStorage.removeItem(DRAW_SITE_PREFIX+id);
+ if(!smDrawSites.length){next='drawing-'+Date.now()+'-'+Math.floor(Math.random()*100000);smDrawSites.push({id:next,name:'새 현장',updated:Date.now()})}
+ smDrawSwitchSite(next,true)}catch(e){window.SMETRICSafety?.failed(e)}};
 try{smDrawInitSites();let saved=JSON.parse(localStorage.getItem(DRAW_SITE_PREFIX+smDrawSiteId)||localStorage.getItem('smetric-drawing-autosave-v5')||'null');if(saved&&Array.isArray(saved.paths)){if(Array.isArray(saved.sheets)&&saved.sheets.length){sheets=saved.sheets;sheetId=saved.activeSheetId||sheets[0].id;let active=sheets.find(x=>x.id===sheetId)||sheets[0];paths=deep(active.paths||[]);members=deep(active.members||[]);doors=deep(active.doors||[]);unitScale=active.unitScale||1;measured=!!active.measured}else{paths=saved.paths;members=saved.members||[];doors=saved.doors||[];unitScale=saved.unitScale||1;measured=!!saved.measured}msg('자동 저장된 도면을 복구했습니다.')}}catch(e){}
 ['addDoor','applyEdge','applyVertex','applyWallThickness','applyMember','copyMember','deleteMember','offsetMember','closeShape'].forEach(name=>{let fn=window[name];if(typeof fn==='function')window[name]=function(...args){let result=fn(...args);autosave();return result}});
 svg.addEventListener('pointerleave',()=>{$('eraserCursor').setAttribute('cx',-100);$('eraserCursor').setAttribute('visibility','hidden')});
@@ -376,6 +440,39 @@ if(mod==="survey"){
  tool.remove();
  icon("selectMode","✎");icon("export","⇩");
 }
+// Camera is a stable sibling of the animated tool deck, not part of either group.
+const sm52Camera=document.createElement('button');
+sm52Camera.type='button';sm52Camera.id='sm52FixedCamera';sm52Camera.className='sm52-camera';
+sm52Camera.innerHTML='<span aria-hidden="true" style="font-size:23px!important">📷</span><span>촬영</span>';
+sm52Camera.setAttribute('aria-label','카메라 촬영');
+if(mod==='schmidt'){
+ const original=document.getElementById('camera');
+ if(original){original.style.display='none';sm52Camera.addEventListener('click',()=>original.click());}
+ else sm52Camera.disabled=true;
+}else if(mod==='tilt'){
+ const original=document.getElementById('takePhoto');
+ if(original){sm52Camera.addEventListener('click',()=>original.click());}
+ else sm52Camera.disabled=true;
+}else if(mod==='drawing'){
+ const input=document.createElement('input');input.type='file';input.accept='image/*';input.setAttribute('capture','environment');input.hidden=true;input.id='sm52DrawingCameraInput';
+ panel.appendChild(input);
+ sm52Camera.addEventListener('click',()=>input.click());
+ input.addEventListener('change',async()=>{
+   const file=input.files&&input.files[0];if(!file)return;
+   try{
+     const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('사진을 읽을 수 없습니다.'));reader.readAsDataURL(file)});
+     const sheet=sheets.find(x=>x.id===sheetId);if(!sheet)throw new Error('현재 도면이 없습니다.');
+     if(typeof snapshot==='function')snapshot();
+     sheet.background=data;
+     if(typeof render==='function')render();
+     if(typeof autosave==='function')autosave();
+     if(typeof msg==='function')msg('촬영한 사진을 현재 도면의 배경으로 불러왔습니다.');
+   }catch(err){alert('카메라 사진을 불러오지 못했습니다: '+err.message)}
+   finally{input.value='';}
+ });
+}
+panel.appendChild(sm52Camera);
+
 // Apply the same compact icon vocabulary to common actions without changing their handlers.
 const commonIcons=[
  [/^스케치 수정$/, "✎"],[/^결함 표시 (?:ON|OFF)$/, "◉"],[/^조사 표시 (?:ON|OFF)$/, "◉"],
@@ -392,4 +489,60 @@ activate("field");
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script>
-<script id="sm46-drawing-open">(function(){function init(){const wrap=document.querySelector('.canvasWrap'),select=document.getElementById('sheetSelect');if(!wrap||!select)return;wrap.style.position='relative';const input=document.createElement('input');input.type='file';input.accept='image/*,.pdf,application/pdf';input.hidden=true;document.body.appendChild(input);const b=document.createElement('button');b.type='button';b.className='sm46-empty-open';b.textContent='＋ 도면 또는 사진을 열어주세요';wrap.appendChild(b);b.onclick=()=>input.click();function sync(){try{const sh=sheets.find(x=>x.id===sheetId);b.style.display=(sh&&(sh.background||(sh.paths&&sh.paths.length)||(sh.members&&sh.members.length)||(sh.doors&&sh.doors.length)))?'none':'block'}catch(e){b.style.display='none'}}input.addEventListener('change',async()=>{const file=input.files?.[0];if(!file)return;try{let src;if(file.type==='application/pdf'||/\.pdf$/i.test(file.name)){if(!window.pdfjsLib){const js=document.createElement('script');js.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';await new Promise((ok,fail)=>{js.onload=ok;js.onerror=fail;document.head.appendChild(js)})}const doc=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;const page=await doc.getPage(1),v=page.getViewport({scale:1.6}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;await page.render({canvasContext:c.getContext('2d'),viewport:v}).promise;src=c.toDataURL('image/jpeg',.82)}else{src=await new Promise((ok,fail)=>{const reader=new FileReader();reader.onload=()=>ok(reader.result);reader.onerror=fail;reader.readAsDataURL(file)})}const sh=sheets.find(x=>x.id===sheetId);if(sh){sh.background=src;render();autosave();sync()}}catch(e){alert('도면 불러오기 실패: '+e.message)}finally{input.value=''}});const name=document.getElementById('sm46SheetName');name?.addEventListener('input',()=>{const sh=sheets.find(x=>x.id===sheetId);if(sh){sh.name=name.value||'도면';select.selectedOptions[0].textContent=sh.name;autosave()}});select.addEventListener('change',()=>setTimeout(sync,50));document.querySelectorAll('.sheetbar button').forEach(x=>x.addEventListener('click',()=>setTimeout(sync,60)));setInterval(sync,1200);sync()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();</script></body></html>
+<script id="sm46-drawing-open">(function(){function init(){const wrap=document.querySelector('.canvasWrap'),select=document.getElementById('sheetSelect');if(!wrap||!select)return;wrap.style.position='relative';const input=document.createElement('input');input.type='file';input.accept='image/*,.pdf,application/pdf';input.hidden=true;document.body.appendChild(input);const b=document.createElement('button');b.type='button';b.className='sm46-empty-open';b.textContent='＋ 도면 또는 사진을 열어주세요';wrap.appendChild(b);b.onclick=()=>input.click();function sync(){try{const sh=sheets.find(x=>x.id===sheetId);b.style.display=(sh&&(sh.background||(sh.paths&&sh.paths.length)||(sh.members&&sh.members.length)||(sh.doors&&sh.doors.length)))?'none':'block'}catch(e){b.style.display='none'}}input.addEventListener('change',async()=>{const file=input.files?.[0];if(!file)return;try{let src;if(file.type==='application/pdf'||/\.pdf$/i.test(file.name)){if(!window.pdfjsLib){const js=document.createElement('script');js.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';await new Promise((ok,fail)=>{js.onload=ok;js.onerror=fail;document.head.appendChild(js)})}const doc=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;const page=await doc.getPage(1),v=page.getViewport({scale:1.6}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;await page.render({canvasContext:c.getContext('2d'),viewport:v}).promise;src=c.toDataURL('image/jpeg',.82)}else{src=await new Promise((ok,fail)=>{const reader=new FileReader();reader.onload=()=>ok(reader.result);reader.onerror=fail;reader.readAsDataURL(file)})}const sh=sheets.find(x=>x.id===sheetId);if(sh){sh.background=src;render();autosave();sync()}}catch(e){alert('도면 불러오기 실패: '+e.message)}finally{input.value=''}});const name=document.getElementById('sm46SheetName');name?.addEventListener('input',()=>{const sh=sheets.find(x=>x.id===sheetId);if(sh){sh.name=name.value||'도면';select.selectedOptions[0].textContent=sh.name;autosave()}});select.addEventListener('change',()=>setTimeout(sync,50));document.querySelectorAll('.sheetbar button').forEach(x=>x.addEventListener('click',()=>setTimeout(sync,60)));setInterval(sync,1200);sync()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();</script><script id="smetric-v57-camera-undo">(function(){function ready(){
+ const mod=location.pathname.match(/\/(drawing|schmidt|tilt)\/?/);if(!mod)return;
+ const moduleName=mod[1];const panel=document.querySelector('.sm43-tool-panel');if(!panel)return;
+ const groups=panel.querySelectorAll('.sm43-group-content');if(groups.length<2)return;
+ const field=groups[0],util=groups[1];
+ let original=moduleName==='drawing'?[...document.querySelectorAll('button')].find(b=>b.getAttribute('onclick')==='undo()'):document.getElementById(moduleName==='schmidt'?'undo':'smTiltUndo');
+ if(original){util.appendChild(original);original.classList.add('sm57-undo');let proxy=document.getElementById('sm57UndoField');if(!proxy){proxy=document.createElement('button');proxy.type='button';proxy.id='sm57UndoField';proxy.className='sm57-undo';proxy.textContent='↶ 실행 취소';proxy.addEventListener('click',()=>original.click());field.appendChild(proxy)}
+ const sync=()=>{proxy.disabled=original.disabled;proxy.title=original.title||'실행 취소'};new MutationObserver(sync).observe(original,{attributes:true,attributeFilter:['disabled','title']});sync();}
+ let camera=document.getElementById('sm52FixedCamera');
+ if(!camera){const mod=moduleName;
+const sm52Camera=document.createElement('button');
+sm52Camera.type='button';sm52Camera.id='sm52FixedCamera';sm52Camera.className='sm52-camera';
+sm52Camera.innerHTML='<span aria-hidden="true" style="font-size:23px!important">📷</span><span>촬영</span>';
+sm52Camera.setAttribute('aria-label','카메라 촬영');
+if(mod==='schmidt'){
+ const original=document.getElementById('camera');
+ if(original){original.style.display='none';sm52Camera.addEventListener('click',()=>original.click());}
+ else sm52Camera.disabled=true;
+}else if(mod==='tilt'){
+ const original=document.getElementById('takePhoto');
+ if(original){sm52Camera.addEventListener('click',()=>original.click());}
+ else sm52Camera.disabled=true;
+}else if(mod==='drawing'){
+ const input=document.createElement('input');input.type='file';input.accept='image/*';input.setAttribute('capture','environment');input.hidden=true;input.id='sm52DrawingCameraInput';
+ panel.appendChild(input);
+ sm52Camera.addEventListener('click',()=>input.click());
+ input.addEventListener('change',async()=>{
+   const file=input.files&&input.files[0];if(!file)return;
+   try{
+     const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('사진을 읽을 수 없습니다.'));reader.readAsDataURL(file)});
+     const sheet=sheets.find(x=>x.id===sheetId);if(!sheet)throw new Error('현재 도면이 없습니다.');
+     if(typeof snapshot==='function')snapshot();
+     sheet.background=data;
+     if(typeof render==='function')render();
+     if(typeof autosave==='function')autosave();
+     if(typeof msg==='function')msg('촬영한 사진을 현재 도면의 배경으로 불러왔습니다.');
+   }catch(err){alert('카메라 사진을 불러오지 못했습니다: '+err.message)}
+   finally{input.value='';}
+ });
+}
+panel.appendChild(sm52Camera);
+ camera=sm52Camera;}
+ if(camera.parentElement!==panel)panel.appendChild(camera);
+ camera.style.display='flex';
+ const deck=panel.querySelector('.sm43-deck');if(deck)panel.insertBefore(camera,deck.nextSibling);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
+})();</script><script id="smetric-v59-wall-priority">
+(function(){
+ function arrange(){
+  const wall=document.getElementById('wallPanel'),edge=document.getElementById('edgePanel');
+  if(wall&&edge&&edge.parentElement)edge.parentElement.insertBefore(wall,edge);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange);
+ else arrange();
+})();
+</script></body></html>
