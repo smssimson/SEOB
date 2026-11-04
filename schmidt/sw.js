@@ -1,5 +1,5 @@
 /* SMETRIC schmidt offline v60 */
-const CACHE='smetric-schmidt-v64',CORE=["./", "./index.html"],OPTIONAL=["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"];
+const CACHE='smetric-schmidt-v66',CORE=["./", "./index.html"],OPTIONAL=["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"];
 self.addEventListener('install',e=>e.waitUntil((async()=>{let c=await caches.open(CACHE);await c.addAll(CORE);await Promise.allSettled(OPTIONAL.map(async u=>{let r=await fetch(u,{mode:'no-cors',signal:AbortSignal.timeout(4000)});if(r.ok||r.type==='opaque')await c.put(u,r)}));await self.skipWaiting()})()));
 self.addEventListener('activate',e=>e.waitUntil((async()=>{let keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('smetric-schmidt-')&&k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim()})()));
 self.addEventListener('fetch',e=>{let req=e.request;if(req.method!=='GET')return;let u=new URL(req.url);if(u.origin!==self.location.origin&&!OPTIONAL.includes(u.href))return;
