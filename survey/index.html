@@ -275,6 +275,16 @@ window.SM47Export={
 .sm65-floorbar .sm64-sheet-label{flex:1 1 170px!important}
 .sm65-floorbar .sm64-sheet-label select{flex:1 1 120px!important}
 @media(max-width:700px){.sm65-floorbar{gap:8px!important;padding:12px!important}.sm65-floorbar::before{font-size:16px}.sm65-floorbar button{padding:9px 11px!important;min-height:42px!important;font-size:13px!important}.sm65-floorbar label{flex:1 1 100%!important}.sm65-floorbar select{flex:1 1 120px!important}.sm65-floorbar input{font-size:16px!important}.sm65-floorbar .hint{display:none}}
+</style><style id="sm75-style">
+#list{display:flex;flex-direction:column;gap:7px;overflow-x:hidden;min-width:0}
+#list .sm75-defect-row{display:flex;align-items:center;gap:8px;min-width:0;width:100%;box-sizing:border-box;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+#list .sm75-defect-main{display:flex;align-items:center;gap:10px;flex:1 1 0;min-width:0;max-width:100%;text-align:left;padding:10px 12px;box-sizing:border-box;white-space:normal}
+#list .sm75-defect-main .num{flex:0 0 auto}
+#list .sm75-defect-text{flex:1 1 0;min-width:0;overflow-wrap:anywhere;word-break:keep-all;line-height:1.4}
+#list .sm75-defect-text small{display:inline;white-space:nowrap}
+#list .sm75-delete{flex:0 0 auto;width:auto;min-width:58px;padding:10px 12px;white-space:nowrap}
+#list .sm75-dragging{opacity:.65;outline:2px dashed #60a5fa;border-radius:10px}
+#list .sm75-over{outline:2px solid #22c55e;border-radius:10px}
 </style></head><body><header class="smetric-app-header"><strong class="smetric-brand">SMETRIC · 현장조사</strong><div class="smetric-head-controls"><a class="smetric-home" href="../" title="SMETRIC 홈으로 이동">⌂ 홈</a><div class="theme-picker"><label for="themeSelect">화면 테마</label><select id="themeSelect" aria-label="화면 테마"><option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="forest">포레스트</option><option value="slate">슬레이트</option><option value="ocean">오션</option><option value="sand">샌드</option><option value="lavender">라벤더</option><option value="rose">로즈</option><option value="graphite">그라파이트</option><option value="system">기기 설정</option></select></div><span id="status"></span></div><span id="smSaveIndicator" class="sm-save-indicator" aria-live="polite"></span></header><main class="app"><section class="panel"><div class="projectbar"><label>작업 현장 선택<select id="siteSelect"></select></label><button id="newSite" class="primary">＋ 새 현장</button><button id="renameSite">현장 이름 변경</button><button id="deleteSite" class="danger">현장 삭제</button><span class="muted" id="siteCount"></span></div><section class="sm-quality-bar"><strong>자료 점검</strong><span id="smSurveyQualityResult">현재 현장의 자료를 점검할 수 있습니다.</span><button id="smSurveyQualityButton" type="button">누락 점검</button></section><div class="sm-survey-tools">
 <div class="sm-mode-tabs" role="tablist" aria-label="작업 도구 분류">
 <button type="button" id="smFieldTab" class="sm-tab-active">✏ 현장조사</button>
@@ -403,24 +413,58 @@ function hasAreaDefect(d){return (d.types||[]).some(t=>/누수|백태|박리|박
 function measuredQty(d){let a=Number(d.width),b=Number(d.length),count=(Number.isFinite(Number(d.count))&&Number(d.count)>0?Number(d.count):1);if(!Number.isFinite(b)||b<=0)return null;if(isCrackDefect(d)){let band=Number(d.treatmentWidth)>0?Number(d.treatmentWidth):a;return Number.isFinite(band)&&band>0?band*b/1000000*count:null}if(!Number.isFinite(a)||a<=0)return null;return a*b/1000000*count}
 function effectiveQty(d){if(d.qtyManual===true){if(isCrackDefect(d)&&d.repairQtyBasis!=='㎡')return null;let v=d.repairQty;return v===''||v===null||v===undefined?null:Number(v)}return measuredQty(d)}
 function formatQty(v){return v===null||!Number.isFinite(v)?'':String(Math.round(v*1000000)/1000000)}
-function sm70MoveDefect(id,step){
- const items=currentDefects();const from=items.findIndex(d=>d.id===id),to=from+step;
- if(from<0||to<0||to>=items.length)return;
- const a=state.defects.indexOf(items[from]),b=state.defects.indexOf(items[to]);
- if(a<0||b<0)return;
- snapshot();[state.defects[a],state.defects[b]]=[state.defects[b],state.defects[a]];
+function sm75ReorderDefect(id,targetId){
+ const items=currentDefects(),from=items.findIndex(d=>d.id===id),to=items.findIndex(d=>d.id===targetId);
+ if(from<0||to<0||from===to)return;
+ snapshot();
+ // Preserve each defect object, photos and coordinates; only rearrange its position in the current page.
+ const reordered=items.slice();const [moved]=reordered.splice(from,1);reordered.splice(to,0,moved);
+ let cursor=0;
+ state.defects=state.defects.map(d=>d.pageId===state.activePage?reordered[cursor++]:d);
  selected=id;persist();refresh();draw();
 }
-function refresh(){let el=$('list');el.innerHTML='';currentDefects().forEach((d,i)=>{let b=document.createElement('button');b.className='item'+(d.id===selected?' active':'');b.innerHTML=`<span class="num">${sm69NumberAt(i)}</span><span>${escapeHtml(defectNames(d))} <small class="muted">${d.photos.length}장 ${d.line?'· 균열선':''}</small></span>`;b.onclick=()=>{selected=d.id;refresh();draw()};el.appendChild(b);
- const move=document.createElement('span');move.style.cssText='display:inline-flex;flex:none;gap:3px;margin-left:3px';
- for(const [delta,label] of [[-1,'▲'],[1,'▼']]){
-  const m=document.createElement('button');m.type='button';m.textContent=label;
-  m.title=delta<0?'결함 순서 한 칸 앞으로':'결함 순서 한 칸 뒤로';
-  m.setAttribute('aria-label',m.title);m.disabled=delta<0?i===0:i===currentDefects().length-1;
-  m.style.cssText='padding:6px 8px;min-width:34px;flex:none';
-  m.onclick=()=>sm70MoveDefect(d.id,delta);move.appendChild(m);
- }
- el.appendChild(move);let del=document.createElement('button');del.type='button';del.className='danger';del.textContent='삭제';del.title=(i+1)+'번 결함 삭제';del.style.cssText='margin-left:4px;padding:6px 9px;flex:none';del.onclick=()=>deleteDefect(d.id);el.appendChild(del)});$('count').textContent=currentDefects().length+'건 (현재 페이지)';let d=state.defects.find(x=>x.id===selected),ed=$('editor');if(!d){ed.innerHTML='<div class="muted">결함 번호를 선택하면 종류와 사진을 편집할 수 있습니다.</div>';return}let idx=pageNumber(d),crack=isCrackDefect(d);ed.innerHTML=`<div class="title">${circled(idx)} ${idx}번 결함 상세</div><label>결함 종류 (여러 개 선택 가능)</label><select id="typeSelect"><option value="">결함 추가 선택 (반복해서 선택)</option>${typeOptions(d)}</select><div id="chips" class="row" style="margin-top:7px"></div><div class="muted" style="font-size:11px;margin-top:5px">기존 결함은 원래 명칭을 보존합니다. 필요하면 기존 종류를 제거하고 새 분류를 선택하세요.</div><label>발생 위치</label><div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="location" style="flex:1 1 180px;min-width:0" placeholder="예: 정면, 복도, 기계실"><select id="locationMember" aria-label="발생 부재 선택" style="flex:1 1 145px;min-width:0"><option value="">부재 선택 (선택 안 함)</option><option value="기둥">기둥</option><option value="벽체">벽체</option><option value="보">보</option><option value="슬래브">슬래브</option><option value="바닥">바닥</option><option value="천장">천장</option><option value="계단">계단</option><option value="난간">난간</option><option value="창호">창호</option><option value="문">문</option><option value="기타">기타 (직접 입력)</option></select></div><input id="locationOtherMember" placeholder="기타 부재명 직접 입력" style="display:none;margin-top:6px"><div class="muted" style="font-size:12px;margin-top:4px">위치는 직접 입력하고 부재는 선택하세요. 예: 정면 + 기둥 → 정면 기둥</div><div style="margin-top:10px;padding:10px;background:#edf5fc;border-radius:8px"><b>결함 규격 · 모든 치수 mm</b><div class="muted" style="font-size:12px;margin:5px 0">${crack?'균열: 균열폭 × 길이(mm) 표기 / 별도 시공 폭 입력 시 보수면적 ㎡':'면적형: 가로 × 세로(mm) → 보수면적 ㎡'} · 개수(EA)는 동일 규격 반복 시 곱합니다.</div><label id="widthLabel">${crack?'균열폭 (mm)':'가로 / 폭 (mm)'}</label><div class="quick-presets"><select id="widthPreset"><option value="">${crack?'균열폭 선택':'폭 선택'}</option></select></div><input id="width" type="hidden"><label id="lengthLabel">${crack?'균열 길이 (mm)':'세로 / 길이 (mm)'}</label><div class="quick-presets"><select id="lengthPreset"><option value="">길이 선택</option></select></div><input id="length" type="hidden"><label>개수 (EA)</label><div class="quick-presets"><select id="eaPreset"><option value="">개수 선택</option></select></div><input id="countEA" type="hidden"><div class="muted" style="font-size:12px;margin-top:6px">철근노출 300 × 300mm, 3EA → 0.27㎡ · 수량은 실제 보수범위에 맞춰 수정 가능</div></div><div id="treatmentWidthWrap" style="margin-top:10px;padding:9px;border:1px solid var(--line);border-radius:9px"><label style="margin-top:0">면적 환산 폭(mm) · 균열폭 자동 연동</label><input id="treatmentWidth" type="number" min="0" step="any" inputmode="decimal" placeholder="균열폭을 입력하면 자동 입력"><div class="muted" style="font-size:11px;margin-top:5px">결함 규격의 균열폭을 기본 적용합니다. 실제 보수 시공 폭과는 다르므로 면적 및 공사비 확정 전 반드시 수정·검토하세요.</div></div><label>보수 수량 (㎡ 자동 계산 · 필요 시 수정)</label><div style="display:flex;gap:6px;align-items:center"><input id="repairQty" type="number" min="0" step="any" inputmode="decimal" placeholder="규격을 입력하면 자동 계산"><span id="qtyUnit" style="white-space:nowrap">${escapeHtml(repairFor(d).unit)}</span></div><div class="muted" id="qtyHelp" style="font-size:12px;margin-top:4px">자동 산정값은 실제 보수범위와 다를 수 있습니다.</div><button type="button" id="qtyReset" style="margin-top:5px">↻ 자동계산으로 되돌리기</button><label>점검 메모</label><textarea id="memo" rows="3"></textarea><label>결함 사진</label><label class="button" style="display:inline-block;margin:0">＋ 사진 추가<input id="photoFile" type="file" accept="image/*" capture="environment" multiple hidden></label><label class="button" style="display:inline-block;margin:0">앨범에서 선택<input id="photoGallery" type="file" accept="image/*" multiple hidden></label><div id="photos" class="photos"></div><button id="delete" class="danger" style="margin-top:12px;width:100%">이 결함 삭제 (번호 자동 정렬)</button>`;
+function sm75AttachDrag(row,id){
+ let timer=null,active=false,pid=null,startX=0,startY=0,hover=null;
+ const reset=()=>{clearTimeout(timer);timer=null;active=false;pid=null;hover=null;document.querySelectorAll('.sm75-over').forEach(e=>e.classList.remove('sm75-over'));row.classList.remove('sm75-dragging');};
+ row.addEventListener('pointerdown',e=>{
+  if(e.button!==0||e.target.closest('.sm75-delete'))return;
+  pid=e.pointerId;startX=e.clientX;startY=e.clientY;
+  timer=setTimeout(()=>{active=true;row.classList.add('sm75-dragging');try{row.setPointerCapture(pid)}catch(_){};try{navigator.vibrate?.(20)}catch(_){}},450);
+ });
+ row.addEventListener('pointermove',e=>{
+  if(pid!==e.pointerId)return;
+  if(!active){if(Math.hypot(e.clientX-startX,e.clientY-startY)>12)clearTimeout(timer);return}
+  e.preventDefault();
+  const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.sm75-defect-row');
+  if(hover&&hover!==target)hover.classList.remove('sm75-over');
+  hover=target&&target!==row?target:null;
+  if(hover)hover.classList.add('sm75-over');
+ });
+ row.addEventListener('pointerup',e=>{
+  if(pid!==e.pointerId)return;
+  const target=active?document.elementFromPoint(e.clientX,e.clientY)?.closest('.sm75-defect-row'):null;
+  const targetId=target?.dataset.defectId;
+  reset();if(targetId&&targetId!==id)sm75ReorderDefect(id,targetId);
+ });
+ row.addEventListener('pointercancel',reset);
+ row.addEventListener('lostpointercapture',()=>{if(active)reset()});
+ // Mouse drag is supported too, including on desktop.
+ row.draggable=true;
+ row.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',id);e.dataTransfer.effectAllowed='move';row.classList.add('sm75-dragging')});
+ row.addEventListener('dragover',e=>{e.preventDefault();row.classList.add('sm75-over')});
+ row.addEventListener('dragleave',()=>row.classList.remove('sm75-over'));
+ row.addEventListener('drop',e=>{e.preventDefault();const source=e.dataTransfer.getData('text/plain');reset();if(source&&source!==id)sm75ReorderDefect(source,id)});
+ row.addEventListener('dragend',reset);
+}
+function refresh(){let el=$('list');el.innerHTML='';currentDefects().forEach((d,i)=>{
+ const row=document.createElement('div');row.className='sm75-defect-row';row.dataset.defectId=d.id;
+ const b=document.createElement('button');b.type='button';b.className='sm75-defect-main'+(d.id===selected?' active':'');
+ b.innerHTML=`<span class="num">${sm69NumberAt(i)}</span><span class="sm75-defect-text">${escapeHtml(defectNames(d))} <small class="muted">${(d.photos||[]).length}장 ${d.line?'· 균열선':''}</small></span>`;
+ b.onclick=()=>{selected=d.id;refresh();draw()};row.appendChild(b);
+ const del=document.createElement('button');del.type='button';del.className='danger sm75-delete';del.textContent='삭제';del.onclick=()=>deleteDefect(d.id);row.appendChild(del);
+ el.appendChild(row);sm75AttachDrag(row,d.id);
+ });
+ $('count').textContent=currentDefects().length+'건 (현재 페이지)';let d=state.defects.find(x=>x.id===selected),ed=$('editor');if(!d){ed.innerHTML='<div class="muted">결함 번호를 선택하면 종류와 사진을 편집할 수 있습니다.</div>';return}let idx=pageNumber(d),crack=isCrackDefect(d);ed.innerHTML=`<div class="title">${circled(idx)} ${idx}번 결함 상세</div><label>결함 종류 (여러 개 선택 가능)</label><select id="typeSelect"><option value="">결함 추가 선택 (반복해서 선택)</option>${typeOptions(d)}</select><div id="chips" class="row" style="margin-top:7px"></div><div class="muted" style="font-size:11px;margin-top:5px">기존 결함은 원래 명칭을 보존합니다. 필요하면 기존 종류를 제거하고 새 분류를 선택하세요.</div><label>발생 위치</label><div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="location" style="flex:1 1 180px;min-width:0" placeholder="예: 정면, 복도, 기계실"><select id="locationMember" aria-label="발생 부재 선택" style="flex:1 1 145px;min-width:0"><option value="">부재 선택 (선택 안 함)</option><option value="기둥">기둥</option><option value="벽체">벽체</option><option value="보">보</option><option value="슬래브">슬래브</option><option value="바닥">바닥</option><option value="천장">천장</option><option value="계단">계단</option><option value="난간">난간</option><option value="창호">창호</option><option value="문">문</option><option value="기타">기타 (직접 입력)</option></select></div><input id="locationOtherMember" placeholder="기타 부재명 직접 입력" style="display:none;margin-top:6px"><div class="muted" style="font-size:12px;margin-top:4px">위치는 직접 입력하고 부재는 선택하세요. 예: 정면 + 기둥 → 정면 기둥</div><div style="margin-top:10px;padding:10px;background:#edf5fc;border-radius:8px"><b>결함 규격 · 모든 치수 mm</b><div class="muted" style="font-size:12px;margin:5px 0">${crack?'균열: 균열폭 × 길이(mm) 표기 / 별도 시공 폭 입력 시 보수면적 ㎡':'면적형: 가로 × 세로(mm) → 보수면적 ㎡'} · 개수(EA)는 동일 규격 반복 시 곱합니다.</div><label id="widthLabel">${crack?'균열폭 (mm)':'가로 / 폭 (mm)'}</label><div class="quick-presets"><select id="widthPreset"><option value="">${crack?'균열폭 선택':'폭 선택'}</option></select></div><input id="width" type="hidden"><label id="lengthLabel">${crack?'균열 길이 (mm)':'세로 / 길이 (mm)'}</label><div class="quick-presets"><select id="lengthPreset"><option value="">길이 선택</option></select></div><input id="length" type="hidden"><label>개수 (EA)</label><div class="quick-presets"><select id="eaPreset"><option value="">개수 선택</option></select></div><input id="countEA" type="hidden"><div class="muted" style="font-size:12px;margin-top:6px">철근노출 300 × 300mm, 3EA → 0.27㎡ · 수량은 실제 보수범위에 맞춰 수정 가능</div></div><div id="treatmentWidthWrap" style="margin-top:10px;padding:9px;border:1px solid var(--line);border-radius:9px"><label style="margin-top:0">면적 환산 폭(mm) · 균열폭 자동 연동</label><input id="treatmentWidth" type="number" min="0" step="any" inputmode="decimal" placeholder="균열폭을 입력하면 자동 입력"><div class="muted" style="font-size:11px;margin-top:5px">결함 규격의 균열폭을 기본 적용합니다. 실제 보수 시공 폭과는 다르므로 면적 및 공사비 확정 전 반드시 수정·검토하세요.</div></div><label>보수 수량 (㎡ 자동 계산 · 필요 시 수정)</label><div style="display:flex;gap:6px;align-items:center"><input id="repairQty" type="number" min="0" step="any" inputmode="decimal" placeholder="규격을 입력하면 자동 계산"><span id="qtyUnit" style="white-space:nowrap">${escapeHtml(repairFor(d).unit)}</span></div><div class="muted" id="qtyHelp" style="font-size:12px;margin-top:4px">자동 산정값은 실제 보수범위와 다를 수 있습니다.</div><button type="button" id="qtyReset" style="margin-top:5px">↻ 자동계산으로 되돌리기</button><label>점검 메모</label><textarea id="memo" rows="3"></textarea><label>결함 사진</label><label class="button" style="display:inline-block;margin:0">＋ 사진 추가<input id="photoFile" type="file" accept="image/*" capture="environment" multiple hidden></label><label class="button" style="display:inline-block;margin:0">앨범에서 선택<input id="photoGallery" type="file" accept="image/*" multiple hidden></label><div id="photos" class="photos"></div><button id="delete" class="danger" style="margin-top:12px;width:100%">이 결함 삭제 (번호 자동 정렬)</button>`;
 const quickType=(d.types||[])[0]||'';
 const isLeak=/누수|백태|오염/.test(quickType);
 const isRebar=/철근노출|탈락|체결|파손/.test(quickType);
