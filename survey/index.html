@@ -285,7 +285,7 @@ window.SM47Export={
 #list .sm75-delete{flex:0 0 auto;width:auto;min-width:58px;padding:10px 12px;white-space:nowrap}
 #list .sm75-dragging{opacity:.65;outline:2px dashed #60a5fa;border-radius:10px}
 #list .sm75-over{outline:2px solid #22c55e;border-radius:10px}
-</style></head><body><header class="smetric-app-header"><strong class="smetric-brand">SMETRIC · 현장조사</strong><div class="smetric-head-controls"><a class="smetric-home" href="../" title="SMETRIC 홈으로 이동">⌂ 홈</a><div class="theme-picker"><label for="themeSelect">화면 테마</label><select id="themeSelect" aria-label="화면 테마"><option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="forest">포레스트</option><option value="slate">슬레이트</option><option value="ocean">오션</option><option value="sand">샌드</option><option value="lavender">라벤더</option><option value="rose">로즈</option><option value="graphite">그라파이트</option><option value="system">기기 설정</option></select></div><span id="status"></span></div><span id="smSaveIndicator" class="sm-save-indicator" aria-live="polite"></span></header><main class="app"><section class="panel"><div class="projectbar"><label>작업 현장 선택<select id="siteSelect"></select></label><button id="newSite" class="primary">＋ 새 현장</button><button id="renameSite">현장 이름 변경</button><button id="deleteSite" class="danger">현장 삭제</button><span class="muted" id="siteCount"></span></div><section class="sm-quality-bar"><strong>자료 점검</strong><span id="smSurveyQualityResult">현재 현장의 자료를 점검할 수 있습니다.</span><button id="smSurveyQualityButton" type="button">누락 점검</button></section><div class="sm-survey-tools">
+</style><style id="sm77-style">#list .sm75-defect-row{touch-action:pan-y}#list .sm75-defect-row.sm75-dragging{touch-action:none}#list .sm75-defect-main{min-height:49px}#list .sm75-over{outline:3px solid #3ca9ff!important}</style></head><body><header class="smetric-app-header"><strong class="smetric-brand">SMETRIC · 현장조사</strong><div class="smetric-head-controls"><a class="smetric-home" href="../" title="SMETRIC 홈으로 이동">⌂ 홈</a><div class="theme-picker"><label for="themeSelect">화면 테마</label><select id="themeSelect" aria-label="화면 테마"><option value="light">라이트</option><option value="dark">다크</option><option value="navy">네이비</option><option value="forest">포레스트</option><option value="slate">슬레이트</option><option value="ocean">오션</option><option value="sand">샌드</option><option value="lavender">라벤더</option><option value="rose">로즈</option><option value="graphite">그라파이트</option><option value="system">기기 설정</option></select></div><span id="status"></span></div><span id="smSaveIndicator" class="sm-save-indicator" aria-live="polite"></span></header><main class="app"><section class="panel"><div class="projectbar"><label>작업 현장 선택<select id="siteSelect"></select></label><button id="newSite" class="primary">＋ 새 현장</button><button id="renameSite">현장 이름 변경</button><button id="deleteSite" class="danger">현장 삭제</button><span class="muted" id="siteCount"></span></div><section class="sm-quality-bar"><strong>자료 점검</strong><span id="smSurveyQualityResult">현재 현장의 자료를 점검할 수 있습니다.</span><button id="smSurveyQualityButton" type="button">누락 점검</button></section><div class="sm-survey-tools">
 <div class="sm-mode-tabs" role="tablist" aria-label="작업 도구 분류">
 <button type="button" id="smFieldTab" class="sm-tab-active">✏ 현장조사</button>
 <button type="button" id="smUtilityTab">⚙ 기타 도구</button>
@@ -404,7 +404,7 @@ function drawLabel(g,p,d,bounds,fontSize,offsetFactor,occupied,markers){
 }
 $('labelToggle').onclick=()=>{showDefectLabels=!showDefectLabels;$('labelToggle').textContent=showDefectLabels?'결함 표시 ON':'결함 표시 OFF';$('labelToggle').classList.toggle('active',showDefectLabels);$('labelToggle').setAttribute('aria-pressed',String(showDefectLabels));draw()};
 function draw(){let dpr=window.devicePixelRatio||1,w=board.clientWidth,h=board.clientHeight;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle='#e4e9ee';ctx.fillRect(0,0,w,h);annotationRects=[];if(!img){ctx.fillStyle='#657a8d';ctx.textAlign='center';ctx.font='16px Dotum, sans-serif';return}ctx.save();ctx.translate(pan.x,pan.y);ctx.scale(zoom,zoom);const smAngle=((state.pages[state.activePage]?.rotation||0)%360+360)%360*Math.PI/180;ctx.translate(img.width/2,img.height/2);ctx.rotate(smAngle);const smSwap=Math.round(smAngle/(Math.PI/2))%2!==0;const smRatio=smSwap?Math.min(img.width/img.height,img.height/img.width):1;ctx.scale(smRatio,smRatio);ctx.drawImage(img,-img.width/2,-img.height/2);ctx.restore();
-const defects=currentDefects(),markers=defects.map(d=>screen(d.point));defects.forEach((d,i)=>{if(d.line&&d.line.length){ctx.beginPath();d.line.forEach((p,j)=>{let q=screen(p);j?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.strokeStyle='#e02936';ctx.lineWidth=2;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke()}let p=markers[i];ctx.beginPath();ctx.arc(p.x,p.y,selected===d.id?7:6,0,Math.PI*2);ctx.fillStyle=annotationColor(d);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.stroke();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 8px Dotum, sans-serif';ctx.fillText(String(sm69NumberAt(i)),p.x,p.y+.3)});
+const defects=currentDefects(),markers=defects.map(d=>screen(d.point));defects.forEach((d,i)=>{if(d.line&&d.line.length){ctx.beginPath();d.line.forEach((p,j)=>{let q=screen(p);j?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.strokeStyle='#e02936';ctx.lineWidth=2;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke()}let p=markers[i];ctx.beginPath();ctx.arc(p.x,p.y,selected===d.id?10:9,0,Math.PI*2);ctx.fillStyle=annotationColor(d);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.stroke();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 11px Dotum, sans-serif';ctx.fillText(String(sm69NumberAt(i)),p.x,p.y+.3)});
 if(showDefectLabels){const occupied=[];defects.forEach((d,i)=>{annotationRects.push(drawLabel(ctx,markers[i],d,{width:w,height:h},12,zoom,occupied,markers))})}
 if(preview&&preview.length>1){ctx.beginPath();preview.forEach((p,j)=>{let q=screen(p);j?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.strokeStyle='#e02936';ctx.lineWidth=2;ctx.stroke()}}
 function hitAnnotation(p){if(!showDefectLabels)return null;for(let i=annotationRects.length-1;i>=0;i--){const r=annotationRects[i];if(p.x>=r.x-5&&p.x<=r.x+r.w+5&&p.y>=r.y-5&&p.y<=r.y+r.h+5)return r}return null}
@@ -424,36 +424,70 @@ function sm75ReorderDefect(id,targetId){
  selected=id;persist();refresh();draw();
 }
 function sm75AttachDrag(row,id){
- let hold=null,dragging=false,pointerId=null,startY=0,lastY=0,ghost=null,hover=null;
- const list=$('list');
- function at(y){const rows=[...list.querySelectorAll('.sm75-defect-row')];return rows.find(r=>{const b=r.getBoundingClientRect();return y>=b.top&&y<=b.bottom})||null}
- function cleanup(){clearTimeout(hold);hold=null;dragging=false;pointerId=null;
+ // Native mobile scrolling cancels pointer events. Use touch events with a document-level
+ // non-passive move listener and identify the drop target by screen position.
+ const list=$('list');let timer=null,active=false,startY=0,y=0,x=0,ghost=null,hover=null;
+ function targetAt(clientY){
+  const rows=[...list.querySelectorAll('.sm75-defect-row')];
+  if(!rows.length)return null;
+  return rows.find(r=>{const b=r.getBoundingClientRect();return clientY>=b.top&&clientY<=b.bottom})
+    ||(clientY<rows[0].getBoundingClientRect().top?rows[0]:rows[rows.length-1]);
+ }
+ function clear(){clearTimeout(timer);timer=null;active=false;
   if(ghost){ghost.remove();ghost=null}if(hover){hover.classList.remove('sm75-over');hover=null}
-  row.classList.remove('sm75-dragging');document.removeEventListener('pointermove',move,true);document.removeEventListener('pointerup',end,true);document.removeEventListener('pointercancel',cancel,true);
+  row.classList.remove('sm75-dragging');
+  document.removeEventListener('touchmove',touchMove,true);
+  document.removeEventListener('touchend',touchEnd,true);
+  document.removeEventListener('touchcancel',touchCancel,true);
+  document.removeEventListener('pointermove',pointerMove,true);
+  document.removeEventListener('pointerup',pointerEnd,true);
+  document.removeEventListener('pointercancel',pointerCancel,true);
  }
- function begin(e){if(e.button!==0||e.target.closest('.sm75-delete'))return;
-  pointerId=e.pointerId;startY=e.clientY;lastY=e.clientY;
-  document.addEventListener('pointermove',move,{capture:true,passive:false});document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',cancel,true);
-  hold=setTimeout(()=>{if(pointerId===null)return;dragging=true;row.classList.add('sm75-dragging');
-   ghost=row.cloneNode(true);ghost.classList.add('sm76-ghost');ghost.style.width=row.getBoundingClientRect().width+'px';ghost.style.top=(lastY-30)+'px';document.body.appendChild(ghost);
-   try{navigator.vibrate?.(25)}catch(_){}
-  },450);
+ function activate(){active=true;row.classList.add('sm75-dragging');ghost=row.cloneNode(true);
+  ghost.classList.add('sm76-ghost');ghost.style.width=row.getBoundingClientRect().width+'px';
+  ghost.style.top=(y-30)+'px';document.body.appendChild(ghost);
+  try{navigator.vibrate?.(25)}catch(_){}}
+ function move(clientX,clientY){x=clientX;y=clientY;if(!active){if(Math.abs(y-startY)>12)clearTimeout(timer);return}
+  if(ghost)ghost.style.top=(y-30)+'px';const t=targetAt(y);
+  if(hover&&hover!==t)hover.classList.remove('sm75-over');hover=t!==row?t:null;
+  if(hover)hover.classList.add('sm75-over');
+  const box=list.getBoundingClientRect();if(y<box.top+38)list.scrollTop-=14;
+  else if(y>box.bottom-38)list.scrollTop+=14;
  }
- function move(e){if(e.pointerId!==pointerId)return;lastY=e.clientY;
-  if(!dragging){if(Math.abs(e.clientY-startY)>12)clearTimeout(hold);return}
-  e.preventDefault();e.stopPropagation();if(ghost)ghost.style.top=(e.clientY-30)+'px';
-  const target=at(e.clientY);if(hover&&hover!==target)hover.classList.remove('sm75-over');hover=target&&target!==row?target:null;if(hover)hover.classList.add('sm75-over');
-  const rect=list.getBoundingClientRect();if(e.clientY<rect.top+35)list.scrollTop-=20;else if(e.clientY>rect.bottom-35)list.scrollTop+=20;
+ function finish(){const t=active?targetAt(y):null,targetId=t?.dataset.defectId,should=active&&targetId&&targetId!==id;
+  clear();if(should)sm75ReorderDefect(id,targetId);
  }
- function end(e){if(e.pointerId!==pointerId)return;const wasDragging=dragging;
-  const target=wasDragging?at(e.clientY):null;const targetId=target?.dataset.defectId;
-  if(wasDragging){e.preventDefault();e.stopPropagation()}cleanup();
-  if(wasDragging&&targetId&&targetId!==id)sm75ReorderDefect(id,targetId);
- }
- function cancel(e){if(e.pointerId===pointerId)cleanup()}
- row.addEventListener('pointerdown',begin);
- // Desktop: use the same long-press pointer gesture rather than native HTML drag events.
+ function touchMove(e){if(!e.touches.length)return;const t=e.touches[0];move(t.clientX,t.clientY);if(active)e.preventDefault()}
+ function touchEnd(e){if(e.changedTouches.length){y=e.changedTouches[0].clientY}if(active)e.preventDefault();finish()}
+ function touchCancel(){clear()}
+ function pointerMove(e){if(e.pointerType==='touch')return;move(e.clientX,e.clientY);if(active)e.preventDefault()}
+ function pointerEnd(e){if(e.pointerType==='touch')return;y=e.clientY;finish()}
+ function pointerCancel(e){if(e.pointerType!=='touch')clear()}
+ row.addEventListener('touchstart',e=>{if(e.target.closest('.sm75-delete')||e.touches.length!==1)return;
+  const t=e.touches[0];x=t.clientX;y=startY=t.clientY;clearTimeout(timer);timer=setTimeout(activate,450);
+  document.addEventListener('touchmove',touchMove,{capture:true,passive:false});
+  document.addEventListener('touchend',touchEnd,true);document.addEventListener('touchcancel',touchCancel,true);
+ },{passive:true});
+ row.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||e.button!==0||e.target.closest('.sm75-delete'))return;
+  x=e.clientX;y=startY=e.clientY;clearTimeout(timer);timer=setTimeout(activate,450);
+  document.addEventListener('pointermove',pointerMove,true);document.addEventListener('pointerup',pointerEnd,true);
+  document.addEventListener('pointercancel',pointerCancel,true);
+ });
  row.draggable=false;
+}
+function sm77IsStructural(d){
+ const types=d.types||[];
+ if(!types.length)return false;
+ return types.some(t=>/^구조체/.test(t)||/^(철근노출|콘크리트 손상|콘크리트 재료분리|콘크리트 박리|콘크리트 박락|재료분리)$/.test(t));
+}
+function sm77ClassifyOrder(id){
+ const d=state.defects.find(x=>x.id===id);if(!d||!(d.types||[]).length)return;
+ const items=currentDefects(),old=items.findIndex(x=>x.id===id);if(old<0)return;
+ const structural=sm77IsStructural(d),other=items.filter(x=>x.id!==id);
+ const target=structural?other.filter(sm77IsStructural).length:other.length;
+ if(old===target)return;
+ snapshot();other.splice(target,0,d);let n=0;
+ state.defects=state.defects.map(x=>x.pageId===state.activePage?other[n++]:x);
 }
 function refresh(){let el=$('list');el.innerHTML='';currentDefects().forEach((d,i)=>{
  const row=document.createElement('div');row.className='sm75-defect-row';row.dataset.defectId=d.id;
@@ -482,7 +516,7 @@ $('locationMember').value=sm71Match||'';$('location').value=sm71Base;
 function sm71SaveLocation(){const base=$('location').value.trim(),choice=$('locationMember').value,member=choice==='기타'?$('locationOtherMember').value.trim():choice;d.location=[base,member].filter(Boolean).join(' ');persist()}
 $('locationMember').onchange=()=>{$('locationOtherMember').style.display=$('locationMember').value==='기타'?'block':'none';sm71SaveLocation()};
 $('locationOtherMember').oninput=sm71SaveLocation;
-for(let key of ['location','width','length','memo']){if(key!=='location')$(key).value=d[key]??'';$(key).oninput=e=>{if(key==='location'){sm71SaveLocation();return}d[key]=e.target.value;persist();if(key==='width'||key==='length'){if(key==='width'&&isCrackDefect(d)&&!(Number(d.treatmentWidth)>0))$('treatmentWidth').value=d.width??'';updateQtyUI()}}}$('countEA').value=(d.count==null||String(d.count).trim()===''?1:d.count);$('countEA').oninput=e=>{const n=Number(e.target.value);d.count=e.target.value.trim()===''?1:(Number.isInteger(n)&&n>=1?n:1);persist();updateQtyUI()};function updateQtyUI(){let v=effectiveQty(d),unit='㎡';$('qtyUnit').textContent=unit;$('repairQty').value=formatQty(v);$('qtyHelp').textContent=d.qtyManual?'직접 수정한 면적(㎡)을 사용 중입니다.':(isCrackDefect(d)&&!(Number(d.treatmentWidth)>0)?'균열폭으로 임시 환산한 면적입니다. 실제 시공 폭 확인 후 수정하세요.':'면적(㎡) 자동 계산값입니다. 실제 보수범위를 확인하세요.')}updateQtyUI();$('repairQty').oninput=e=>{d.qtyManual=true;d.repairQty=e.target.value;d.repairQtyBasis='㎡';persist();updateQtyUI()};$('qtyReset').onclick=()=>{d.qtyManual=false;d.repairQty='';d.repairQtyBasis='㎡';persist();updateQtyUI()};$('typeSelect').onchange=e=>{if(e.target.value&&!d.types.includes(e.target.value)){snapshot();d.types.push(e.target.value);persist();refresh();draw()}};function chips(){let c=$('chips');c.innerHTML='';d.types.forEach(t=>{let b=document.createElement('button');b.textContent=albumTypeName(t)+' ×';b.title='선택한 결함 제거';b.setAttribute('aria-label',albumTypeName(t)+' 제거');b.onclick=()=>{snapshot();d.types=d.types.filter(x=>x!==t);persist();refresh()};c.appendChild(b)})}chips();function photos(){let c=$('photos');c.innerHTML='';d.photos.forEach((src,i)=>{let div=document.createElement('div');div.className='photo';let pic=document.createElement('img');pic.src=src;pic.onclick=()=>div.classList.toggle('photo-open');let b=document.createElement('button');b.type='button';b.setAttribute('aria-label','이 사진만 삭제');b.title='이 사진만 삭제';b.textContent='×';b.onclick=()=>{if(confirm('이 사진을 삭제할까요?')){snapshot();d.photos.splice(i,1);persist();refresh()}};div.append(pic,b);c.appendChild(div)})}photos();async function addPhotos(e){if(e.target.files.length)snapshot();for(let f of e.target.files){let data=await fileToData(f);d.photos.push(await compressed(data,1500))}persist();refresh()}$('photoFile').onchange=addPhotos;$('photoGallery').onchange=addPhotos;$('delete').onclick=()=>deleteDefect(d.id)}
+for(let key of ['location','width','length','memo']){if(key!=='location')$(key).value=d[key]??'';$(key).oninput=e=>{if(key==='location'){sm71SaveLocation();return}d[key]=e.target.value;persist();if(key==='width'||key==='length'){if(key==='width'&&isCrackDefect(d)&&!(Number(d.treatmentWidth)>0))$('treatmentWidth').value=d.width??'';updateQtyUI()}}}$('countEA').value=(d.count==null||String(d.count).trim()===''?1:d.count);$('countEA').oninput=e=>{const n=Number(e.target.value);d.count=e.target.value.trim()===''?1:(Number.isInteger(n)&&n>=1?n:1);persist();updateQtyUI()};function updateQtyUI(){let v=effectiveQty(d),unit='㎡';$('qtyUnit').textContent=unit;$('repairQty').value=formatQty(v);$('qtyHelp').textContent=d.qtyManual?'직접 수정한 면적(㎡)을 사용 중입니다.':(isCrackDefect(d)&&!(Number(d.treatmentWidth)>0)?'균열폭으로 임시 환산한 면적입니다. 실제 시공 폭 확인 후 수정하세요.':'면적(㎡) 자동 계산값입니다. 실제 보수범위를 확인하세요.')}updateQtyUI();$('repairQty').oninput=e=>{d.qtyManual=true;d.repairQty=e.target.value;d.repairQtyBasis='㎡';persist();updateQtyUI()};$('qtyReset').onclick=()=>{d.qtyManual=false;d.repairQty='';d.repairQtyBasis='㎡';persist();updateQtyUI()};$('typeSelect').onchange=e=>{if(e.target.value&&!d.types.includes(e.target.value)){snapshot();d.types.push(e.target.value);sm77ClassifyOrder(d.id);persist();refresh();draw()}};function chips(){let c=$('chips');c.innerHTML='';d.types.forEach(t=>{let b=document.createElement('button');b.textContent=albumTypeName(t)+' ×';b.title='선택한 결함 제거';b.setAttribute('aria-label',albumTypeName(t)+' 제거');b.onclick=()=>{snapshot();d.types=d.types.filter(x=>x!==t);sm77ClassifyOrder(d.id);persist();refresh();draw()};c.appendChild(b)})}chips();function photos(){let c=$('photos');c.innerHTML='';d.photos.forEach((src,i)=>{let div=document.createElement('div');div.className='photo';let pic=document.createElement('img');pic.src=src;pic.onclick=()=>div.classList.toggle('photo-open');let b=document.createElement('button');b.type='button';b.setAttribute('aria-label','이 사진만 삭제');b.title='이 사진만 삭제';b.textContent='×';b.onclick=()=>{if(confirm('이 사진을 삭제할까요?')){snapshot();d.photos.splice(i,1);persist();refresh()}};div.append(pic,b);c.appendChild(div)})}photos();async function addPhotos(e){if(e.target.files.length)snapshot();for(let f of e.target.files){let data=await fileToData(f);d.photos.push(await compressed(data,1500))}persist();refresh()}$('photoFile').onchange=addPhotos;$('photoGallery').onchange=addPhotos;$('delete').onclick=()=>deleteDefect(d.id)}
 function openSelectedCamera(){
  const d=state.defects.find(x=>x.id===selected);
  if(!d){alert('먼저 도면에 결함 번호를 찍거나 균열선을 그려주세요.');return}
