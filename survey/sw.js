@@ -1,8 +1,7 @@
-// SMETRIC offline worker v46 — survey
-const CACHE='smetric-survey-v46';const CORE=['./','./index.html'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('smetric-survey-')&&k!==CACHE).map(k=>caches.delete(k)))),self.clients.claim()]))});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const req=e.request;const url=new URL(req.url);if(url.protocol!=='https:'&&url.protocol!=='http:')return;
-if(req.mode==='navigate'){e.respondWith(fetch(req).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(req,copy))}return r}).catch(async()=>await caches.match(req)||await caches.match('./index.html')));return}
-e.respondWith(caches.match(req).then(hit=>hit||fetch(req).then(r=>{if(r.ok||r.type==='opaque'){const copy=r.clone();caches.open(CACHE).then(c=>c.put(req,copy)).catch(()=>{})}return r})));
+/* SMETRIC survey offline v60 */
+const CACHE='smetric-survey-v60',CORE=["./", "./index.html", "./jszip.min.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./photo_album_template.hwpx"],OPTIONAL=["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"];
+self.addEventListener('install',e=>e.waitUntil((async()=>{let c=await caches.open(CACHE);await c.addAll(CORE);await Promise.allSettled(OPTIONAL.map(async u=>{let r=await fetch(u,{mode:'no-cors',signal:AbortSignal.timeout(4000)});if(r.ok||r.type==='opaque')await c.put(u,r)}));await self.skipWaiting()})()));
+self.addEventListener('activate',e=>e.waitUntil((async()=>{let keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('smetric-survey-')&&k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim()})()));
+self.addEventListener('fetch',e=>{let req=e.request;if(req.method!=='GET')return;let u=new URL(req.url);if(u.origin!==self.location.origin&&!OPTIONAL.includes(u.href))return;
+ e.respondWith((async()=>{let c=await caches.open(CACHE);if(req.mode==='navigate'){try{let r=await fetch(req);if(r.ok){e.waitUntil(c.put(req,r.clone()));return r}}catch(err){}return await c.match(req,{ignoreSearch:true})||await c.match('./index.html')}let hit=await c.match(req,{ignoreSearch:true});if(hit)return hit;try{let r=await fetch(req);if(r.ok||r.type==='opaque')e.waitUntil(c.put(req,r.clone()));return r}catch(err){return Response.error()}})());
 });
