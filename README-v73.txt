@@ -1,0 +1,1 @@
+SMETRIC 현장조사 v73 긴급 복구: v72 JavaScript SyntaxError 제거 (v71 정상 코드 기준). 결함목록 한 줄 배치 및 순서 선택. 기존 localStorage/IndexedDB 자료 삭제·초기화 없음. 기기에서 실제 저장자료 복구 여부는 확인 필요.

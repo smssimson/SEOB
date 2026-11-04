@@ -1,5 +1,5 @@
 /* SMETRIC offline v60: root cache covers home and all four modules. */
-const CACHE='smetric-offline-v72';
+const CACHE='smetric-offline-v73';
 const CORE=["./", "./index.html", "./manifest.webmanifest", "./smetric-icon-180.png", "./smetric-icon-192.png", "./smetric-icon-512.png", "./survey/", "./survey/index.html", "./survey/jszip.min.js", "./survey/manifest.webmanifest", "./survey/icon-180.png", "./survey/icon-192.png", "./survey/icon-512.png", "./survey/photo_album_template.hwpx", "./drawing/", "./drawing/index.html", "./schmidt/", "./schmidt/index.html", "./tilt/", "./tilt/index.html"];
 const OPTIONAL=["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"];
 self.addEventListener('install',event=>event.waitUntil((async()=>{
@@ -28,13 +28,13 @@ self.addEventListener('fetch',event=>{
  })());
 });
 
-// SMETRIC v72: respond only after essential offline assets are cached.
+// SMETRIC v73: respond only after essential offline assets are cached.
 self.addEventListener('message',event=>{
  if(!event.data||event.data.type!=='SMETRIC_OFFLINE_STATUS')return;
  const port=event.ports&&event.ports[0];if(!port)return;
  event.waitUntil((async()=>{
   try{const cache=await caches.open(CACHE);const checks=await Promise.all(CORE.map(u=>cache.match(new URL(u,self.registration.scope).href)));
-   port.postMessage({version:'v72',ready:checks.every(Boolean),count:checks.filter(Boolean).length,total:CORE.length});
-  }catch(e){port.postMessage({version:'v72',ready:false});}
+   port.postMessage({version:'v73',ready:checks.every(Boolean),count:checks.filter(Boolean).length,total:CORE.length});
+  }catch(e){port.postMessage({version:'v73',ready:false});}
  })());
 });
