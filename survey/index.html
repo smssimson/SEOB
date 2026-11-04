@@ -275,7 +275,7 @@ window.SM47Export={
 .sm65-floorbar .sm64-sheet-label{flex:1 1 170px!important}
 .sm65-floorbar .sm64-sheet-label select{flex:1 1 120px!important}
 @media(max-width:700px){.sm65-floorbar{gap:8px!important;padding:12px!important}.sm65-floorbar::before{font-size:16px}.sm65-floorbar button{padding:9px 11px!important;min-height:42px!important;font-size:13px!important}.sm65-floorbar label{flex:1 1 100%!important}.sm65-floorbar select{flex:1 1 120px!important}.sm65-floorbar input{font-size:16px!important}.sm65-floorbar .hint{display:none}}
-</style><style id="sm75-style">
+</style><style id="sm76-style">.sm76-ghost{position:fixed!important;left:10px;z-index:999999;pointer-events:none;opacity:.82;background:#28598a;border:2px solid #4db7ff;border-radius:12px;padding:6px;box-shadow:0 12px 32px #0009;box-sizing:border-box}.sm75-defect-row.sm75-dragging{opacity:.35}#list .sm75-over{outline:3px solid #50b8ff;outline-offset:-3px;border-radius:10px}</style><style id="sm75-style">
 #list{display:flex;flex-direction:column;gap:7px;overflow-x:hidden;min-width:0}
 #list .sm75-defect-row{display:flex;align-items:center;gap:8px;min-width:0;width:100%;box-sizing:border-box;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 #list .sm75-defect-main{display:flex;align-items:center;gap:10px;flex:1 1 0;min-width:0;max-width:100%;text-align:left;padding:10px 12px;box-sizing:border-box;white-space:normal}
@@ -424,37 +424,36 @@ function sm75ReorderDefect(id,targetId){
  selected=id;persist();refresh();draw();
 }
 function sm75AttachDrag(row,id){
- let timer=null,active=false,pid=null,startX=0,startY=0,hover=null;
- const reset=()=>{clearTimeout(timer);timer=null;active=false;pid=null;hover=null;document.querySelectorAll('.sm75-over').forEach(e=>e.classList.remove('sm75-over'));row.classList.remove('sm75-dragging');};
- row.addEventListener('pointerdown',e=>{
-  if(e.button!==0||e.target.closest('.sm75-delete'))return;
-  pid=e.pointerId;startX=e.clientX;startY=e.clientY;
-  timer=setTimeout(()=>{active=true;row.classList.add('sm75-dragging');try{row.setPointerCapture(pid)}catch(_){};try{navigator.vibrate?.(20)}catch(_){}},450);
- });
- row.addEventListener('pointermove',e=>{
-  if(pid!==e.pointerId)return;
-  if(!active){if(Math.hypot(e.clientX-startX,e.clientY-startY)>12)clearTimeout(timer);return}
-  e.preventDefault();
-  const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.sm75-defect-row');
-  if(hover&&hover!==target)hover.classList.remove('sm75-over');
-  hover=target&&target!==row?target:null;
-  if(hover)hover.classList.add('sm75-over');
- });
- row.addEventListener('pointerup',e=>{
-  if(pid!==e.pointerId)return;
-  const target=active?document.elementFromPoint(e.clientX,e.clientY)?.closest('.sm75-defect-row'):null;
-  const targetId=target?.dataset.defectId;
-  reset();if(targetId&&targetId!==id)sm75ReorderDefect(id,targetId);
- });
- row.addEventListener('pointercancel',reset);
- row.addEventListener('lostpointercapture',()=>{if(active)reset()});
- // Mouse drag is supported too, including on desktop.
- row.draggable=true;
- row.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',id);e.dataTransfer.effectAllowed='move';row.classList.add('sm75-dragging')});
- row.addEventListener('dragover',e=>{e.preventDefault();row.classList.add('sm75-over')});
- row.addEventListener('dragleave',()=>row.classList.remove('sm75-over'));
- row.addEventListener('drop',e=>{e.preventDefault();const source=e.dataTransfer.getData('text/plain');reset();if(source&&source!==id)sm75ReorderDefect(source,id)});
- row.addEventListener('dragend',reset);
+ let hold=null,dragging=false,pointerId=null,startY=0,lastY=0,ghost=null,hover=null;
+ const list=$('list');
+ function at(y){const rows=[...list.querySelectorAll('.sm75-defect-row')];return rows.find(r=>{const b=r.getBoundingClientRect();return y>=b.top&&y<=b.bottom})||null}
+ function cleanup(){clearTimeout(hold);hold=null;dragging=false;pointerId=null;
+  if(ghost){ghost.remove();ghost=null}if(hover){hover.classList.remove('sm75-over');hover=null}
+  row.classList.remove('sm75-dragging');document.removeEventListener('pointermove',move,true);document.removeEventListener('pointerup',end,true);document.removeEventListener('pointercancel',cancel,true);
+ }
+ function begin(e){if(e.button!==0||e.target.closest('.sm75-delete'))return;
+  pointerId=e.pointerId;startY=e.clientY;lastY=e.clientY;
+  document.addEventListener('pointermove',move,{capture:true,passive:false});document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',cancel,true);
+  hold=setTimeout(()=>{if(pointerId===null)return;dragging=true;row.classList.add('sm75-dragging');
+   ghost=row.cloneNode(true);ghost.classList.add('sm76-ghost');ghost.style.width=row.getBoundingClientRect().width+'px';ghost.style.top=(lastY-30)+'px';document.body.appendChild(ghost);
+   try{navigator.vibrate?.(25)}catch(_){}
+  },450);
+ }
+ function move(e){if(e.pointerId!==pointerId)return;lastY=e.clientY;
+  if(!dragging){if(Math.abs(e.clientY-startY)>12)clearTimeout(hold);return}
+  e.preventDefault();e.stopPropagation();if(ghost)ghost.style.top=(e.clientY-30)+'px';
+  const target=at(e.clientY);if(hover&&hover!==target)hover.classList.remove('sm75-over');hover=target&&target!==row?target:null;if(hover)hover.classList.add('sm75-over');
+  const rect=list.getBoundingClientRect();if(e.clientY<rect.top+35)list.scrollTop-=20;else if(e.clientY>rect.bottom-35)list.scrollTop+=20;
+ }
+ function end(e){if(e.pointerId!==pointerId)return;const wasDragging=dragging;
+  const target=wasDragging?at(e.clientY):null;const targetId=target?.dataset.defectId;
+  if(wasDragging){e.preventDefault();e.stopPropagation()}cleanup();
+  if(wasDragging&&targetId&&targetId!==id)sm75ReorderDefect(id,targetId);
+ }
+ function cancel(e){if(e.pointerId===pointerId)cleanup()}
+ row.addEventListener('pointerdown',begin);
+ // Desktop: use the same long-press pointer gesture rather than native HTML drag events.
+ row.draggable=false;
 }
 function refresh(){let el=$('list');el.innerHTML='';currentDefects().forEach((d,i)=>{
  const row=document.createElement('div');row.className='sm75-defect-row';row.dataset.defectId=d.id;
