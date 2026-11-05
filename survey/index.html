@@ -582,9 +582,9 @@ function fileToData(file){return new Promise((res,rej)=>{let r=new FileReader();
    const text=defectLabel(d);
    const maxW=Math.max(80,board.clientWidth-8);
    // Match the on-screen ellipsis, if any, at the same screen font size.
-   const fullW=ctx.measureText(text).width;
+   const fullW=g.measureText(text).width/scale;
    let display=text;
-   if(fullW>maxW){let cut=text.length;while(cut>3&&ctx.measureText(text.slice(0,cut)+'…').width>maxW)cut--;display=text.slice(0,cut)+'…'}
+   if(fullW>maxW){let cut=text.length;while(cut>3&&g.measureText(text.slice(0,cut)+'…').width/scale>maxW)cut--;display=text.slice(0,cut)+'…'}
    g.fillStyle=annotationColor(d);g.fillText(display,x,y);
   }
   g.restore();
