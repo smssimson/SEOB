@@ -819,27 +819,42 @@ async function exportAlbumHwpx(){
    if(target)setPara(target,albumSlot('inside',i).label||ALBUM_IN[i]);
   });
  }
- // 사진1~사진59는 원본 양식의 사진번호/층/결함내용 3개 셀로 구성됨
- for(let i=0;i<paras.length;i++){
-  const m=pText(paras[i]).match(/^사진(\d+)$/);if(!m)continue;
-  const n=Number(m[1]);if(n<1||n>59)continue;
-  const entry=entries[n-1];
-  const a=paras[i+1],b=paras[i+2];
-  // 원본 표의 다음 셀이 층/내용인지 확인하여 교체
-  if(a&&b){setPara(a,entry?[entry.location,entry.description].filter(Boolean).join(' '):'');if(b.parentNode===a.parentNode&&b.parentNode){b.parentNode.removeChild(b)}else{setPara(b,'')}}
- }
- // 등록된 결함사진이 없는 뒤쪽 원본 표(사진31~59 등)는 한글 문서에서 통째로 삭제합니다.
- // 표 하나당 결함사진 6장씩 배치된 원본 양식을 기준으로 합니다.
- const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>{
-  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
-  return nums.some(n=>n>=1&&n<=59)
- });
+ // v87: Keep caption cells intact. Text wraps naturally inside the existing HWPX
+ // table width instead of forcing a single line or removing an adjacent paragraph.
+ const allParas=[...doc.getElementsByTagNameNS(hpNS,'p')];
+ const photoNumber=p=>{const m=pText(p).match(/^사진(\\d+)$/);return m?Number(m[1]):null};
+ const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>
+  [...tbl.getElementsByTagNameNS(hpNS,'p')].some(p=>{const n=photoNumber(p);return n>=1&&n<=59})
+ );
+ // Find the caption cell by its actual table structure, not by the next global
+ // paragraphs (which may belong to other cells or even a different table).
  for(const tbl of defectTables){
-  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
+  const cells=[...tbl.getElementsByTagNameNS(hpNS,'tc')];
+  for(let j=0;j<cells.length;j++){
+   const ps=[...cells[j].getElementsByTagNameNS(hpNS,'p')];
+   const num=ps.map(photoNumber).find(n=>n>=1&&n<=59);
+   if(!num)continue;
+   const entry=entries[num-1];
+   // Caption is the cell immediately to the right of the photo-number cell.
+   const captionCell=cells[j+1];
+   if(!captionCell)continue;
+   const cp=[...captionCell.getElementsByTagNameNS(hpNS,'p')];
+   if(cp.length){
+    const desc=entry?[entry.location,entry.description].filter(Boolean).join(' '):'-';
+    setPara(cp[0],desc||'-');
+    cp.slice(1).forEach(p=>setPara(p,''));
+   }
+  }
+ }
+ // Delete every unused whole photo table AND its containing paragraph. This
+ // prevents the original template's unused 31~59 slots from creating empty pages.
+ for(const tbl of defectTables){
+  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(photoNumber).filter(n=>n>=1&&n<=59);
   if(nums.length&&Math.min(...nums)>entries.length){
-   // 원본 표를 포함하는 문단까지 제거해야 빈 페이지가 남지 않습니다.
-   const para=tbl.parentNode?.parentNode;
-   if(para&&para.localName==='p'&&para.parentNode)para.parentNode.removeChild(para);
+   let parent=tbl;
+   while(parent&&parent.parentNode&&parent.localName!=='p')parent=parent.parentNode;
+   if(parent?.localName==='p'&&parent.parentNode)parent.parentNode.removeChild(parent);
+   else tbl.parentNode?.removeChild(tbl);
   }
  }
  // 표의 병합 셀에 중복 기록된 기존 설명도 공백으로 교체
@@ -865,6 +880,12 @@ async function exportAlbumHwpx(){
   img.setAttribute('binaryItemIDRef',key);
   const el=itemExample.cloneNode(true);el.setAttribute('id',key);el.setAttribute('href','BinData/'+key+'.jpg');el.setAttribute('media-type','image/jpeg');manifest.appendChild(el);
   const src=i<=3?out[i-1]?.image:i<=9?inside[i-4]?.image:entries[i-10]?.image;
+  if(!src){
+   // An unused photo slot is empty (no synthetic white photograph).
+   // Preserve the table frame and '-' in its caption.
+   pics[i].parentNode?.removeChild(pics[i]);
+   continue;
+  }
   zip.file('BinData/'+key+'.jpg',await jpegBytes(src),{base64:true});
  }
  zip.file(hpfPath,new XMLSerializer().serializeToString(hpfDoc));
