@@ -83,7 +83,7 @@ body[data-theme="graphite"] .theme-picker select{color:#fff!important}
 
 /* v23: 구조/비구조 색상, 라벨 이동, 공사비 주석 */
 .annotationLegend{display:inline-flex;align-items:center;gap:9px;font-size:12px;white-space:nowrap;padding:5px 4px}
-.annotationLegend .red-dot{color:#f00024}.annotationLegend .purple-dot{color:#7c00e8}.annotationLegend .blue-dot{color:#1554a4}
+.annotationLegend .red-dot{color:#ed0028}.annotationLegend .purple-dot{color:#8700dc}.annotationLegend .blue-dot{color:#1554a4}
 #canvas{cursor:crosshair} .repair-unpriced{background:var(--surface-soft,#f5f8fb);border:1px solid var(--line,#cbd5e1);border-radius:8px;padding:10px;grid-column:1/-1;color:var(--ink,#162e45)}
 #repairCostRows small{display:block;max-width:340px;white-space:normal;line-height:1.45}#repairCostRows td:nth-child(7){min-width:220px}
 @media(max-width:850px){.annotationLegend{font-size:10px;gap:5px}}
@@ -375,7 +375,7 @@ $('deleteSite').onclick=async()=>{if(!confirm('현재 현장 전체(모든 도�
 $('removePage').onclick=()=>{if(!state.pages.length)return;let n=state.activePage,p=state.pages[n],num=state.defects.filter(d=>d.pageId===n).length;if(!confirm(`「${p.name}」 도면과 결함 ${num}건을 삭제할까요? 실행 취소할 수 있습니다.`))return;snapshot();state.pages.splice(n,1);state.defects=state.defects.filter(d=>d.pageId!==n).map(d=>({...d,pageId:d.pageId>n?d.pageId-1:d.pageId}));state.activePage=Math.max(0,Math.min(n,state.pages.length-1));selected=null;if(!state.pages.length)state.image=null;refreshPages();loadImage(state.pages[state.activePage]?.image||null);refresh();draw();persist();const opener=$('smBoardOpen');if(opener)opener.style.display=state.pages.length?'none':''};
 function loadImage(src){img=null;if(!src){draw();return}let i=new Image();i.onload=()=>{img=i;fit();draw()};i.src=src}function fit(){if(!img)return;zoom=Math.min((board.clientWidth-24)/img.width,(board.clientHeight-24)/img.height);pan={x:(board.clientWidth-img.width*zoom)/2,y:(board.clientHeight-img.height*zoom)/2};draw()}function coords(e){let r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}function world(p){return{x:(p.x-pan.x)/zoom,y:(p.y-pan.y)/zoom}}function screen(p){return{x:p.x*zoom+pan.x,y:p.y*zoom+pan.y}}function clampPoint(p){return{x:Math.max(0,Math.min(img.width,p.x)),y:Math.max(0,Math.min(img.height,p.y))}}function hit(p){for(let i=currentDefects().length-1;i>=0;i--){let d=currentDefects()[i],q=screen(d.point);if(Math.hypot(q.x-p.x,q.y-p.y)<12)return d}return null}function circled(n){const nums=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'];return nums[n-1]||String(n)}function resize(){let dpr=window.devicePixelRatio||1;canvas.width=board.clientWidth*dpr;canvas.height=board.clientHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw()}let showDefectLabels=false;
 function defectGroup(d){const types=d.types||[];const structural=types.some(t=>/^(구조체|콘크리트)|철근노출|^균열$|^재료분리$|^박리$|^박락·파손$/.test(t));const nonStructural=types.some(t=>/^(비구조체|마감재|줄눈)|^마감재 /.test(t));return structural?'구조체':nonStructural?'비구조체':'기타'}
-function annotationColor(d){return defectGroup(d)==='구조체'?'#f00024':defectGroup(d)==='비구조체'?'#7c00e8':'#1554a4'}
+function annotationColor(d){return defectGroup(d)==='구조체'?'#ed0028':defectGroup(d)==='비구조체'?'#8700dc':'#1554a4'}
 function sm81TypeName(t){const v=String(t||'');return ({'콘크리트 손상(박리·박락·파손)':'박락·파손','콘크리트 재료분리':'재료분리','마감재 손상(박리·박락·들뜸·탈락)':'마감재 열화'}[v]||v)}
 function cleanDefectType(t){return sm81TypeName(t).replace(/^(구조체|비구조체)\s*/,'').trim()}
 // 도면 표시, 보수표, 사진첩(HWPX 포함)의 결함 규격을 하나의 형식으로 통일합니다.
@@ -420,26 +420,23 @@ let sm83LegendRect=null;
 function sm83LegendPage(){return state.pages?.[state.activePage]||null}
 function sm83LegendPos(){const page=sm83LegendPage(),v=page?.sm83LegendPos;return {x:Number.isFinite(v?.x)?Math.max(0,Math.min(.92,v.x)):.018,y:Number.isFinite(v?.y)?Math.max(0,Math.min(.93,v.y)):.025}}
 // v84: Transparent two-line legend, larger readable labels, vivid print colors.
-const SM84_RED='#f00024',SM84_PURPLE='#7c00e8';
+const SM84_RED='#ed0028',SM84_PURPLE='#8700dc';
 function sm83LegendDraw(g,width,height){
- // Export at image-pixel resolution. Keep large separation between symbol and label.
  const pos=sm83LegendPos();
- const font=Math.max(36,Math.min(72,Math.round(width/22)));
- const line=Math.round(font*1.45),dot=Math.round(font*.23);
+ const font=Math.max(22,Math.min(40,Math.round(width/44)));
+ const line=Math.round(font*1.35),dot=Math.max(5,Math.round(font*.24));
+ const x=pos.x*width,y=pos.y*height;
+ g.save();g.font=`bold ${font}px Dotum, Arial, sans-serif`;g.textBaseline='middle';
  const labels=['구조체','비구조체'],colors=[SM84_RED,SM84_PURPLE];
- g.save();g.font=`900 ${font}px Dotum, Arial, sans-serif`;
- g.textAlign='left';g.textBaseline='middle';
- const gap=Math.round(font*.40), textX=dot*2+gap;
- const w=textX+Math.max(...labels.map(t=>g.measureText(t).width))+font*.1;
- const h=line*2;
- const bx=Math.max(0,Math.min(pos.x*width,width-w));
- const by=Math.max(0,Math.min(pos.y*height,height-h));
- // No panel, fillRect, white text shadow, or background of any kind.
+ const textW=Math.max(...labels.map(t=>g.measureText(t).width));
+ const w=dot*2+font*.42+textW,h=line*2;
+ const bx=Math.max(0,Math.min(x,width-w)),by=Math.max(0,Math.min(y,height-h));
+ // Deliberately no background fill: only colored dots and letters are exported.
  for(let i=0;i<2;i++){
-  const cy=by+line*(i+.5);
-  g.beginPath();g.arc(bx+dot,cy,dot,0,Math.PI*2);
-  g.fillStyle=colors[i];g.fill();
-  g.fillStyle=colors[i];g.fillText(labels[i],bx+textX,cy);
+   const cy=by+line*(i+.5);
+   g.beginPath();g.arc(bx+dot,cy,dot,0,Math.PI*2);
+   g.fillStyle=colors[i];g.fill();
+   g.fillStyle=colors[i];g.fillText(labels[i],bx+dot*2+font*.42,cy);
  }
  g.restore();return {x:bx,y:by,w,h};
 }
@@ -447,17 +444,15 @@ function sm83LegendScreenRect(){return sm83LegendRect}
 function sm83DrawScreenLegend(){
  if(!img)return;
  const pos=sm83LegendPos(),anchor=screen({x:pos.x*img.width,y:pos.y*img.height});
- const font=22,line=32,dot=6,gap=10;
- ctx.save();ctx.font=`900 ${font}px Dotum, Arial, sans-serif`;
- ctx.textAlign='left';ctx.textBaseline='middle';
+ const font=17,line=24,dot=5;
+ ctx.save();ctx.font='bold 17px Dotum, Arial, sans-serif';ctx.textBaseline='middle';
  const labels=['구조체','비구조체'],colors=[SM84_RED,SM84_PURPLE];
- const textX=dot*2+gap;
- const w=textX+Math.max(...labels.map(t=>ctx.measureText(t).width)),h=line*2;
+ const w=Math.max(...labels.map(t=>ctx.measureText(t).width))+dot*2+font*.42,h=line*2;
  for(let i=0;i<2;i++){
   const cy=anchor.y+line*(i+.5);
   ctx.beginPath();ctx.arc(anchor.x+dot,cy,dot,0,Math.PI*2);
   ctx.fillStyle=colors[i];ctx.fill();
-  ctx.fillStyle=colors[i];ctx.fillText(labels[i],anchor.x+textX,cy);
+  ctx.fillText(labels[i],anchor.x+dot*2+font*.42,cy);
  }
  ctx.restore();sm83LegendRect={x:anchor.x,y:anchor.y,w,h};
 }
@@ -552,52 +547,7 @@ let labelHit=hitAnnotation(p);if(labelHit){let d=state.defects.find(x=>x.id===la
 if(drag.kind==='sm83Legend'){const origin=drag.origin;const page=sm83LegendPage();if(page){if(!drag.moved&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)>3){snapshot();drag.moved=true}if(drag.moved){page.sm83LegendPos={x:Math.max(0,Math.min(.92,origin.x+(p.x-drag.start.x)/(img.width*zoom))),y:Math.max(0,Math.min(.93,origin.y+(p.y-drag.start.y)/(img.height*zoom)))};draw()}}return}
 if(drag.kind==='sm69MarkHold'){if(!drag.ready){if(Math.hypot(p.x-drag.start.x,p.y-drag.start.y)>14){clearTimeout(drag.timer);drag={kind:'move',last:p}}}else{const d=state.defects.find(x=>x.id===drag.id);if(d){d.point=clampPoint(world(p));draw()}}return}
 if(drag.kind==='label'){let d=state.defects.find(x=>x.id===drag.id);if(d){if(!drag.moved&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)>3){snapshot();drag.moved=true}if(drag.moved){let mark=screen(d.point);d.labelOffset={x:(p.x-drag.grabX-mark.x)/zoom,y:(p.y-drag.grabY-mark.y)/zoom};draw()}}}else if(drag.kind==='crack'){let q=clampPoint(world(p));if(Math.hypot(q.x-preview[preview.length-1].x,q.y-preview[preview.length-1].y)>2/zoom)preview.push(q);draw()}else if(drag.kind==='move'){pan.x+=p.x-drag.last.x;pan.y+=p.y-drag.last.y;drag.last=p;draw()}});canvas.addEventListener('pointerup',e=>{let p=coords(e);pointers.delete(e.pointerId);if(pinch){if(pointers.size<2)pinch=null;drag=null;return}if(!img||!drag)return;if(drag.kind==='sm83Legend'){if(drag.moved)persist();drag=null;draw();return}if(drag.kind==='sm69MarkHold'){clearTimeout(drag.timer);if(drag.ready){persist();refresh()}drag=null;draw();return}if(drag.kind==='label'&&drag.moved){persist()}if(drag.kind==='pin'&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)<14){add(world(p),null)}if(drag.kind==='crack'&&preview&&preview.length>1){let pts=preview;add(pts[pts.length-1],pts)}preview=null;drag=null;draw()});canvas.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);if(drag?.kind==='sm69MarkHold')clearTimeout(drag.timer);drag=null;preview=null;pinch=null;draw()});function zoomAt(f){let c={x:board.clientWidth/2,y:board.clientHeight/2},w=world(c);zoom=Math.max(.05,Math.min(15,zoom*f));pan={x:c.x-w.x*zoom,y:c.y-w.y*zoom};draw()}$('zoomIn').onclick=()=>zoomAt(1.25);$('zoomOut').onclick=()=>zoomAt(.8);$('fit').onclick=fit;$('undo').onclick=()=>{if(!undoStack.length)return;state=undoStack.pop();updateUndo();selected=null;normalizeState();$('projectName').value=state.project||'';$('drawingName').value=state.drawingName||'';refreshPages();loadImage(state.pages[state.activePage]?.image||null);persist();refresh()};
-function fileToData(file){return new Promise((res,rej)=>{let r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}function compressed(src,max){return new Promise(resolve=>{let im=new Image();im.onload=()=>{let sc=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.82))};im.onerror=()=>resolve(src);im.src=src})}async function openPdf(data){try{if(!window.pdfjsLib){let script=document.createElement('script');script.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';await new Promise((res,rej)=>{script.onload=res;script.onerror=rej;document.head.appendChild(script)})}pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';let raw=atob(data.split(',')[1]),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);let pdf=await pdfjsLib.getDocument({data:bytes}).promise;let pages=[];for(let n=1;n<=pdf.numPages;n++){$('status').textContent=`PDF 변환 중 ${n}/${pdf.numPages}`;await new Promise(r=>setTimeout(r,0));let page=await pdf.getPage(n),v=page.getViewport({scale:1.6}),c=document.createElement('canvas');let factor=Math.min(1,2200/Math.max(v.width,v.height));v=page.getViewport({scale:1.6*factor});c.width=Math.round(v.width);c.height=Math.round(v.height);await page.render({canvasContext:c.getContext('2d'),viewport:v}).promise;pages.push({name:`${n}페이지`,image:c.toDataURL('image/jpeg',.78)})}return pages}catch(e){alert('PDF를 열 수 없습니다. 인터넷 연결을 확인하거나 PDF를 이미지로 변환해 주세요.\n'+e.message);return null}}$('drawingFile').onchange=async e=>{const files=Array.from(e.target.files||[]);if(!files.length)return;const startCount=state.pages.length;let added=[];try{for(let k=0;k<files.length;k++){const f=files[k];$('status').textContent=`파일 추가 중 ${k+1}/${files.length}: ${f.name}`;const data=await fileToData(f);let pages;if(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf'))pages=await openPdf(data);else pages=[{name:f.name,image:await compressed(data,2500)}];if(!pages)continue;pages.forEach((p,i)=>added.push({...p,name:pages.length>1?`${f.name} · ${i+1}페이지`:p.name,sourceFile:f.name}));}if(!added.length){$('status').textContent='추가된 도면 없음';return;}snapshot();state.pages.push(...added);state.activePage=startCount;selected=null;refreshPages();loadImage(state.pages[state.activePage].image);refresh();persist();$('status').textContent=`${added.length}개 도면 추가됨 · 전체 ${state.pages.length}개`; }catch(err){alert('도면 추가 중 오류: '+err.message);$('status').textContent='도면 추가 오류';}finally{e.target.value='';}};$('projectName').oninput=e=>{state.project=e.target.value;let p=siteList.find(p=>p.id===siteId);if(p)p.name=state.project||'이름 없는 현장';refreshSiteList();persist()};$('drawingName').oninput=e=>{state.drawingName=e.target.value;persist()};function download(blob,name){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}function basename(){return (state.project||'현장점검').replace(/[\\/:*?"<>|]/g,'_')}$('export').onclick=()=>download(new Blob([JSON.stringify({...state,version:1,exportedAt:new Date().toISOString()})],{type:'application/json'}),basename()+'_점검자료.json');$('import').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let o=JSON.parse(await f.text());if(!Array.isArray(o.defects)||typeof o.nextId!=='number')throw Error();if(!confirm('불러온 자료를 새 현장으로 추가할까요? 기존 현장 자료는 유지됩니다.'))return;await flushSave();siteId=uid();clearUndo();state={project:o.project||'',drawingName:o.drawingName||'',image:o.image||null,pages:o.pages||[],activePage:o.activePage||0,defects:o.defects,nextId:o.nextId,albumPhotos:o.albumPhotos||{outside:[],inside:[]}};normalizeState();refreshPages();selected=null;$('projectName').value=state.project;$('drawingName').value=state.drawingName;normalizeState();refreshPages();loadImage(state.pages[state.activePage]?.image||null);await saveNow();await syncSiteList();refresh();renderFrontPhotoWorkspace();e.target.value=''}catch(err){alert('프로젝트 파일 형식이 올바르지 않습니다.')}};$('png').onclick=()=>{
- if(!img)return alert('도면을 먼저 열어주세요');
- // v86: Reuse the positions already displayed on the canvas, rather than running
- // the automatic label-placement algorithm a second time at export resolution.
- draw();
- const defects=currentDefects(),c=document.createElement('canvas');
- c.width=img.width;c.height=img.height;
- const g=c.getContext('2d');g.drawImage(img,0,0);
- const scale=1/Math.max(zoom,0.0001);
- defects.forEach((d,i)=>{
-  if(d.line&&d.line.length){
-   g.beginPath();d.line.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));
-   g.strokeStyle='#e02936';g.lineWidth=2*scale;g.lineJoin='round';g.lineCap='round';g.stroke();
-  }
-  const p=d.point,r=(selected===d.id?10:9)*scale;
-  g.beginPath();g.arc(p.x,p.y,r,0,Math.PI*2);
-  g.fillStyle=annotationColor(d);g.fill();g.strokeStyle='white';g.lineWidth=1.2*scale;g.stroke();
-  g.fillStyle='white';g.textAlign='center';g.textBaseline='middle';
-  g.font=`bold ${11*scale}px Dotum, sans-serif`;
-  g.fillText(String(sm69NumberAt(i)),p.x,p.y+.3*scale);
- });
- if(showDefectLabels){
-  g.save();g.font=`bold ${12*scale}px Dotum, Arial, sans-serif`;
-  g.textBaseline='middle';g.textAlign='left';
-  for(const r of annotationRects){
-   const d=defects.find(d=>d.id===r.id);if(!d)continue;
-   const x=(r.x-pan.x)*scale,y=(r.baseline-pan.y)*scale;
-   const text=defectLabel(d);
-   const maxW=Math.max(80,board.clientWidth-8);
-   // Match the on-screen ellipsis, if any, at the same screen font size.
-   const fullW=g.measureText(text).width/scale;
-   let display=text;
-   if(fullW>maxW){let cut=text.length;while(cut>3&&g.measureText(text.slice(0,cut)+'…').width/scale>maxW)cut--;display=text.slice(0,cut)+'…'}
-   g.fillStyle=annotationColor(d);g.fillText(display,x,y);
-  }
-  g.restore();
- }
- // Draw legend with the same screen-relative proportions.
- const lp=sm83LegendPos(),lx=lp.x*img.width,ly=lp.y*img.height;
- const font=22*scale,line=32*scale,dot=6*scale,gap=10*scale;
- g.save();g.font=`900 ${font}px Dotum, Arial, sans-serif`;g.textAlign='left';g.textBaseline='middle';
- [['구조체',SM84_RED],['비구조체',SM84_PURPLE]].forEach(([label,color],i)=>{
-  const cy=ly+line*(i+.5);g.beginPath();g.arc(lx+dot,cy,dot,0,Math.PI*2);g.fillStyle=color;g.fill();g.fillText(label,lx+dot*2+gap,cy);
- });g.restore();
- SM47Export.downloadCanvas(c,b=>download(b,basename()+'_'+(state.pages[state.activePage]?.name||'도면')+'_외관조사망도.png'));
-};$('csv').onclick=()=>{let rows=[['도면/층','번호','결함종류','발생위치','균열폭(mm)','길이/범위','메모','사진수','X좌표','Y좌표'],...state.defects.map(d=>[state.pages[d.pageId]?.name||'도면',state.defects.filter(x=>x.pageId===d.pageId).findIndex(x=>x.id===d.id)+1,defectNames(d),d.location,d.width,d.length,d.memo,d.photos.length,Math.round(d.point.x),Math.round(d.point.y)])];let text='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download(new Blob([text],{type:'text/csv;charset=utf-8'}),basename()+'_결함현황표.csv')};$('print').onclick=()=>window.print();
+function fileToData(file){return new Promise((res,rej)=>{let r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}function compressed(src,max){return new Promise(resolve=>{let im=new Image();im.onload=()=>{let sc=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.82))};im.onerror=()=>resolve(src);im.src=src})}async function openPdf(data){try{if(!window.pdfjsLib){let script=document.createElement('script');script.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';await new Promise((res,rej)=>{script.onload=res;script.onerror=rej;document.head.appendChild(script)})}pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';let raw=atob(data.split(',')[1]),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);let pdf=await pdfjsLib.getDocument({data:bytes}).promise;let pages=[];for(let n=1;n<=pdf.numPages;n++){$('status').textContent=`PDF 변환 중 ${n}/${pdf.numPages}`;await new Promise(r=>setTimeout(r,0));let page=await pdf.getPage(n),v=page.getViewport({scale:1.6}),c=document.createElement('canvas');let factor=Math.min(1,2200/Math.max(v.width,v.height));v=page.getViewport({scale:1.6*factor});c.width=Math.round(v.width);c.height=Math.round(v.height);await page.render({canvasContext:c.getContext('2d'),viewport:v}).promise;pages.push({name:`${n}페이지`,image:c.toDataURL('image/jpeg',.78)})}return pages}catch(e){alert('PDF를 열 수 없습니다. 인터넷 연결을 확인하거나 PDF를 이미지로 변환해 주세요.\n'+e.message);return null}}$('drawingFile').onchange=async e=>{const files=Array.from(e.target.files||[]);if(!files.length)return;const startCount=state.pages.length;let added=[];try{for(let k=0;k<files.length;k++){const f=files[k];$('status').textContent=`파일 추가 중 ${k+1}/${files.length}: ${f.name}`;const data=await fileToData(f);let pages;if(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf'))pages=await openPdf(data);else pages=[{name:f.name,image:await compressed(data,2500)}];if(!pages)continue;pages.forEach((p,i)=>added.push({...p,name:pages.length>1?`${f.name} · ${i+1}페이지`:p.name,sourceFile:f.name}));}if(!added.length){$('status').textContent='추가된 도면 없음';return;}snapshot();state.pages.push(...added);state.activePage=startCount;selected=null;refreshPages();loadImage(state.pages[state.activePage].image);refresh();persist();$('status').textContent=`${added.length}개 도면 추가됨 · 전체 ${state.pages.length}개`; }catch(err){alert('도면 추가 중 오류: '+err.message);$('status').textContent='도면 추가 오류';}finally{e.target.value='';}};$('projectName').oninput=e=>{state.project=e.target.value;let p=siteList.find(p=>p.id===siteId);if(p)p.name=state.project||'이름 없는 현장';refreshSiteList();persist()};$('drawingName').oninput=e=>{state.drawingName=e.target.value;persist()};function download(blob,name){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}function basename(){return (state.project||'현장점검').replace(/[\\/:*?"<>|]/g,'_')}$('export').onclick=()=>download(new Blob([JSON.stringify({...state,version:1,exportedAt:new Date().toISOString()})],{type:'application/json'}),basename()+'_점검자료.json');$('import').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let o=JSON.parse(await f.text());if(!Array.isArray(o.defects)||typeof o.nextId!=='number')throw Error();if(!confirm('불러온 자료를 새 현장으로 추가할까요? 기존 현장 자료는 유지됩니다.'))return;await flushSave();siteId=uid();clearUndo();state={project:o.project||'',drawingName:o.drawingName||'',image:o.image||null,pages:o.pages||[],activePage:o.activePage||0,defects:o.defects,nextId:o.nextId,albumPhotos:o.albumPhotos||{outside:[],inside:[]}};normalizeState();refreshPages();selected=null;$('projectName').value=state.project;$('drawingName').value=state.drawingName;normalizeState();refreshPages();loadImage(state.pages[state.activePage]?.image||null);await saveNow();await syncSiteList();refresh();renderFrontPhotoWorkspace();e.target.value=''}catch(err){alert('프로젝트 파일 형식이 올바르지 않습니다.')}};$('png').onclick=()=>{if(!img)return alert('도면을 먼저 열어주세요');let c=document.createElement('canvas');c.width=img.width;c.height=img.height;let g=c.getContext('2d');g.drawImage(img,0,0);currentDefects().forEach((d,i)=>{if(d.line){g.beginPath();d.line.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.strokeStyle='#e02936';g.lineWidth=Math.max(2,img.width/900);g.stroke()}let r=Math.max(11,img.width/115),p=d.point;g.beginPath();g.arc(p.x,p.y,r,0,Math.PI*2);g.fillStyle=annotationColor(d);g.fill();g.strokeStyle='white';g.lineWidth=Math.max(1.8,r*.14);g.stroke();g.fillStyle='white';g.textAlign='center';g.textBaseline='middle';g.font=`bold ${Math.max(13,r*1.18)}px Dotum, sans-serif`;g.fillText(String(sm69NumberAt(i)),p.x,p.y);/* 라벨은 번호를 모두 그린 뒤 별도 배치 */});if(showDefectLabels){const taken=[],markers=currentDefects().map(d=>d.point);currentDefects().forEach(d=>drawLabel(g,d.point,d,{width:c.width,height:c.height},Math.max(20,img.width/75),1,taken,markers))}sm83LegendDraw(g,c.width,c.height);SM47Export.downloadCanvas(c,b=>download(b,basename()+'_'+(state.pages[state.activePage]?.name||'도면')+'_외관조사망도.png'))};$('csv').onclick=()=>{let rows=[['도면/층','번호','결함종류','발생위치','균열폭(mm)','길이/범위','메모','사진수','X좌표','Y좌표'],...state.defects.map(d=>[state.pages[d.pageId]?.name||'도면',state.defects.filter(x=>x.pageId===d.pageId).findIndex(x=>x.id===d.id)+1,defectNames(d),d.location,d.width,d.length,d.memo,d.photos.length,Math.round(d.point.x),Math.round(d.point.y)])];let text='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download(new Blob([text],{type:'text/csv;charset=utf-8'}),basename()+'_결함현황표.csv')};$('print').onclick=()=>window.print();
 // Cost-estimation reference rates from uploaded example (천원/unit), not a current price book.
 const REPAIR_RULES={
 '균열':{method:'표면처리',unit:'m',rate:0,priority:3,group:'구조체'},
@@ -819,80 +769,27 @@ async function exportAlbumHwpx(){
    if(target)setPara(target,albumSlot('inside',i).label||ALBUM_IN[i]);
   });
  }
- // v87: Keep caption cells intact. Text wraps naturally inside the existing HWPX
- // table width instead of forcing a single line or removing an adjacent paragraph.
- const allParas=[...doc.getElementsByTagNameNS(hpNS,'p')];
- const photoNumber=p=>{const m=pText(p).match(/^사진(\d+)$/);return m?Number(m[1]):null};
- const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>
-  [...tbl.getElementsByTagNameNS(hpNS,'p')].some(p=>{const n=photoNumber(p);return n>=1&&n<=59})
- );
- // Find the caption cell by its actual table structure, not by the next global
- // paragraphs (which may belong to other cells or even a different table).
+ // 사진1~사진59는 원본 양식의 사진번호/층/결함내용 3개 셀로 구성됨
+ for(let i=0;i<paras.length;i++){
+  const m=pText(paras[i]).match(/^사진(\d+)$/);if(!m)continue;
+  const n=Number(m[1]);if(n<1||n>59)continue;
+  const entry=entries[n-1];
+  const a=paras[i+1],b=paras[i+2];
+  // 원본 표의 다음 셀이 층/내용인지 확인하여 교체
+  if(a&&b){setPara(a,entry?[entry.location,entry.description].filter(Boolean).join(' '):'');if(b.parentNode===a.parentNode&&b.parentNode){b.parentNode.removeChild(b)}else{setPara(b,'')}}
+ }
+ // 등록된 결함사진이 없는 뒤쪽 원본 표(사진31~59 등)는 한글 문서에서 통째로 삭제합니다.
+ // 표 하나당 결함사진 6장씩 배치된 원본 양식을 기준으로 합니다.
+ const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>{
+  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
+  return nums.some(n=>n>=1&&n<=59)
+ });
  for(const tbl of defectTables){
-  const cells=[...tbl.getElementsByTagNameNS(hpNS,'tc')];
-  for(let j=0;j<cells.length;j++){
-   const ps=[...cells[j].getElementsByTagNameNS(hpNS,'p')];
-   const num=ps.map(photoNumber).find(n=>n>=1&&n<=59);
-   if(!num)continue;
-   const entry=entries[num-1];
-   // Caption is the cell immediately to the right of the photo-number cell.
-   const captionCell=cells[j+1];
-   if(!captionCell)continue;
-   const cp=[...captionCell.getElementsByTagNameNS(hpNS,'p')];
-   if(cp.length){
-    // The original template has two centered paragraphs INSIDE hp:subList.
-    // Put the floor on line 1 and wrap the defect detail only when needed.
-    const desc=entry?.description||'';
-    const floor=entry?.location||'';
-    const text=entry?[floor,desc].filter(Boolean).join(' '):'-';
-    const limit=19;
-    const lines=[];
-    if(text.length<=limit)lines.push(text);
-    else {
-     if(floor)lines.push(floor);
-     let remaining=desc||'-';
-     while(remaining.length>limit){
-      let cut=remaining.lastIndexOf(' ',limit);
-      if(cut<Math.floor(limit/2))cut=limit;
-      lines.push(remaining.slice(0,cut).trim());
-      remaining=remaining.slice(cut).trim();
-     }
-     if(remaining)lines.push(remaining);
-    }
-    const sub=captionCell.getElementsByTagNameNS(hpNS,'subList')[0];
-    if(sub){
-     // Remove any pre-existing caption paragraphs after replacing their text.
-     while(cp.length<lines.length){
-      const clone=cp[0].cloneNode(true);sub.appendChild(clone);cp.push(clone);
-     }
-     cp.forEach((p,i)=>{p.setAttribute('paraPrIDRef','27');setPara(p,lines[i]||'')});
-     sub.setAttribute('vertAlign','CENTER');
-     sub.setAttribute('lineWrap','BREAK');
-    }
-   }
-  }
- }
- // v90: The template has exactly six defect-photo slots per root paragraph,
- // followed by a separate explicit page-break paragraph. Remove both the
- // unused photo pages and their trailing page breaks from the section itself.
- const lastUsed=Math.min(entries.length+1,59);
- const root=doc.documentElement;
- const top=[...root.childNodes].filter(n=>n.nodeType===1&&n.localName==='p');
- let lastPhotoIndex=-1;
- for(let i=0;i<top.length;i++){
-  const numbers=[...top[i].getElementsByTagNameNS(hpNS,'p')].map(photoNumber).filter(n=>n>=1&&n<=59);
-  if(numbers.some(n=>n<=lastUsed))lastPhotoIndex=i;
- }
- if(lastPhotoIndex>=0){
-  for(let i=top.length-1;i>lastPhotoIndex;i--)top[i].parentNode?.removeChild(top[i]);
- }
- // Every photo page is a single table. Remove unused complete rows only
- // from the final retained table, while retaining photo 30 as a dash slot.
- for(const tbl of defectTables){
-  if(!tbl.isConnected)continue;
-  for(const row of [...tbl.getElementsByTagNameNS(hpNS,'tr')].reverse()){
-   const nums=[...row.getElementsByTagNameNS(hpNS,'p')].map(photoNumber).filter(n=>n>=1&&n<=59);
-   if(nums.length&&Math.min(...nums)>lastUsed)row.parentNode?.removeChild(row);
+  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
+  if(nums.length&&Math.min(...nums)>entries.length){
+   // 원본 표를 포함하는 문단까지 제거해야 빈 페이지가 남지 않습니다.
+   const para=tbl.parentNode?.parentNode;
+   if(para&&para.localName==='p'&&para.parentNode)para.parentNode.removeChild(para);
   }
  }
  // 표의 병합 셀에 중복 기록된 기존 설명도 공백으로 교체
@@ -918,16 +815,6 @@ async function exportAlbumHwpx(){
   img.setAttribute('binaryItemIDRef',key);
   const el=itemExample.cloneNode(true);el.setAttribute('id',key);el.setAttribute('href','BinData/'+key+'.jpg');el.setAttribute('media-type','image/jpeg');manifest.appendChild(el);
   const src=i<=3?out[i-1]?.image:i<=9?inside[i-4]?.image:entries[i-10]?.image;
-  if(!src){
-   // An unused photo slot is empty (no synthetic white photograph).
-   // Preserve the table frame and '-' in its caption.
-   const dash=document.createElement('canvas');dash.width=1000;dash.height=750;
-   const dg=dash.getContext('2d');dg.fillStyle='#fff';dg.fillRect(0,0,1000,750);
-   dg.fillStyle='#222';dg.textAlign='center';dg.textBaseline='middle';
-   dg.font='48px Dotum, Arial, sans-serif';dg.fillText('-',500,375);
-   zip.file('BinData/'+key+'.jpg',dash.toDataURL('image/jpeg',0.9).split(',')[1],{base64:true});
-   continue;
-  }
   zip.file('BinData/'+key+'.jpg',await jpegBytes(src),{base64:true});
  }
  zip.file(hpfPath,new XMLSerializer().serializeToString(hpfDoc));
@@ -1025,7 +912,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
 (function(){
  const VERSION=82,KEY='smetric-last-version';
  let notified=false,checking=false;
- function notice(){return; // v89: no repeated update prompt\n if(notified)return;notified=true;
+ function notice(){if(notified)return;notified=true;
   const bar=document.createElement('div');bar.id='smetric-update-notice';
   bar.style.cssText='position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:2147483646;background:#1c3148;color:white;border:1px solid #6e8dab;border-radius:10px;box-shadow:0 5px 24px #0005;padding:10px 14px;font:13px Dotum,sans-serif;display:flex;align-items:center;gap:12px;max-width:95vw';
   const msg=document.createElement('span');msg.textContent='새 버전이 배포되었습니다. 현재 작업을 저장한 뒤 적용하세요.';
