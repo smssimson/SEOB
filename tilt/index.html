@@ -401,7 +401,7 @@ const target=candidate.sites.find(s=>s.id===candidate.siteId);if(!target.sheets?
 clearTimeout(sm85SaveTimer);await sm85WriteQueue.catch(()=>{});
 await sm85QueueWrite(JSON.stringify(candidate));state=candidate;selected=null;loadingBg='';refresh();alert('기울기 프로젝트 불러오기 및 저장이 완료되었습니다. 현장 '+candidate.sites.length+'개를 확인하세요.')}catch(err){alert(err.message)}e.target.value=''};$('audit').onclick=()=>{const pts=sheet().points;let missing=pts.filter(p=>!p.photo).length,empty=pts.filter(p=>!p.unavailable&&(!p.distance||!['lowerV','upperV','upperH','hDisp'].every(k=>Array.isArray(p[k])?p[k].every(v=>String(v).trim()!==''):String(p[k]||'').trim()!==''))).length;alert(`현재 도면 조사 ${pts.length}건\n사진 누락 ${missing}건\n측정값 미완료 ${empty}건\n\n엑셀은 원본 계산표와 SMETRIC 입력자료 시트를 함께 제공합니다.`)};
 const t=$('theme');t.value=localStorage.getItem('smetric-shared-theme-v14')||'dark';document.body.dataset.theme=t.value;t.onchange=()=>{document.body.dataset.theme=t.value;localStorage.setItem('smetric-shared-theme-v14',t.value)};sm85Init();})();
-</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=91',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script>
+</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=92',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script>
 <script id="smetric-v43-unified-script">
 (function(){
 "use strict";
@@ -657,4 +657,4 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
  setInterval(check,30000);setTimeout(check,2500);
 })();
 </script>
-</body></html>
+<script defer src="../recovery-v92.js?v=92"></script></body></html>
