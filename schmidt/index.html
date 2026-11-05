@@ -426,7 +426,7 @@ let wi=files.findIndex(x=>x[0]==='xl/workbook.xml');if(wi>=0){let wd=xml(new Tex
 let blob=await makeZip(files),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=(site.name||'SMETRIC').replace(/[\\/:*?"<>|]/g,'_')+'_슈미트시험일지_원본양식.xlsx';link.click();setTimeout(()=>URL.revokeObjectURL(url),30000);alert(`v3 원본 양식으로 SH ${marks.length}개 출력했습니다. 미사용 구간은 숨김 처리했습니다. 재령 ${age}일, 적용계수 ${a}. 타격값은 비교용 가상값입니다.`)}catch(e){console.error(e);alert('원본 양식 출력 오류: '+e.message)}finally{btn.disabled=false;btn.textContent='슈미트 시험일지 Excel (.xlsx)'}}
 btn?.addEventListener('click',output);
 })();
-</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=82',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script>
+</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=92',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script>
 <script id="smetric-v43-unified-script">
 (function(){
 "use strict";
@@ -711,4 +711,4 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
  setInterval(check,30000);setTimeout(check,2500);
 })();
 </script>
-</body></html>
+<script defer src="../recovery-v92.js?v=92"></script></body></html>
