@@ -83,7 +83,7 @@ body[data-theme="graphite"] .theme-picker select{color:#fff!important}
 
 /* v23: 구조/비구조 색상, 라벨 이동, 공사비 주석 */
 .annotationLegend{display:inline-flex;align-items:center;gap:9px;font-size:12px;white-space:nowrap;padding:5px 4px}
-.annotationLegend .red-dot{color:#ed0028}.annotationLegend .purple-dot{color:#8700dc}.annotationLegend .blue-dot{color:#1554a4}
+.annotationLegend .red-dot{color:#f00024}.annotationLegend .purple-dot{color:#7c00e8}.annotationLegend .blue-dot{color:#1554a4}
 #canvas{cursor:crosshair} .repair-unpriced{background:var(--surface-soft,#f5f8fb);border:1px solid var(--line,#cbd5e1);border-radius:8px;padding:10px;grid-column:1/-1;color:var(--ink,#162e45)}
 #repairCostRows small{display:block;max-width:340px;white-space:normal;line-height:1.45}#repairCostRows td:nth-child(7){min-width:220px}
 @media(max-width:850px){.annotationLegend{font-size:10px;gap:5px}}
@@ -375,7 +375,7 @@ $('deleteSite').onclick=async()=>{if(!confirm('현재 현장 전체(모든 도�
 $('removePage').onclick=()=>{if(!state.pages.length)return;let n=state.activePage,p=state.pages[n],num=state.defects.filter(d=>d.pageId===n).length;if(!confirm(`「${p.name}」 도면과 결함 ${num}건을 삭제할까요? 실행 취소할 수 있습니다.`))return;snapshot();state.pages.splice(n,1);state.defects=state.defects.filter(d=>d.pageId!==n).map(d=>({...d,pageId:d.pageId>n?d.pageId-1:d.pageId}));state.activePage=Math.max(0,Math.min(n,state.pages.length-1));selected=null;if(!state.pages.length)state.image=null;refreshPages();loadImage(state.pages[state.activePage]?.image||null);refresh();draw();persist();const opener=$('smBoardOpen');if(opener)opener.style.display=state.pages.length?'none':''};
 function loadImage(src){img=null;if(!src){draw();return}let i=new Image();i.onload=()=>{img=i;fit();draw()};i.src=src}function fit(){if(!img)return;zoom=Math.min((board.clientWidth-24)/img.width,(board.clientHeight-24)/img.height);pan={x:(board.clientWidth-img.width*zoom)/2,y:(board.clientHeight-img.height*zoom)/2};draw()}function coords(e){let r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}function world(p){return{x:(p.x-pan.x)/zoom,y:(p.y-pan.y)/zoom}}function screen(p){return{x:p.x*zoom+pan.x,y:p.y*zoom+pan.y}}function clampPoint(p){return{x:Math.max(0,Math.min(img.width,p.x)),y:Math.max(0,Math.min(img.height,p.y))}}function hit(p){for(let i=currentDefects().length-1;i>=0;i--){let d=currentDefects()[i],q=screen(d.point);if(Math.hypot(q.x-p.x,q.y-p.y)<12)return d}return null}function circled(n){const nums=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'];return nums[n-1]||String(n)}function resize(){let dpr=window.devicePixelRatio||1;canvas.width=board.clientWidth*dpr;canvas.height=board.clientHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw()}let showDefectLabels=false;
 function defectGroup(d){const types=d.types||[];const structural=types.some(t=>/^(구조체|콘크리트)|철근노출|^균열$|^재료분리$|^박리$|^박락·파손$/.test(t));const nonStructural=types.some(t=>/^(비구조체|마감재|줄눈)|^마감재 /.test(t));return structural?'구조체':nonStructural?'비구조체':'기타'}
-function annotationColor(d){return defectGroup(d)==='구조체'?'#ed0028':defectGroup(d)==='비구조체'?'#8700dc':'#1554a4'}
+function annotationColor(d){return defectGroup(d)==='구조체'?'#f00024':defectGroup(d)==='비구조체'?'#7c00e8':'#1554a4'}
 function sm81TypeName(t){const v=String(t||'');return ({'콘크리트 손상(박리·박락·파손)':'박락·파손','콘크리트 재료분리':'재료분리','마감재 손상(박리·박락·들뜸·탈락)':'마감재 열화'}[v]||v)}
 function cleanDefectType(t){return sm81TypeName(t).replace(/^(구조체|비구조체)\s*/,'').trim()}
 // 도면 표시, 보수표, 사진첩(HWPX 포함)의 결함 규격을 하나의 형식으로 통일합니다.
@@ -420,23 +420,26 @@ let sm83LegendRect=null;
 function sm83LegendPage(){return state.pages?.[state.activePage]||null}
 function sm83LegendPos(){const page=sm83LegendPage(),v=page?.sm83LegendPos;return {x:Number.isFinite(v?.x)?Math.max(0,Math.min(.92,v.x)):.018,y:Number.isFinite(v?.y)?Math.max(0,Math.min(.93,v.y)):.025}}
 // v84: Transparent two-line legend, larger readable labels, vivid print colors.
-const SM84_RED='#ed0028',SM84_PURPLE='#8700dc';
+const SM84_RED='#f00024',SM84_PURPLE='#7c00e8';
 function sm83LegendDraw(g,width,height){
+ // Export at image-pixel resolution. Keep large separation between symbol and label.
  const pos=sm83LegendPos();
- const font=Math.max(22,Math.min(40,Math.round(width/44)));
- const line=Math.round(font*1.35),dot=Math.max(5,Math.round(font*.24));
- const x=pos.x*width,y=pos.y*height;
- g.save();g.font=`bold ${font}px Dotum, Arial, sans-serif`;g.textBaseline='middle';
+ const font=Math.max(36,Math.min(72,Math.round(width/22)));
+ const line=Math.round(font*1.45),dot=Math.round(font*.23);
  const labels=['구조체','비구조체'],colors=[SM84_RED,SM84_PURPLE];
- const textW=Math.max(...labels.map(t=>g.measureText(t).width));
- const w=dot*2+font*.42+textW,h=line*2;
- const bx=Math.max(0,Math.min(x,width-w)),by=Math.max(0,Math.min(y,height-h));
- // Deliberately no background fill: only colored dots and letters are exported.
+ g.save();g.font=`900 ${font}px Dotum, Arial, sans-serif`;
+ g.textAlign='left';g.textBaseline='middle';
+ const gap=Math.round(font*.40), textX=dot*2+gap;
+ const w=textX+Math.max(...labels.map(t=>g.measureText(t).width))+font*.1;
+ const h=line*2;
+ const bx=Math.max(0,Math.min(pos.x*width,width-w));
+ const by=Math.max(0,Math.min(pos.y*height,height-h));
+ // No panel, fillRect, white text shadow, or background of any kind.
  for(let i=0;i<2;i++){
-   const cy=by+line*(i+.5);
-   g.beginPath();g.arc(bx+dot,cy,dot,0,Math.PI*2);
-   g.fillStyle=colors[i];g.fill();
-   g.fillStyle=colors[i];g.fillText(labels[i],bx+dot*2+font*.42,cy);
+  const cy=by+line*(i+.5);
+  g.beginPath();g.arc(bx+dot,cy,dot,0,Math.PI*2);
+  g.fillStyle=colors[i];g.fill();
+  g.fillStyle=colors[i];g.fillText(labels[i],bx+textX,cy);
  }
  g.restore();return {x:bx,y:by,w,h};
 }
@@ -444,15 +447,17 @@ function sm83LegendScreenRect(){return sm83LegendRect}
 function sm83DrawScreenLegend(){
  if(!img)return;
  const pos=sm83LegendPos(),anchor=screen({x:pos.x*img.width,y:pos.y*img.height});
- const font=17,line=24,dot=5;
- ctx.save();ctx.font='bold 17px Dotum, Arial, sans-serif';ctx.textBaseline='middle';
+ const font=22,line=32,dot=6,gap=10;
+ ctx.save();ctx.font=`900 ${font}px Dotum, Arial, sans-serif`;
+ ctx.textAlign='left';ctx.textBaseline='middle';
  const labels=['구조체','비구조체'],colors=[SM84_RED,SM84_PURPLE];
- const w=Math.max(...labels.map(t=>ctx.measureText(t).width))+dot*2+font*.42,h=line*2;
+ const textX=dot*2+gap;
+ const w=textX+Math.max(...labels.map(t=>ctx.measureText(t).width)),h=line*2;
  for(let i=0;i<2;i++){
   const cy=anchor.y+line*(i+.5);
   ctx.beginPath();ctx.arc(anchor.x+dot,cy,dot,0,Math.PI*2);
   ctx.fillStyle=colors[i];ctx.fill();
-  ctx.fillText(labels[i],anchor.x+dot*2+font*.42,cy);
+  ctx.fillStyle=colors[i];ctx.fillText(labels[i],anchor.x+textX,cy);
  }
  ctx.restore();sm83LegendRect={x:anchor.x,y:anchor.y,w,h};
 }
