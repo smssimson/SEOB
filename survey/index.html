@@ -841,20 +841,47 @@ async function exportAlbumHwpx(){
    const cp=[...captionCell.getElementsByTagNameNS(hpNS,'p')];
    if(cp.length){
     const desc=entry?[entry.location,entry.description].filter(Boolean).join(' '):'-';
-    setPara(cp[0],desc||'-');
-    cp.slice(1).forEach(p=>setPara(p,''));
+    const value=desc||'-';
+    // Split only captions longer than the available caption width. Separate
+    // paragraphs ensure Hancom wraps even when template paragraph wrap is off.
+    const lines=[];const limit=25;
+    if(value.length<=limit)lines.push(value);
+    else {
+     let line='';
+     for(const word of value.split(/\\s+/)){
+      if(line&&(line+' '+word).length>limit){lines.push(line);line=word}
+      else line=line?line+' '+word:word;
+     }
+     if(line)lines.push(line);
+    }
+    // The caption's existing cell formatting is retained; add only the
+    // paragraphs needed for longer descriptions.
+    while(cp.length<lines.length){
+     const clone=cp[0].cloneNode(true);captionCell.appendChild(clone);cp.push(clone);
+    }
+    cp.forEach((p,i)=>setPara(p,lines[i]||''));
+    captionCell.setAttribute('vertAlign','CENTER');
+    // Paragraph alignment is inherited from the template's center style.
+
    }
   }
  }
- // Delete every unused whole photo table AND its containing paragraph. This
- // prevents the original template's unused 31~59 slots from creating empty pages.
- for(const tbl of defectTables){
+ // Remove unused photo tables and trailing empty layout blocks. A template
+ // may contain many slots inside one table, so clear unused rows too.
+ const lastUsed=Math.min(entries.length+1,59); // keep one '-' slot
+ for(const tbl of [...defectTables].reverse()){
   const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(photoNumber).filter(n=>n>=1&&n<=59);
-  if(nums.length&&Math.min(...nums)>entries.length){
-   let parent=tbl;
-   while(parent&&parent.parentNode&&parent.localName!=='p')parent=parent.parentNode;
-   if(parent?.localName==='p'&&parent.parentNode)parent.parentNode.removeChild(parent);
-   else tbl.parentNode?.removeChild(tbl);
+  if(!nums.length)continue;
+  if(Math.min(...nums)>lastUsed){
+   // Remove the outermost paragraph containing the unused table.
+   let node=tbl;while(node.parentNode&&node.parentNode.localName!=='sec'&&node.parentNode.localName!=='body')node=node.parentNode;
+   if(node.parentNode)node.parentNode.removeChild(node);
+  }else{
+   const rows=[...tbl.getElementsByTagNameNS(hpNS,'tr')];
+   for(const row of rows.reverse()){
+    const rn=[...row.getElementsByTagNameNS(hpNS,'p')].map(photoNumber).filter(n=>n>=1&&n<=59);
+    if(rn.length&&Math.min(...rn)>lastUsed)row.parentNode?.removeChild(row);
+   }
   }
  }
  // 표의 병합 셀에 중복 기록된 기존 설명도 공백으로 교체
@@ -883,7 +910,11 @@ async function exportAlbumHwpx(){
   if(!src){
    // An unused photo slot is empty (no synthetic white photograph).
    // Preserve the table frame and '-' in its caption.
-   pics[i].parentNode?.removeChild(pics[i]);
+   const dash=document.createElement('canvas');dash.width=1000;dash.height=750;
+   const dg=dash.getContext('2d');dg.fillStyle='#fff';dg.fillRect(0,0,1000,750);
+   dg.fillStyle='#222';dg.textAlign='center';dg.textBaseline='middle';
+   dg.font='48px Dotum, Arial, sans-serif';dg.fillText('-',500,375);
+   zip.file('BinData/'+key+'.jpg',dash.toDataURL('image/jpeg',0.9).split(',')[1],{base64:true});
    continue;
   }
   zip.file('BinData/'+key+'.jpg',await jpegBytes(src),{base64:true});
@@ -983,7 +1014,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
 (function(){
  const VERSION=82,KEY='smetric-last-version';
  let notified=false,checking=false;
- function notice(){if(notified)return;notified=true;
+ function notice(){return; // v89: no repeated update prompt\n if(notified)return;notified=true;
   const bar=document.createElement('div');bar.id='smetric-update-notice';
   bar.style.cssText='position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:2147483646;background:#1c3148;color:white;border:1px solid #6e8dab;border-radius:10px;box-shadow:0 5px 24px #0005;padding:10px 14px;font:13px Dotum,sans-serif;display:flex;align-items:center;gap:12px;max-width:95vw';
   const msg=document.createElement('span');msg.textContent='새 버전이 배포되었습니다. 현재 작업을 저장한 뒤 적용하세요.';
