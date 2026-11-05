@@ -380,7 +380,7 @@ try{smDrawInitSites();let saved=JSON.parse(localStorage.getItem(DRAW_SITE_PREFIX
 svg.addEventListener('pointerleave',()=>{$('eraserCursor').setAttribute('cx',-100);$('eraserCursor').setAttribute('visibility','hidden')});
 refreshSheets();render();autosave();setInterval(()=>{if(!interaction)autosave()},1500);window.addEventListener('pagehide',autosave);
 </script><script id="smetric-drawing-proxy-v39">document.addEventListener('DOMContentLoaded',function(){var baseTheme=document.getElementById('theme');var proxy=document.getElementById('headerThemeProxy');if(baseTheme&&proxy){var initial='dark';try{initial=localStorage.getItem('smetric-drawing-theme-v40')||'dark'}catch(_){}proxy.value=initial;var themeLabel=baseTheme.closest('label');if(themeLabel)themeLabel.style.display='none';proxy.addEventListener('change',function(){try{localStorage.setItem('smetric-drawing-theme-v40',proxy.value)}catch(_){}baseTheme.value=proxy.value;document.body.dataset.theme=proxy.value;baseTheme.dispatchEvent(new Event('change',{bubbles:true}));});baseTheme.addEventListener('change',function(){proxy.value=baseTheme.value;});document.body.dataset.theme=proxy.value;baseTheme.value=proxy.value;baseTheme.dispatchEvent(new Event('change',{bubbles:true}));}var autoRightTop=document.getElementById('autoRightTop'); if(autoRightTop){var l=autoRightTop.closest('label'); if(l){l.style.marginLeft='auto';}}
-});</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=82',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script>
+});</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=92',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script>
 <script id="smetric-v43-unified-script">
 (function(){
 "use strict";
@@ -646,4 +646,4 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
  setInterval(check,30000);setTimeout(check,2500);
 })();
 </script>
-</body></html>
+<script defer src="../recovery-v92.js?v=92"></script></body></html>
