@@ -822,7 +822,7 @@ async function exportAlbumHwpx(){
  // v87: Keep caption cells intact. Text wraps naturally inside the existing HWPX
  // table width instead of forcing a single line or removing an adjacent paragraph.
  const allParas=[...doc.getElementsByTagNameNS(hpNS,'p')];
- const photoNumber=p=>{const m=pText(p).match(/^사진(\\d+)$/);return m?Number(m[1]):null};
+ const photoNumber=p=>{const m=pText(p).match(/^사진(\d+)$/);return m?Number(m[1]):null};
  const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>
   [...tbl.getElementsByTagNameNS(hpNS,'p')].some(p=>{const n=photoNumber(p);return n>=1&&n<=59})
  );
