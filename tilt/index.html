@@ -496,7 +496,7 @@ if(mod==="survey"){
  if(!tool)return;
  tool.parentNode.insertBefore(panel,tool);
  const ctr=tool.querySelector(".controls");
- if(ctr){wrapChildren(["arrowMode","selectMode"],field.content);wrapChildren(["smTiltUndo"],util.content);
+ if(ctr){wrapChildren(["arrowMode","selectMode","smTiltValueToggle"],field.content);wrapChildren(["smTiltUndo"],util.content);
  const finger=tool.querySelector(".sm-finger-toggle");if(finger)util.content.appendChild(finger);}
  const status=tool.querySelector("#status");if(status){status.classList.add("sm43-muted-control");util.content.appendChild(status);}
  tool.remove();
