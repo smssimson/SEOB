@@ -243,17 +243,19 @@ function smTiltDrawValue(p,i){
  ctx.restore();
 }
 function pointHit(q){
- let best=null,dist=24;
- for(const p of sheet().points){const dx=p.tx-p.x,dy=p.ty-p.y,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;
- const midx=(p.x+p.tx)/2+ux*(Number(p.blueOffset)||0),midy=(p.y+p.ty)/2+uy*(Number(p.blueOffset)||0);
- const sgn=p.direction==='right'?-1:1,bx=-uy*sgn,by=ux*sgn,bl=Number(p.blueLength)||Math.max(34,Math.min(75,len*.75));
- const candidates=p.unavailable?[['head',p.x,p.y],['tail',p.tx,p.ty]]:[['head',p.x,p.y],['tail',p.tx,p.ty],['blue',midx+bx*bl,midy+by*bl],['blueCenter',midx+ux*(Number(p.blueOffset)||0),midy+uy*(Number(p.blueOffset)||0)]];
- for(const [type,x,y] of candidates){const d=Math.hypot(q.x-x,q.y-y);if(d<dist){best={id:p.id,type};dist=d}}
- const t=Math.max(0,Math.min(1,((q.x-p.x)*dx+(q.y-p.y)*dy)/(len*len)));
- const d=Math.hypot(q.x-(p.x+dx*t),q.y-(p.y+dy*t));
- if(d<Math.min(dist,16)){best={id:p.id,type:'move'};dist=d}
+ let best=null,dist=Infinity;
+ for(const p of sheet().points){
+  const dx=p.tx-p.x,dy=p.ty-p.y,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;
+  const midx=(p.x+p.tx)/2+ux*(Number(p.blueOffset)||0),midy=(p.y+p.ty)/2+uy*(Number(p.blueOffset)||0);
+  const sgn=p.direction==='right'?-1:1,bx=-uy*sgn,by=ux*sgn,bl=Number(p.blueLength)||Math.max(34,Math.min(75,len*.75));
+  const add=(type,x,y,radius,priority=0)=>{const d=Math.hypot(q.x-x,q.y-y);const score=d-priority;if(d<=radius&&score<dist){best={id:p.id,type};dist=score}};
+  add('head',p.x,p.y,12,5);
+  add('move',p.tx,p.ty,26,2);
+  const t=Math.max(0,Math.min(1,((q.x-p.x)*dx+(q.y-p.y)*dy)/(len*len)));
+  add('move',p.x+dx*t,p.y+dy*t,17,0);
+  if(!p.unavailable){add('blue',midx+bx*bl,midy+by*bl,13,4);add('blueCenter',midx,midy,13,3)}
  }
- return best
+ return best;
 }
 let pointDrag=null;
 function pos(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}function nearest(p){let best=null,d=50;sheet().points.forEach(x=>{const v=Math.hypot(x.tx-p.x,x.ty-p.y);if(v<d){d=v;best=x.id}});return best}
