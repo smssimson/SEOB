@@ -420,7 +420,17 @@ async function tiltDownloadXlsx(){
    for(let k=0;k<3;k++)setCell(doc,`${col(base+k+1)}${rowBase+row}`,Number(a[k]));
   }
   if(p.distance===''||p.distance===null||p.distance===undefined||!Number.isFinite(Number(p.distance)))throw Error(`조사 위치 ${i+1}: 직선거리를 입력해 주세요.`);
-  setCell(doc,`${col(base+1)}${rowBase+5}`,smTiltAutoDirection(p)==='right'?'오른쪽':'왼쪽');
+  {
+   const address=`${col(base+1)}${rowBase+5}`,cells=doc.getElementsByTagNameNS(NS,'c');
+   let cell=null;for(let ci=0;ci<cells.length;ci++)if(cells[ci].getAttribute('r')===address){cell=cells[ci];break}
+   if(!cell)throw Error('방향 수식 셀 '+address+'을 찾지 못했습니다.');
+   for(const child of [...cell.childNodes])if(child.nodeType===1&&['f','v','is'].includes(child.localName))cell.removeChild(child);
+   cell.setAttribute('t','str');
+   const f=doc.createElementNS(NS,'f');
+   const start=col(base+1),last=col(base+3),firstRow=rowBase+2,secondRow=rowBase+3;
+   f.textContent=`IF(COUNT(${start}${firstRow}:${last}${secondRow})<6,"",IF(${start}${rowBase+4}>0,"왼쪽","오른쪽"))`;
+   cell.appendChild(f);
+  }
   setCell(doc,`${col(base+1)}${rowBase+6}`,Number(p.distance));
  }
  for(const [num,doc] of Object.entries(docs))saveXml(`xl/worksheets/sheet${num}.xml`,doc);
