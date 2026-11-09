@@ -522,7 +522,7 @@ if(mod==="survey"){
  if(!tool)return;
  tool.parentNode.insertBefore(panel,tool);
  const ctr=tool.querySelector(".controls");
- if(ctr){wrapChildren(["arrowMode","selectMode","smTiltValueToggle"],field.content);wrapChildren(["smTiltUndo"],util.content);
+ if(ctr){wrapChildren(["arrowMode","selectMode","smTiltValueToggle","smTiltValueEdit"],field.content);wrapChildren(["smTiltUndo"],util.content);
  const finger=tool.querySelector(".sm-finger-toggle");if(finger)util.content.appendChild(finger);}
  const status=tool.querySelector("#status");if(status){status.classList.add("sm43-muted-control");util.content.appendChild(status);}
  tool.remove();
@@ -577,7 +577,7 @@ activate("field");
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script>
-<script id="sm46-tilt-open">(function(){function init(){const wrap=document.getElementById('canvasWrap'),input=document.getElementById('upload');if(!wrap||!input)return;wrap.style.position='relative';const b=document.createElement('button');b.className='sm46-empty-open';b.type='button';b.textContent='＋ 도면 또는 사진을 열어주세요';wrap.appendChild(b);b.onclick=()=>input.click();function sync(){try{b.style.display=((typeof bgImage!=='undefined'&&bgImage)||(typeof sheet==='function'&&(sheet()?.bg||sheet()?.background||sheet()?.image)))?'none':'block'}catch(e){b.style.display='none'}}document.getElementById('sheet')?.addEventListener('change',()=>setTimeout(sync,100));['addSheet','deleteSheet'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>setTimeout(sync,100)));input.addEventListener('change',()=>setTimeout(sync,500));setInterval(sync,1100);sync()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();</script><script id="smetric-v57-camera-undo">(function(){function ready(){
+<script id="smetric-v57-camera-undo">(function(){function ready(){
  const mod=location.pathname.match(/\/(drawing|schmidt|tilt)\/?/);if(!mod)return;
  const moduleName=mod[1];const panel=document.querySelector('.sm43-tool-panel');if(!panel)return;
  const groups=panel.querySelectorAll('.sm43-group-content');if(groups.length<2)return;
