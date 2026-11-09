@@ -788,44 +788,73 @@ async function exportAlbumHwpx(){
    if(target)setPara(target,albumSlot('inside',i).label||ALBUM_IN[i]);
   });
  }
- // 사진1~사진59는 원본 양식의 사진번호/층/결함내용 3개 셀로 구성됨
- for(let i=0;i<paras.length;i++){
-  const m=pText(paras[i]).match(/^사진(\d+)$/);if(!m)continue;
-  const n=Number(m[1]);if(n<1||n>59)continue;
-  const entry=entries[n-1];
-  const a=paras[i+1],b=paras[i+2];
-  // 원본 표의 다음 셀이 층/내용인지 확인하여 교체
-  if(a&&b){
-   setPara(a,entry?[entry.location,entry.description].filter(Boolean).join(' '):'');
-   // Center paragraph horizontally, center content vertically in the cell.
-   // Preserve the original table geometry and enable line wrapping.
-   const centered=paras[i].getAttribute('paraPrIDRef');
-   if(centered!==null)a.setAttribute('paraPrIDRef',centered);
-   const sub=a.parentNode;
-   if(sub&&sub.localName==='subList'){
-     sub.setAttribute('vertAlign','CENTER');sub.setAttribute('lineWrap','BREAK');
+ // 원본 양식의 셀 단위로 사진번호와 설명을 찾아 수정합니다.
+ // 기존의 '다음 문단' 추정 방식은 서로 다른 셀을 잘못 수정할 수 있습니다.
+ const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>
+   [...tbl.getElementsByTagNameNS(hpNS,'p')].some(p=>/^사진(?:[1-9]|[1-5][0-9])$/.test(pText(p)))
+ );
+ function directChildren(el,local){return [...el.children].filter(n=>n.localName===local)}
+ function cellPara(cell){return cell?.getElementsByTagNameNS(hpNS,'p')[0]||null}
+ function descriptionLines(value,maxUnits=21){
+   const words=String(value||'-').trim().split(/\s+/);const lines=[];let line='';
+   const width=t=>[...t].reduce((n,ch)=>n+(/[\x00-\x7f]/.test(ch)?0.58:1),0);
+   for(const word of words){
+     const test=line?line+' '+word:word;
+     if(width(test)<=maxUnits){line=test;continue}
+     if(line){lines.push(line);line=''}
+     let chunk='';for(const ch of word){if(width(chunk+ch)>maxUnits&&chunk){lines.push(chunk);chunk=''}chunk+=ch}line=chunk;
    }
-   if(b.parentNode===a.parentNode&&b.parentNode){b.parentNode.removeChild(b)}else{setPara(b,'')}
-  }
+   if(line)lines.push(line);
+   return lines.length?lines:['-'];
  }
- // 등록된 결함사진이 없는 뒤쪽 원본 표(사진31~59 등)는 한글 문서에서 통째로 삭제합니다.
- // 표 하나당 결함사진 6장씩 배치된 원본 양식을 기준으로 합니다.
- const defectTables=[...doc.getElementsByTagNameNS(hpNS,'tbl')].filter(tbl=>{
-  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
-  return nums.some(n=>n>=1&&n<=59)
- });
+ function putDescription(cell,value){
+   const sub=directChildren(cell,'subList')[0];if(!sub)return;
+   sub.setAttribute('vertAlign','CENTER');sub.setAttribute('lineWrap','BREAK');
+   const first=cellPara(cell);if(!first)return;
+   // 한글 원본의 가운데 정렬 문단 속성 27번을 사용합니다.
+   const source=first.cloneNode(true);
+   const lines=descriptionLines(value);
+   for(const p of directChildren(sub,'p'))sub.removeChild(p);
+   for(const line of lines){
+     const p=source.cloneNode(true);p.setAttribute('paraPrIDRef','27');
+     const segments=[...p.getElementsByTagNameNS(hpNS,'linesegarray')];segments.forEach(x=>x.parentNode.removeChild(x));
+     setPara(p,line);sub.appendChild(p);
+   }
+ }
  for(const tbl of defectTables){
-  const nums=[...tbl.getElementsByTagNameNS(hpNS,'p')].map(p=>pText(p).match(/^사진(\d+)$/)).filter(Boolean).map(m=>Number(m[1]));
-  if(nums.length&&Math.min(...nums)>entries.length){
-   // 원본 표를 포함하는 문단까지 제거해야 빈 페이지가 남지 않습니다.
-   const para=tbl.parentNode?.parentNode;
-   if(para&&para.localName==='p'&&para.parentNode)para.parentNode.removeChild(para);
-  }
+   for(const tr of directChildren(tbl,'tr')){
+     const cells=directChildren(tr,'tc');
+     for(let k=0;k<cells.length;k++){
+       const m=pText(cellPara(cells[k])).match(/^사진(\d+)$/);if(!m)continue;
+       const n=Number(m[1]);if(n<1||n>59)continue;
+       const entry=entries[n-1];
+       const descCell=cells[k+1];
+       if(descCell)putDescription(descCell,entry?[entry.location,entry.description].filter(Boolean).join(' '):'-');
+     }
+   }
  }
+ // 마지막 실제 사진이 들어간 6장 단위 표만 남기고 뒤의 표와 강제 쪽나눔을 함께 삭제.
+ // 사진 29장일 경우 사진30 슬롯은 유지하고 사진31~59의 표/쪽은 삭제합니다.
+ const keepTables=Math.max(1,Math.ceil(Math.min(entries.length,59)/6));
+ for(let i=defectTables.length-1;i>=keepTables;i--){
+   const tbl=defectTables[i];const para=tbl.parentNode?.parentNode;
+   if(para?.localName==='p'&&para.parentNode){
+     const parent=para.parentNode;const prev=para.previousElementSibling;
+     parent.removeChild(para);
+     if(prev?.localName==='p'&&prev.getAttribute('pageBreak')==='1'&&
+        !prev.getElementsByTagNameNS(hpNS,'tbl').length)parent.removeChild(prev);
+   }
+ }
+ // 원본 끝에 붙은 불필요한 빈 문단은 페이지가 늘어나는 원인이므로 정리합니다.
+ const section=doc.documentElement;
+ while(section.lastElementChild?.localName==='p'&&
+       !section.lastElementChild.getElementsByTagNameNS(hpNS,'tbl').length&&
+       !pText(section.lastElementChild))section.removeChild(section.lastElementChild);
  // 표의 병합 셀에 중복 기록된 기존 설명도 공백으로 교체
  const oldCaptions=['바닥 균열','바닥 파손','외벽 균열','조적벽체 균열','조적벽체 도장열화'];
  const out=ALBUM_OUT.map((_,i)=>albumSlot('outside',i));const inside=ALBUM_IN.map((_,i)=>albumSlot('inside',i));
  const blankCanvas=document.createElement('canvas');blankCanvas.width=800;blankCanvas.height=600;const cx=blankCanvas.getContext('2d');cx.fillStyle='#ffffff';cx.fillRect(0,0,800,600);const blank=blankCanvas.toDataURL('image/jpeg',0.75);
+ const emptyPhotoCanvas=document.createElement('canvas');emptyPhotoCanvas.width=800;emptyPhotoCanvas.height=600;const ex=emptyPhotoCanvas.getContext('2d');ex.fillStyle='#fff';ex.fillRect(0,0,800,600);ex.fillStyle='#555';ex.textAlign='center';ex.textBaseline='middle';ex.font='36px Dotum, sans-serif';ex.fillText('-',400,300);const emptyPhoto=emptyPhotoCanvas.toDataURL('image/jpeg',0.85);
  function asBase64(data){return (data||blank).split(',')[1]}
  async function jpegBytes(src){
   return await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=1000;c.height=750;const x=c.getContext('2d');x.fillStyle='white';x.fillRect(0,0,c.width,c.height);const k=Math.max(c.width/im.width,c.height/im.height);const dw=im.width*k,dh=im.height*k;x.drawImage(im,(c.width-dw)/2,(c.height-dh)/2,dw,dh);resolve(c.toDataURL('image/jpeg',0.85).split(',')[1])};im.onerror=()=>reject(Error('사진 처리 실패'));im.src=src||blank})
@@ -844,7 +873,7 @@ async function exportAlbumHwpx(){
   const key='albumPhoto'+i;
   img.setAttribute('binaryItemIDRef',key);
   const el=itemExample.cloneNode(true);el.setAttribute('id',key);el.setAttribute('href','BinData/'+key+'.jpg');el.setAttribute('media-type','image/jpeg');manifest.appendChild(el);
-  const src=i<=3?out[i-1]?.image:i<=9?inside[i-4]?.image:entries[i-10]?.image;
+  const src=i<=3?out[i-1]?.image:i<=9?inside[i-4]?.image:(entries[i-10]?.image||emptyPhoto);
   zip.file('BinData/'+key+'.jpg',await jpegBytes(src),{base64:true});
  }
  zip.file(hpfPath,new XMLSerializer().serializeToString(hpfDoc));
