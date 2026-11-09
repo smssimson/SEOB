@@ -418,7 +418,39 @@ if(preview&&preview.length>1){ctx.beginPath();preview.forEach((p,j)=>{let q=scre
 // v83: Movable, per-page legend in original drawing coordinates.
 let sm83LegendRect=null;
 function sm83LegendPage(){return state.pages?.[state.activePage]||null}
-function sm83LegendPos(){const page=sm83LegendPage(),v=page?.sm83LegendPos;return {x:Number.isFinite(v?.x)?Math.max(0,Math.min(.92,v.x)):.018,y:Number.isFinite(v?.y)?Math.max(0,Math.min(.93,v.y)):.025}}
+// v96: Prefer a blank area of the actual drawing when a legend has not been manually positioned.
+let sm96LegendCacheImg=null,sm96LegendCachePos=null;
+function sm96FindLegendPos(){
+ if(!img||!img.width||!img.height)return {x:.78,y:.025};
+ if(sm96LegendCacheImg===img&&sm96LegendCachePos)return sm96LegendCachePos;
+ const fallback={x:.78,y:.025};
+ try{
+  const scale=Math.min(1,480/Math.max(img.width,img.height));
+  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));
+  const g=c.getContext('2d',{willReadFrequently:true});g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);
+  const pixels=g.getImageData(0,0,c.width,c.height).data;
+  const font=Math.max(22,Math.min(40,Math.round(img.width/44)));
+  const legendW=Math.min(.45,Math.max(.12,(font*5.6)/img.width)),legendH=Math.min(.28,(font*2.7)/img.height);
+  const candidates=[];
+  for(const y of [.025,.12,.24,.40,.58,.73])for(const x of [.80,.66,.50,.32,.15,.025]){
+   const px=Math.floor(x*c.width),py=Math.floor(y*c.height),pw=Math.max(1,Math.floor(legendW*c.width)),ph=Math.max(1,Math.floor(legendH*c.height));
+   if(px+pw>=c.width||py+ph>=c.height)continue;
+   let ink=0,total=0;
+   for(let yy=py;yy<py+ph;yy+=2)for(let xx=px;xx<px+pw;xx+=2){
+    const i=(yy*c.width+xx)*4,r=pixels[i],gr=pixels[i+1],b=pixels[i+2];
+    if(Math.min(r,gr,b)<225||Math.max(r,gr,b)-Math.min(r,gr,b)>35)ink++;
+    total++;
+   }
+   candidates.push({x,y,score:ink/Math.max(1,total)+y*.015+(1-x)*.004});
+  }
+  candidates.sort((a,b)=>a.score-b.score);
+  sm96LegendCachePos=candidates.length?{x:candidates[0].x,y:candidates[0].y}:fallback;
+ }catch(e){sm96LegendCachePos=fallback}
+ sm96LegendCacheImg=img;return sm96LegendCachePos;
+}
+function sm83LegendPos(){const page=sm83LegendPage(),v=page?.sm83LegendPos;
+ if(Number.isFinite(v?.x)&&Number.isFinite(v?.y))return {x:Math.max(0,Math.min(.92,v.x)),y:Math.max(0,Math.min(.93,v.y))};
+ return sm96FindLegendPos();}
 // v84: Transparent two-line legend, larger readable labels, vivid print colors.
 const SM84_RED='#ed0028',SM84_PURPLE='#8700dc';
 function sm83LegendDraw(g,width,height){
@@ -431,7 +463,7 @@ function sm83LegendDraw(g,width,height){
  const textW=Math.max(...labels.map(t=>g.measureText(t).width));
  const w=dot*2+font*.42+textW,h=line*2;
  const bx=Math.max(0,Math.min(x,width-w)),by=Math.max(0,Math.min(y,height-h));
- // Deliberately no background fill: only colored dots and letters are exported.
+ // Transparent legend: never draw an opaque box behind the labels.
  for(let i=0;i<2;i++){
    const cy=by+line*(i+.5);
    g.beginPath();g.arc(bx+dot,cy,dot,0,Math.PI*2);
