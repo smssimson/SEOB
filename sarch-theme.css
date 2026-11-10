@@ -1,0 +1,14 @@
+/* S:ARCH visual identity · appearance only · no application logic */
+:root{--sarch-navy:#0d2034;--sarch-blue:#54b9ef;--sarch-line:#d3e1eb}
+body{font-family:Dotum,'돋움',Arial,sans-serif}
+.smetric-app-header,header.smetric-app-header{background:linear-gradient(112deg,#091b2e,#163954)!important;border-bottom:1px solid #33536b!important;box-shadow:0 4px 22px #081b3024}
+.smetric-brand{display:inline-flex!important;align-items:center;gap:11px!important;font-weight:700!important;letter-spacing:.25px!important;color:#f3f9ff!important}
+.smetric-brand:before{content:"";display:inline-block;width:32px;height:32px;flex:none;border-radius:9px;background:#12344f url("../sarch-icon.svg") center/cover no-repeat;box-shadow:0 0 0 1px #83bde044}
+.smetric-home{border-radius:10px!important}
+.smetric-app-header button,.smetric-app-header select,.smetric-home{transition:background-color .16s,border-color .16s,transform .16s}
+.smetric-app-header button:hover,.smetric-home:hover{transform:translateY(-1px)}
+.smetric-quality,.sm-quality-bar,.sm-draw-sitebar,.smetric-sitebar,.projectbar{border-radius:12px!important}
+.panel,.card{border-radius:14px}
+button,.button{transition:background-color .14s,border-color .14s,box-shadow .14s}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #54b9ef!important;outline-offset:2px}
+@media(max-width:650px){.smetric-brand:before{width:27px;height:27px}}
