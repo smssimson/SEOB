@@ -1,7 +1,7 @@
 {
-  "name": "SMETRIC | 건축 현장업무",
-  "short_name": "SMETRIC",
-  "description": "현장조사 및 건축 실측 도면 작성",
+  "name": "S:ARCH | 건축 현장업무 플랫폼",
+  "short_name": "S:ARCH",
+  "description": "SHIM MIN SEOB 개발 · 건축 현장조사·도면작성·장비조사·기울기",
   "lang": "ko",
   "id": "/SEOB/",
   "start_url": "/SEOB/",
@@ -10,6 +10,12 @@
   "background_color": "#f2f5fb",
   "theme_color": "#102d4e",
   "icons": [
+    {
+      "src": "./sarch-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "./smetric-icon-192.png",
       "sizes": "192x192",
