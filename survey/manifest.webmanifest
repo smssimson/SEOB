@@ -1,7 +1,7 @@
 {
   "id": "/SEOB/survey/",
-  "name": "현장조사",
-  "short_name": "현장조사",
+  "name": "S:ARCH · 현장조사",
+  "short_name": "S:ARCH 조사",
   "description": "현장 결함 조사 및 사진첩 작성",
   "start_url": "./",
   "scope": "./",
@@ -9,6 +9,12 @@
   "background_color": "#ffffff",
   "theme_color": "#12304b",
   "icons": [
+    {
+      "src": "../sarch-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "./icon-192.png",
       "sizes": "192x192",
