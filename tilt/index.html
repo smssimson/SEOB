@@ -690,20 +690,10 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
 })();
 </script><script id="smetric-update-v82">
 (function(){
- const VERSION=82,KEY='smetric-last-version';
+ const VERSION=110,KEY='smetric-last-version';
  let notified=false,checking=false;
- function notice(){if(notified)return;notified=true;
-  const bar=document.createElement('div');bar.id='smetric-update-notice';
-  bar.style.cssText='position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:2147483646;background:#1c3148;color:white;border:1px solid #6e8dab;border-radius:10px;box-shadow:0 5px 24px #0005;padding:10px 14px;font:13px Dotum,sans-serif;display:flex;align-items:center;gap:12px;max-width:95vw';
-  const msg=document.createElement('span');msg.textContent='새 버전이 배포되었습니다. 현재 작업을 저장한 뒤 적용하세요.';
-  const btn=document.createElement('button');btn.type='button';btn.textContent='업데이트 적용';btn.style.cssText='background:#eaf4ff;color:#14283a;border:0;border-radius:7px;padding:9px 12px;white-space:nowrap;cursor:pointer';
-  btn.onclick=async()=>{btn.disabled=true;btn.textContent='적용 중…';try{
-   if(navigator.serviceWorker){const regs=await navigator.serviceWorker.getRegistrations();await Promise.allSettled(regs.map(r=>r.update()))}
-   // Do not delete local storage / IndexedDB or offline assets.
-   const u=new URL(location.href);u.searchParams.set('smetric_updated',Date.now().toString());location.replace(u.href)
-  }catch(e){btn.disabled=false;btn.textContent='다시 시도'}};
-  bar.append(msg,btn);document.body.appendChild(bar)
- }
+ // Background update: no disruptive banner or forced reload while work is open.
+ function notice(){notified=true;document.getElementById('smetric-update-notice')?.remove();}
  async function check(){if(checking||!navigator.onLine||document.visibilityState==='hidden')return;checking=true;
   try{const root=new URL(location.pathname.includes('/survey/')||location.pathname.includes('/drawing/')||location.pathname.includes('/schmidt/')||location.pathname.includes('/tilt/')?'../version.json':'./version.json',location.href);
    root.searchParams.set('t',Date.now());const r=await fetch(root,{cache:'no-store'});if(!r.ok)return;
