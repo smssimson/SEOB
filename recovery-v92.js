@@ -38,7 +38,7 @@ if(header){
  const menu=document.createElement('div');menu.id='sarchProtectMenu';menu.className='sarch-protect-menu';menu.hidden=true;
  const title=document.createElement('div');title.className='sarch-protect-title';title.textContent='자료 보호 · 복구 기록';
  const hint=document.createElement('div');hint.className='sarch-protect-hint';hint.textContent='복구 기록은 별도 저장됩니다. 기록 다운로드는 현재 작업을 덮어쓰지 않습니다.';
- menu.append(title,box,hint);wrap.append(toggle,menu);header.insertBefore(wrap,header.firstChild);
+ menu.append(title,box,hint);wrap.append(toggle,menu);header.appendChild(wrap);
  const close=()=>{menu.hidden=true;toggle.setAttribute('aria-expanded','false')};
  toggle.addEventListener('click',()=>{menu.hidden=!menu.hidden;toggle.setAttribute('aria-expanded',String(!menu.hidden))});
  document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))close()});
