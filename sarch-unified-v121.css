@@ -1,6 +1,6 @@
 /* S:ARCH common four-module layout v121. Visual-only: preserve project and drawing state. */
 .smetric-app-header{min-height:54px!important;padding:6px 12px!important;box-sizing:border-box!important}
-.smetric-brand:before{background-image:url("../sarch-icon.svg?v=121")!important}
+.smetric-brand:before{background-image:url("./sarch-icon.svg?v=121")!important}
 .smetric-app-header .smetric-brand{font-size:16px!important}
 .sarch-v121-site{box-sizing:border-box!important;width:calc(100% - 24px)!important;max-width:none!important;margin:12px!important;padding:12px 14px!important;border:1px solid #344f6b!important;border-radius:12px!important;background:#1a2c43!important;display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important}
 .sarch-v121-site>label:first-child{display:contents!important}
