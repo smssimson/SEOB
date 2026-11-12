@@ -12,3 +12,22 @@ body{font-family:Dotum,'돋움',Arial,sans-serif}
 button,.button{transition:background-color .14s,border-color .14s,box-shadow .14s}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #54b9ef!important;outline-offset:2px}
 @media(max-width:650px){.smetric-brand:before{width:27px;height:27px}}
+
+/* S:ARCH shared navigation, recovery and sheet-control design v114 */
+.smetric-app-header,.sm-topbar{min-height:58px!important}
+.smetric-head-controls,.sm-topbar .right{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important}
+.smetric-head-controls>*,.sm-topbar .right>*{flex-shrink:0}
+.smetric-head-controls button,.sm-topbar .right button,.smetric-home,.sm-topbar .home{min-height:36px!important;border-radius:8px!important}
+.smetric-head-controls select,.sm-topbar .right select{min-height:36px!important}
+.sarch-protect{position:relative;display:inline-flex;align-items:center;flex-shrink:0;z-index:1001}
+.sarch-protect-toggle{display:inline-flex;align-items:center;gap:6px;padding:8px 11px!important;min-height:36px!important;border:1px solid #466582!important;background:#1b3650!important;color:#eef7ff!important;border-radius:8px!important;white-space:nowrap;font-size:12px!important;cursor:pointer}
+.sarch-protect-toggle:hover,.sarch-protect-toggle[aria-expanded=true]{background:#2c5171!important;border-color:#78b2d8!important}
+.sarch-protect-menu{position:absolute;right:0;top:calc(100% + 9px);width:min(310px,calc(100vw - 24px));background:#142b43!important;border:1px solid #456781;border-radius:12px;box-shadow:0 16px 36px #0007;padding:13px;color:#eaf5ff;z-index:10000}
+.sarch-protect-menu[hidden]{display:none!important}
+.sarch-protect-menu .sarch-protect-title{font-weight:700;font-size:13px;margin:0 0 8px}
+.sarch-protect-menu #sm92RecoveryBox{position:static!important;display:block!important;max-width:none!important;background:transparent!important;padding:0!important;border:0!important;box-shadow:none!important;color:inherit!important;font:12px Dotum,'돋움',sans-serif!important}
+.sarch-protect-menu #sm92RecoveryBox button{font-size:12px!important;min-height:34px!important;border-radius:8px!important;padding:7px 10px!important;margin:0 4px 5px 0!important;background:#244a69!important;color:#fff!important;border:1px solid #5a829e!important}
+.sarch-protect-menu #sm92RecoveryStatus{display:block!important;color:#afcce1!important;font-size:11px!important;margin-top:5px!important;white-space:normal!important;line-height:1.5}
+.sarch-protect-hint{font-size:11px;color:#9ebcd2;line-height:1.5;margin-top:7px}
+button:focus-visible,.sarch-protect-toggle:focus-visible{outline:2px solid #72c9ff!important;outline-offset:2px}
+@media(max-width:700px){.sarch-protect-menu{right:-8px}.smetric-head-controls,.sm-topbar .right{gap:6px!important}}
