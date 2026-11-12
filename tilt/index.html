@@ -491,7 +491,7 @@ const t=$('theme');t.value=localStorage.getItem('smetric-shared-theme-v14')||'da
   if(!list||list.length<2){msg('순서를 변경할 도면이 2개 이상 필요합니다.');return}
   const from=list.findIndex(x=>x.id===state.sheetId);
   if(from<0)return;
-  const input=prompt('현재 도면을 몇 번째 위치로 옮길까요?\\n\\n'+list.map((p,i)=>`${i+1}. ${p.name}`).join('\\n'),String(from+1));
+  const input=prompt('현재 도면을 몇 번째 위치로 옮길까요?\n\n'+list.map((p,i)=>`${i+1}. ${p.name}`).join('\n'),String(from+1));
   if(input===null)return;
   const target=Number(input)-1;
   if(!Number.isInteger(target)||target<0||target>=list.length){alert('올바른 순서를 입력해 주세요.');return}
