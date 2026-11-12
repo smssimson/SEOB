@@ -58,3 +58,38 @@ body.sarch-v121-survey .app>section.panel,body.sarch-v121-schmidt main.layout>se
 body.sarch-v121-survey .app>aside.panel,body.sarch-v121-schmidt main.layout>aside.panel,body.sarch-v121-tilt .workspace>aside.side,body.sarch-v121-drawing .layout>aside.side{align-self:start!important;min-width:0!important;width:100%!important;max-width:none!important}
 body.sarch-v121-survey .app>aside.panel .list,body.sarch-v121-schmidt main.layout>aside.panel .list,body.sarch-v121-tilt .workspace>aside.side #items{max-width:100%!important;box-sizing:border-box!important}
 @media(min-width:900px){body.sarch-v121-survey .app,body.sarch-v121-schmidt main.layout,body.sarch-v121-drawing .layout,body.sarch-v121-tilt .workspace{grid-template-columns:minmax(0,4fr) minmax(260px,1fr)!important}}
+
+/* v124: one coherent four-module desktop/tablet layout */
+.sarch-v121-site{margin:10px 12px 12px!important;padding:12px!important;min-height:76px!important;display:grid!important;grid-template-columns:minmax(0,1fr) repeat(3,max-content) max-content!important;grid-template-rows:20px 36px!important;gap:5px 8px!important;align-items:center!important;width:calc(100% - 24px)!important;max-width:none!important}
+.sarch-v121-site .site-title,.sarch-v121-site .sm-draw-site-title{grid-column:1/-1!important;grid-row:1!important;display:block!important;font-size:13px!important;font-weight:700!important;line-height:20px!important}
+.sarch-v121-site .sm-draw-site-row{display:contents!important}
+.sarch-v121-site select{grid-column:1!important;grid-row:2!important;min-width:0!important;width:100%!important;height:36px!important}
+.sarch-v121-site button{grid-row:2!important;min-height:36px!important;height:36px!important;padding:5px 10px!important;font-size:12px!important}
+.sarch-v121-site #newSite,.sarch-v121-site #smDrawNewSite,.sarch-v121-site #addSite{grid-column:2!important}
+.sarch-v121-site #renameSite,.sarch-v121-site #smDrawRenameSite{grid-column:3!important}
+.sarch-v121-site #deleteSite,.sarch-v121-site #smDrawDeleteSite{grid-column:4!important}
+.sarch-v121-site #siteCount,.sarch-v121-site #smDrawSiteCount{grid-column:5!important;grid-row:2!important;font-size:11px!important}
+body.sarch-v121-survey .sarch-v121-site.projectbar>label:first-child{display:contents!important}
+body.sarch-v121-survey .sarch-v121-site.projectbar>label:first-child select{grid-column:1!important;grid-row:2!important;min-width:0!important}
+body.sarch-v121-survey .sarch-v121-site.projectbar>label:first-child{font-size:0!important}
+body.sarch-v121-survey .sarch-v121-site.projectbar:before{content:"작업 현장 선택";grid-column:1/-1;grid-row:1;font-size:13px;font-weight:700}
+.sarch-v121-site.projectbar>label:first-child:not(:has(select)){display:none!important}
+body.sarch-v121-tilt .sarch-v121-site{grid-template-columns:minmax(0,1fr) repeat(3,max-content)!important}
+body.sarch-v121-tilt .sarch-v121-site .site-title{grid-column:1/-1!important}
+.sm65-floorbar{position:relative!important;display:flex!important;align-items:center!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;min-height:76px!important;height:auto!important;max-width:100%!important;margin:0!important;padding:32px 10px 8px!important;gap:5px!important;border:1px solid #344f6b!important;border-radius:10px!important;background:#1a2c43!important;box-sizing:border-box!important;scrollbar-width:thin!important}
+.sm65-floorbar::before{content:"층/도면 관리"!important;position:absolute!important;top:8px!important;left:12px!important;font-size:13px!important;font-weight:700!important;line-height:18px!important;margin:0!important;display:block!important}
+.sm65-floorbar>button,.sm65-floorbar>select,.sm65-floorbar>label{order:0!important;flex-shrink:0!important;margin:0!important}
+.sm65-floorbar>button{height:34px!important;min-height:34px!important;padding:5px 8px!important;font-size:12px!important}
+.sm65-floorbar>select{height:34px!important;min-width:120px!important;max-width:220px!important;flex:1 1 170px!important}
+.sm65-floorbar>label{height:34px!important;display:inline-flex!important;align-items:center!important;gap:5px!important;white-space:nowrap!important;font-size:12px!important}
+.sm65-floorbar>label input,.sm65-floorbar>label select{height:34px!important;min-width:95px!important;max-width:180px!important;box-sizing:border-box!important}
+.sm65-floorbar>span{font-size:11px!important;white-space:nowrap!important;flex-shrink:0!important}
+body.sarch-v121-drawing .sheetbar.sm65-floorbar{margin:10px 0!important}
+body.sarch-v121-tilt .sm65-sheet-section{padding:10px!important}
+body.sarch-v121-tilt .sm65-sheet-section .sm65-floorbar{width:100%!important}
+@media(min-width:900px){
+body.sarch-v121-survey main.app,body.sarch-v121-schmidt main.layout,body.sarch-v121-drawing .layout,body.sarch-v121-tilt .workspace{display:grid!important;grid-template-columns:minmax(0,4fr) minmax(260px,1fr)!important;gap:12px!important;max-width:none!important;width:calc(100% - 24px)!important;margin:12px!important;box-sizing:border-box!important;align-items:start!important}
+body.sarch-v121-survey main.app>section.panel,body.sarch-v121-schmidt main.layout>section.panel,body.sarch-v121-drawing .layout>.main,body.sarch-v121-tilt .workspace>.stage-card{grid-column:1!important;min-width:0!important}
+body.sarch-v121-survey main.app>aside.panel,body.sarch-v121-schmidt main.layout>aside.panel,body.sarch-v121-drawing .layout>aside.side,body.sarch-v121-tilt .workspace>aside.side{grid-column:2!important;min-width:0!important;width:100%!important;max-width:none!important;box-sizing:border-box!important;align-self:start!important}
+}
+@media(max-width:899px){.sarch-v121-site{display:flex!important;flex-wrap:wrap!important;min-height:76px!important}.sarch-v121-site .site-title,.sarch-v121-site .sm-draw-site-title{flex-basis:100%!important}.sarch-v121-site select{flex:1 1 160px!important}.sarch-v121-site .sm-draw-site-row{display:flex!important;flex-wrap:wrap!important;min-width:0!important}}
