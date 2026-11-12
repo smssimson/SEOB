@@ -479,7 +479,7 @@ async function tiltDownloadXlsx(){
  msg(`원본 Excel 양식에 측점 ${points.length}건을 입력했습니다.`);
 }
 $('exportTiltExcel').onclick=async()=>{try{await tiltDownloadXlsx()}catch(e){alert('기울기 엑셀 출력 실패: '+e.message)}};
-$('backup').onclick=()=>{const pending=[];for(const st of state.sites)for(const sh of st.sheets)sh.points.forEach((p,i)=>{if(!p.unavailable&&(!p.distance||!['lowerV','upperV','upperH','hDisp'].every(k=>Array.isArray(p[k])&&p[k].length===3&&p[k].every(v=>String(v).trim()!==''))))pending.push(`${st.name}/${sh.name} 조사 ${i+1}`)});if(pending.length&&!confirm(`측정값이 완료되지 않은 조사 ${pending.length}건이 있습니다.\n${pending.slice(0,8).join('\n')}\n\n미입력 상태 그대로 백업할까요?`))return;fileDownload(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),'SARCH_기울기_백업.json')};$('restoreBtn').onclick=()=>$('restore').click();$('restore').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const obj=JSON.parse(await f.text());if(!Array.isArray(obj.sites)||!obj.sites.length)throw Error('올바른 기울기 백업 파일이 아닙니다.');if(!confirm('현재 기울기 현장 데이터를 백업 파일로 교체할까요?'))return;
+$('backup').onclick=()=>{const pending=[];for(const st of state.sites)for(const sh of st.sheets)sh.points.forEach((p,i)=>{if(!p.unavailable&&(!p.distance||!['lowerV','upperV','upperH','hDisp'].every(k=>Array.isArray(p[k])&&p[k].length===3&&p[k].every(v=>String(v).trim()!==''))))pending.push(`${st.name}/${sh.name} 조사 ${i+1}`)});if(pending.length&&!confirm(`측정값이 완료되지 않은 조사 ${pending.length}건이 있습니다.\n${pending.slice(0,8).join('\n')}\n\n미입력 상태 그대로 백업할까요?`))return;fileDownload(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),'S:ARCH_기울기_백업.json')};$('restoreBtn').onclick=()=>$('restore').click();$('restore').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const obj=JSON.parse(await f.text());if(!Array.isArray(obj.sites)||!obj.sites.length)throw Error('올바른 기울기 백업 파일이 아닙니다.');if(!confirm('현재 기울기 현장 데이터를 백업 파일로 교체할까요?'))return;
 if(!sm85DB)throw Error('대용량 저장소를 사용할 수 없어 불러오기를 중단했습니다. 기존 자료는 그대로 유지됩니다.');
 const candidate={...obj};if(!candidate.sites.some(s=>s.id===candidate.siteId))candidate.siteId=candidate.sites[0].id;
 const target=candidate.sites.find(s=>s.id===candidate.siteId);if(!target.sheets?.some(sh=>sh.id===candidate.sheetId))candidate.sheetId=target.sheets[0].id;
@@ -749,7 +749,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
   const target=document.getElementById('smTiltValueToggle');
   if(!target)return;
   let bar=document.getElementById('sm120ArrowControls');
-  if(!bar){bar=document.createElement('div');bar.id='sm120ArrowControls';target.insertAdjacentElement('afterend',bar);}
+  if(!bar){bar=document.createElement('div');bar.id='sm120ArrowControls';(target.closest('.smarch-value-group')||target).insertAdjacentElement('afterend',bar);}
   for(const [buttonId,labelId,kind] of [['smBlueSizeToggle','smBlueSizeLabel','blue'],['smRedSizeToggle','smRedSizeLabel','red']]){
    const btn=document.getElementById(buttonId),label=document.getElementById(labelId);
    if(!btn||!label)continue;
