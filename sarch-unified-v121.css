@@ -16,7 +16,8 @@
 .sarch-v121-site.smetric-sitebar{display:flex!important}
 .sarch-v121-site .sm-draw-site-row button{flex-shrink:0!important}
 .sm65-floorbar{display:flex!important;align-items:center!important;gap:5px!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;padding:9px 10px!important;scrollbar-width:thin!important;box-sizing:border-box!important}
-.sm65-floorbar:before{flex:0 0 100%!important}
+.sm65-floorbar{position:relative!important;padding-top:33px!important}
+.sm65-floorbar:before{position:absolute!important;top:7px!important;left:10px!important;display:block!important;flex:none!important;font-size:14px!important;line-height:18px!important;pointer-events:none!important}
 .sm65-floorbar button{flex:0 0 auto!important;min-height:36px!important;padding:6px 7px!important;font-size:12px!important;white-space:nowrap!important;overflow-wrap:normal!important;width:auto!important}
 .sm65-floorbar select{flex:1 1 120px!important;min-width:95px!important;max-width:230px!important;height:36px!important}
 .sm65-floorbar label{display:inline-flex!important;flex:0 1 190px!important;align-items:center!important;flex-wrap:nowrap!important;gap:5px!important;min-width:110px!important;white-space:nowrap!important}
