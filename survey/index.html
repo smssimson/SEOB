@@ -756,8 +756,7 @@ $('albumPrint').onclick=()=>{
  for(let i=0;i<cards.length;i+=6)pages.push(albumPage('외관조사 사진첩',cards.slice(i,i+6)));
  const style=`@page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:Dotum,'돋움',sans-serif;color:#111;margin:0}.albumPage{width:186mm;height:273mm;break-after:page;page-break-after:always;overflow:hidden;padding:2mm}.albumPage:last-child{break-after:auto;page-break-after:auto}.albumPage h2{text-align:center;font-size:16pt;margin:2mm 0 6mm}.mapBlank{height:240mm;border:1px solid #333}.photoGrid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,77mm);gap:4mm 3mm}.photoCard{border:1px solid #333;min-height:0;display:flex;flex-direction:column;overflow:hidden}.photoImg{height:61mm;padding:2mm;display:flex;align-items:center;justify-content:center}.photoImg img{width:100%;height:100%;object-fit:cover}.photoFoot{height:16mm;display:grid;grid-template-columns:22mm 1fr;border-top:1px solid #333;font-size:9pt;text-align:center;align-items:center}.photoNum{height:100%;border-right:1px solid #333;display:flex;align-items:center;justify-content:center}.photoDesc{height:100%;min-width:0;padding:1mm 2mm;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal;overflow-wrap:anywhere;word-break:keep-all;line-height:1.35}@media screen{body{background:#e5e9ee}.albumPage{margin:15px auto;background:#fff;box-shadow:0 2px 8px #999}}`;
  let win=window.open('','_blank');if(!win){alert('팝업이 차단되어 있습니다. 팝업을 허용한 뒤 다시 시도해 주세요.');return}win.document.open();win.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>외관조사 사진첩</title><style>'+style+'</style></head><body>'+pages.join('')+'<script defer src="../recovery-v92.js?v=114"><\/script>
-<link rel="stylesheet" href="../sarch-unified-v121.css?v=121">
-<script id="sarch-unified-v121">(function(){function unify(){document.body.classList.add('sarch-v121-survey');const site=document.querySelector('.projectbar');if(site){site.classList.add('sarch-v121-site');const header=document.querySelector('header.smetric-app-header');if(header&&site.previousElementSibling!==header)header.insertAdjacentElement('afterend',site);}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',unify,{once:true});else unify();})();</script>
+
 </body></html>');win.document.close();
 };
 
@@ -971,4 +970,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cleanup);else cleanup();
 })();
 </script>
+<link rel="stylesheet" href="../sarch-unified-v121.css?v=121">
+<script id="sarch-unified-v121">(function(){function unify(){document.body.classList.add('sarch-v121-survey');const site=document.querySelector('.projectbar');if(site){site.classList.add('sarch-v121-site');const header=document.querySelector('header.smetric-app-header');if(header&&site.previousElementSibling!==header)header.insertAdjacentElement('afterend',site);}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',unify,{once:true});else unify();})();</script>
 </body>
