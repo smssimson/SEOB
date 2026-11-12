@@ -78,4 +78,37 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
  setInterval(check,30000);setTimeout(check,2500);
 })();
 </script>
-</body></html>
+<style id="sarch-manual-update-style">
+#sarchManualUpdate{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:99999;border:1px solid rgba(120,160,185,.48);border-radius:10px;background:rgba(20,42,60,.85);color:#e7f3fa;padding:7px 11px;font:12px Dotum,sans-serif;cursor:pointer;box-shadow:0 2px 10px #0002}
+#sarchManualUpdate:disabled{opacity:.65;cursor:wait}
+#sarchUpdateStatus{position:fixed;right:12px;bottom:calc(53px + env(safe-area-inset-bottom,0px));z-index:99999;max-width:290px;padding:8px 12px;border-radius:9px;background:#193448;color:white;font:12px/1.5 Dotum,sans-serif;box-shadow:0 3px 12px #0003}
+</style>
+<button id="sarchManualUpdate" type="button" title="GitHub 배포 후 최신 버전 확인">↻ 업데이트</button>
+<script id="sarch-manual-update-v128">(function(){
+ const btn=document.getElementById('sarchManualUpdate');let busy=false;
+ function show(msg){let el=document.getElementById('sarchUpdateStatus');if(!el){el=document.createElement('div');el.id='sarchUpdateStatus';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=msg;clearTimeout(show.timer);show.timer=setTimeout(()=>el.remove(),5000)}
+ async function update(manual){
+  if(busy||!navigator.onLine){if(manual)show('인터넷 연결을 확인해 주세요.');return}busy=true;btn.disabled=true;
+  if(manual)show('최신 파일 확인 중…');
+  try{
+   const ver=await fetch('./version.json?check='+Date.now(),{cache:'no-store'});if(!ver.ok)throw Error('버전 정보를 확인할 수 없습니다.');
+   const v=await ver.json();
+   if('serviceWorker' in navigator){
+    const regs=await navigator.serviceWorker.getRegistrations();
+    await Promise.allSettled(regs.filter(r=>new URL(r.scope).pathname.startsWith('/SEOB/')).map(r=>r.update()));
+   }
+   const key='sarch-home-loaded-version',old=Number(sessionStorage.getItem(key)||0),latest=Number(v.version)||0;
+   if(manual){
+    sessionStorage.setItem(key,String(latest));
+    show('업데이트 확인 완료 · 최신 화면을 불러옵니다.');
+    setTimeout(()=>location.reload(),250);
+   }else if(old&&latest>old){show('새 버전이 배포되었습니다. 메인 화면을 갱신합니다.');sessionStorage.setItem(key,String(latest));setTimeout(()=>location.reload(),400)}
+   else sessionStorage.setItem(key,String(latest));
+  }catch(e){if(manual)show('확인 실패: '+e.message)}finally{busy=false;btn.disabled=false}
+ }
+ btn.addEventListener('click',()=>update(true));
+ window.addEventListener('online',()=>update(false));
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)update(false)});
+ window.addEventListener('load',()=>setTimeout(()=>update(false),1200));
+ setInterval(()=>{if(!document.hidden)update(false)},60000);
+})();</script></body></html>
