@@ -31,7 +31,20 @@ if(!chosen)return;const i=Number(chosen)-1;if(!Number.isInteger(i)||!list[i])ret
 const r=list[i];download(new Blob([JSON.stringify({format:'SMETRIC-recovery-v92',module,created:r.created,...r.payload})],{type:'application/json'}),'SMETRIC_'+module+'_복구_'+r.created+'.json');
 alert('복구 기록을 파일로 저장했습니다. 기존 데이터를 덮어쓰지 않았습니다.\\n복구 파일은 일반 프로젝트 백업과 형식이 다를 수 있으니 보관 후 확인해 주세요.');
 }
-function installUI(){const box=document.createElement('div');box.id='sm92RecoveryBox';box.style.cssText='position:fixed;left:12px;bottom:12px;z-index:9998;background:#112b42;color:white;padding:8px;border-radius:9px;box-shadow:0 2px 10px #0005;font:12px Dotum,sans-serif;max-width:270px';box.innerHTML='<button id="sm92Recover" type="button" style="background:#254d6a;color:white;border:1px solid #6787a0;border-radius:6px;padding:5px 9px">복구 기록</button> <button id="sm92BackupNow" type="button" style="background:#254d6a;color:white;border:1px solid #6787a0;border-radius:6px;padding:5px 9px">지금 기록</button><div id="sm92RecoveryStatus" style="margin-top:4px;color:#c8dfed">복구 저장소 준비 중</div>';document.body.appendChild(box);document.getElementById('sm92Recover').onclick=()=>show().catch(e=>warn(e.message));document.getElementById('sm92BackupNow').onclick=()=>snapshot(true)}
+function installUI(){const box=document.createElement('div');box.id='sm92RecoveryBox';box.style.cssText='position:fixed;left:12px;bottom:12px;z-index:9998;background:#112b42;color:white;padding:8px;border-radius:9px;box-shadow:0 2px 10px #0005;font:12px Dotum,sans-serif;max-width:270px';box.innerHTML='<button id="sm92Recover" type="button" style="background:#254d6a;color:white;border:1px solid #6787a0;border-radius:6px;padding:5px 9px">복구 기록</button> <button id="sm92BackupNow" type="button" style="background:#254d6a;color:white;border:1px solid #6787a0;border-radius:6px;padding:5px 9px">지금 기록</button><div id="sm92RecoveryStatus" style="margin-top:4px;color:#c8dfed">복구 저장소 준비 중</div>';const header=document.querySelector('.smetric-app-header .smetric-head-controls, .sm-topbar .right, header .smetric-head-controls, header .right, header');
+if(header){
+ const wrap=document.createElement('div');wrap.className='sarch-protect';
+ const toggle=document.createElement('button');toggle.type='button';toggle.className='sarch-protect-toggle';toggle.textContent='▣ 자료 보호';toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls','sarchProtectMenu');
+ const menu=document.createElement('div');menu.id='sarchProtectMenu';menu.className='sarch-protect-menu';menu.hidden=true;
+ const title=document.createElement('div');title.className='sarch-protect-title';title.textContent='자료 보호 · 복구 기록';
+ const hint=document.createElement('div');hint.className='sarch-protect-hint';hint.textContent='복구 기록은 별도 저장됩니다. 기록 다운로드는 현재 작업을 덮어쓰지 않습니다.';
+ menu.append(title,box,hint);wrap.append(toggle,menu);header.insertBefore(wrap,header.firstChild);
+ const close=()=>{menu.hidden=true;toggle.setAttribute('aria-expanded','false')};
+ toggle.addEventListener('click',()=>{menu.hidden=!menu.hidden;toggle.setAttribute('aria-expanded',String(!menu.hidden))});
+ document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))close()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+}else document.body.appendChild(box);
+document.getElementById('sm92Recover').onclick=()=>show().catch(e=>warn(e.message));document.getElementById('sm92BackupNow').onclick=()=>snapshot(true)}
 async function init(){installUI();try{db=await open(dbName,1,'snapshots');notify('복구 기록 준비 완료');setTimeout(()=>snapshot(),10000);setInterval(()=>snapshot(),INTERVAL);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')snapshot()});if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});}catch(e){warn('복구 저장소를 열지 못했습니다. JSON 파일로 외부 백업해 주세요.')}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
