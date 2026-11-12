@@ -42,3 +42,19 @@ body.sarch-v121-tilt .workspace>aside.side,body.sarch-v121-drawing .layout>aside
  .sarch-v121-site .sm-draw-site-row{min-width:670px!important}
  .sm65-floorbar{overflow-x:auto!important}
 }
+
+/* v123: consistent drawing-row sizing, panels and visible branding */
+.smetric-app-header .smetric-brand::before{content:""!important;display:inline-block!important;width:34px!important;height:34px!important;min-width:34px!important;background:#12344f url("./sarch-icon.svg?v=123") center/contain no-repeat!important;border:1px solid #2d7699!important;border-radius:9px!important}
+.sarch-v121-site{min-height:80px!important}
+.sarch-v121-site .site-title,.sarch-v121-site .sm-draw-site-title{font-size:13px!important;font-weight:700!important}
+body.sarch-v121-survey .sarch-v121-site.projectbar>label:first-child{flex:1 1 280px!important;display:flex!important;white-space:nowrap!important}
+body.sarch-v121-survey .sarch-v121-site.projectbar>label:first-child select{min-width:150px!important}
+.sm65-floorbar{flex-wrap:nowrap!important;gap:5px!important;min-width:0!important;max-width:100%!important}
+.sm65-floorbar>button{padding-inline:6px!important;min-width:0!important}
+.sm65-floorbar #pageSelect,.sm65-floorbar #sheetSelect{flex:1 1 110px!important;max-width:230px!important}
+.sm65-floorbar #sm69Reorder,.sm65-floorbar #sm63Rotate{flex-shrink:0!important}
+.sm65-floorbar #deletePage,.sm65-floorbar #removePage,.sm65-floorbar #deleteSheet,.sm65-floorbar #sm61DeleteSheet{flex-shrink:0!important;order:initial!important}
+body.sarch-v121-survey .app>section.panel,body.sarch-v121-schmidt main.layout>section.panel{min-width:0!important;width:100%!important;max-width:none!important;box-sizing:border-box!important}
+body.sarch-v121-survey .app>aside.panel,body.sarch-v121-schmidt main.layout>aside.panel,body.sarch-v121-tilt .workspace>aside.side,body.sarch-v121-drawing .layout>aside.side{align-self:start!important;min-width:0!important;width:100%!important;max-width:none!important}
+body.sarch-v121-survey .app>aside.panel .list,body.sarch-v121-schmidt main.layout>aside.panel .list,body.sarch-v121-tilt .workspace>aside.side #items{max-width:100%!important;box-sizing:border-box!important}
+@media(min-width:900px){body.sarch-v121-survey .app,body.sarch-v121-schmidt main.layout,body.sarch-v121-drawing .layout,body.sarch-v121-tilt .workspace{grid-template-columns:minmax(0,4fr) minmax(260px,1fr)!important}}
