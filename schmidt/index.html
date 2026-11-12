@@ -308,23 +308,7 @@ let sketchBase=null;function sketchOpen2(edit){sketchExisting=edit;strokes=[];wo
  apply(initial);
  window.addEventListener('storage',function(event){if(event.key===key&&allowed.includes(event.newValue))apply(event.newValue)});
 })();
-</script><script id="smetric-quality-equipment-v16">(function(){const $=id=>document.getElementById(id);function rows(){if(typeof site==='undefined'||!site)return [];let nums=markNumbers();return (site.marks||[]).map(m=>({page:site.pages.find(p=>p.id===m.pageId)?.name||'도면 미지정',no:nums[m.id],type:m.type,member:m.member||'미지정',photos:(m.photos||[]).length,issues:[['SH','PH','FS','MB'].includes(m.type)&&!(m.photos||[]).length?'필수 사진 누락':'',!site.pages.some(p=>p.id===m.pageId)?'도면 연결 확인':'',!m.member?'부재 미지정':'',m.type==='MB'&&!m.memberSize?'부재 규격 미입력':''].filter(Boolean)}))}function check(){let r=rows(),groups=new Set((site?.marks||[]).map(m=>m.groupId)).size,bad=r.filter(x=>x.issues.length),missing=r.filter(x=>x.issues.includes('필수 사진 누락')).length;let el=$('qualityResult');el.textContent=`현재 현장 조사 위치 ${groups}건 · 세부 조사 ${r.length}건 · 사진 누락 ${missing}건 · 확인 필요 ${bad.length}건`;el.className='quality-result '+(bad.length?'quality-warning':'quality-ok');return r}function csv(){let r=check(),data=[['도면','조사번호','조사종류','부재','사진수','점검결과'],...r.map(x=>[x.page,x.no,x.type,x.member,x.photos,x.issues.join('; ')||'확인'])];let txt='\ufeff'+data.map(a=>a.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');let url=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='SMETRIC_장비조사_누락점검.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}$('qualityCheck').onclick=check;$('qualityExport').onclick=csv;})();</script><script id="smetric-v17-layout">
-(function(){
-function apply(){
- const header=document.querySelector('.smetric-app-header');
- const site=document.querySelector('.smetric-sitebar');
- const quality=document.querySelector('.smetric-quality');
- if(!header||!site||!quality||document.querySelector('.smetric-v17-workspace'))return;
- const dock=document.createElement('div');dock.className='smetric-v17-workspace';dock.setAttribute('aria-label','SMETRIC 공통 작업 관리');
- header.insertAdjacentElement('afterend',dock);
- function card(title,node){const el=document.createElement('section');el.className='smetric-v17-card';const h=document.createElement('div');h.className='smetric-v17-heading';h.textContent=title;el.appendChild(h);el.appendChild(node);dock.appendChild(el);}
- card('작업 현장 선택',site);
- // 자료 점검은 상단 누락 점검 버튼으로 통합: 기존 점검 로직만 보존.
- // 기존 이벤트 핸들러가 연결된 요소를 이동하므로 작업 데이터와 기능은 유지합니다.
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
-})();
-</script>
+</script><script id="smetric-quality-equipment-v16">(function(){const $=id=>document.getElementById(id);function rows(){if(typeof site==='undefined'||!site)return [];let nums=markNumbers();return (site.marks||[]).map(m=>({page:site.pages.find(p=>p.id===m.pageId)?.name||'도면 미지정',no:nums[m.id],type:m.type,member:m.member||'미지정',photos:(m.photos||[]).length,issues:[['SH','PH','FS','MB'].includes(m.type)&&!(m.photos||[]).length?'필수 사진 누락':'',!site.pages.some(p=>p.id===m.pageId)?'도면 연결 확인':'',!m.member?'부재 미지정':'',m.type==='MB'&&!m.memberSize?'부재 규격 미입력':''].filter(Boolean)}))}function check(){let r=rows(),groups=new Set((site?.marks||[]).map(m=>m.groupId)).size,bad=r.filter(x=>x.issues.length),missing=r.filter(x=>x.issues.includes('필수 사진 누락')).length;let el=$('qualityResult');el.textContent=`현재 현장 조사 위치 ${groups}건 · 세부 조사 ${r.length}건 · 사진 누락 ${missing}건 · 확인 필요 ${bad.length}건`;el.className='quality-result '+(bad.length?'quality-warning':'quality-ok');return r}function csv(){let r=check(),data=[['도면','조사번호','조사종류','부재','사진수','점검결과'],...r.map(x=>[x.page,x.no,x.type,x.member,x.photos,x.issues.join('; ')||'확인'])];let txt='\ufeff'+data.map(a=>a.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');let url=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='SMETRIC_장비조사_누락점검.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}$('qualityCheck').onclick=check;$('qualityExport').onclick=csv;})();</script>
 <script id="smetric-sh-report-v18">
 (function(){
 'use strict';
