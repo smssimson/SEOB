@@ -1,0 +1,43 @@
+/* S:ARCH common four-module layout v121. Visual-only: preserve project and drawing state. */
+.smetric-app-header{min-height:54px!important;padding:6px 12px!important;box-sizing:border-box!important}
+.smetric-brand:before{background-image:url("../sarch-icon.svg?v=121")!important}
+.smetric-app-header .smetric-brand{font-size:16px!important}
+.sarch-v121-site{box-sizing:border-box!important;width:calc(100% - 24px)!important;max-width:none!important;margin:12px!important;padding:12px 14px!important;border:1px solid #344f6b!important;border-radius:12px!important;background:#1a2c43!important;display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important}
+.sarch-v121-site>label:first-child{display:contents!important}
+.sarch-v121-site .site-title,.sarch-v121-site .sm-draw-site-title,.sarch-v121-site>label:first-child:not(:has(select)){flex-basis:100%!important}
+.sarch-v121-site .sm-draw-site-row{display:flex!important;align-items:center!important;gap:8px!important;width:100%!important;flex-wrap:nowrap!important}
+.sarch-v121-site select{flex:1 1 220px!important;width:auto!important;min-width:90px!important;max-width:none!important;height:38px!important}
+.sarch-v121-site button{flex:0 0 auto!important;width:auto!important;min-height:38px!important;padding:7px 10px!important;white-space:nowrap!important}
+.sarch-v121-site .site-count,.sarch-v121-site #siteCount,.sarch-v121-site #smDrawSiteCount{flex:0 0 auto!important;font-size:11px!important;white-space:nowrap!important}
+.sarch-v121-site .sm-draw-site-title{width:100%!important}
+.sarch-v121-site.projectbar{align-items:center!important}
+.sarch-v121-site.projectbar>label:first-child{display:flex!important;align-items:center!important;flex:1 1 250px!important;gap:8px!important;min-width:0!important}
+.sarch-v121-site.projectbar>label:first-child select{flex:1!important}
+.sarch-v121-site.smetric-sitebar{display:flex!important}
+.sarch-v121-site .sm-draw-site-row button{flex-shrink:0!important}
+.sm65-floorbar{display:flex!important;align-items:center!important;gap:5px!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;padding:9px 10px!important;scrollbar-width:thin!important;box-sizing:border-box!important}
+.sm65-floorbar:before{flex:0 0 100%!important}
+.sm65-floorbar button{flex:0 0 auto!important;min-height:36px!important;padding:6px 7px!important;font-size:12px!important;white-space:nowrap!important;overflow-wrap:normal!important;width:auto!important}
+.sm65-floorbar select{flex:1 1 120px!important;min-width:95px!important;max-width:230px!important;height:36px!important}
+.sm65-floorbar label{display:inline-flex!important;flex:0 1 190px!important;align-items:center!important;flex-wrap:nowrap!important;gap:5px!important;min-width:110px!important;white-space:nowrap!important}
+.sm65-floorbar label input{flex:1 1 90px!important;min-width:75px!important;width:auto!important;max-width:190px!important;height:36px!important}
+.sm65-floorbar .hint{display:none!important}
+.sm65-floorbar #pageCounter,.sm65-floorbar #pageCount{flex:0 0 auto!important;white-space:nowrap!important;font-size:11px!important}
+.sm65-floorbar #removePage,.sm65-floorbar #deletePage{order:30!important}
+.sm65-floorbar #sm46AddBlank,.sm65-floorbar #addSheet{order:10!important}
+.sm65-floorbar #pageLabel,.sm65-floorbar #floor{min-width:75px!important}
+@media(min-width:900px){
+ body.sarch-v121-survey .app{max-width:none!important;width:100%!important;box-sizing:border-box!important;grid-template-columns:minmax(0,1fr) clamp(260px,22vw,340px)!important;gap:12px!important;margin:0!important}
+ body.sarch-v121-schmidt main.layout{max-width:none!important;width:100%!important;box-sizing:border-box!important;grid-template-columns:minmax(0,1fr) clamp(260px,22vw,340px)!important;gap:12px!important}
+ body.sarch-v121-drawing .layout{max-width:calc(100% - 24px)!important;grid-template-columns:minmax(0,1fr) clamp(260px,22vw,340px)!important;gap:12px!important}
+ body.sarch-v121-tilt .workspace{display:grid!important;grid-template-columns:minmax(0,1fr) clamp(260px,22vw,340px)!important;gap:12px!important;margin:12px!important}
+ body.sarch-v121-drawing .layout .side{width:100%!important;max-width:none!important;box-sizing:border-box!important}
+}
+body.sarch-v121-survey .app>aside.panel,body.sarch-v121-schmidt main.layout>aside.panel,body.sarch-v121-tilt .workspace>aside.side,body.sarch-v121-drawing .layout>aside.side{min-width:0!important;box-sizing:border-box!important;border-radius:12px!important}
+body.sarch-v121-tilt .workspace>aside.side,body.sarch-v121-drawing .layout>aside.side{width:100%!important;max-width:none!important}
+@media(max-width:899px){
+ body.sarch-v121-survey .app,body.sarch-v121-schmidt main.layout,body.sarch-v121-drawing .layout,body.sarch-v121-tilt .workspace{grid-template-columns:minmax(0,1fr)!important}
+ .sarch-v121-site{overflow-x:auto!important}
+ .sarch-v121-site .sm-draw-site-row{min-width:670px!important}
+ .sm65-floorbar{overflow-x:auto!important}
+}
