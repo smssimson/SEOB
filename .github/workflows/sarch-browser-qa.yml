@@ -1,0 +1,53 @@
+name: S:ARCH v142 browser QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/browser-smoke.mjs"
+      - "tools/verify-sarch.mjs"
+      - "sarch-workspace-v142.js"
+      - "sarch-workspace-v142.css"
+      - "survey/index.html"
+      - "drawing/index.html"
+      - "schmidt/index.html"
+      - "tilt/index.html"
+      - ".github/workflows/sarch-browser-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sarch-browser-qa-main
+  cancel-in-progress: true
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify original functions and file schema
+        run: node tools/verify-sarch.mjs
+      - name: Install lightweight headless browser harness
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts --silent playwright-core@1.55.1
+          command -v google-chrome || command -v google-chrome-stable || command -v chromium
+      - name: Test desktop and tablet screens with empty data
+        run: |
+          node --check tools/browser-smoke.mjs
+          node tools/browser-smoke.mjs
+      - name: Keep QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarch-v142-qa-screenshots
+          path: qa-artifacts/
+          if-no-files-found: ignore
+          retention-days: 7
