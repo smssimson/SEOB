@@ -221,7 +221,13 @@ body.sarch-v142 .sm-survey-tools .sm-tool-group{
  border:1px solid #38516d!important;border-radius:9px!important;
  background:#1d344e!important;opacity:1!important;
 }
-body.sarch-v142 .sm-survey-tools .sm-tool-group.sm-tool-collapsed{display:none!important}
+/* The original survey tab handler toggles sm45-open/sm45-shut, not sm-tool-collapsed. */
+body.sarch-v142 .sm-survey-tools .sm-tool-group.sm-tool-collapsed:not(.sm45-open){display:none!important}
+body.sarch-v142 .sm-survey-tools .sm-tool-group.sm45-shut{display:none!important}
+body.sarch-v142 .sm-survey-tools .sm-tool-group.sm45-open{display:flex!important}
+body.sarch-v142 .sm-survey-tools .sm-tool-group.sm45-open .sm-field-actions,
+body.sarch-v142 .sm-survey-tools .sm-tool-group.sm45-open .sm-utility-actions{display:flex!important}
+body.sarch-v142 .sm-survey-tools .sm-tool-group.sm45-open>.quick-camera-toggle{display:inline-flex!important}
 body.sarch-v142 .sm-survey-tools .sm-tool-group-title{display:none!important}
 body.sarch-v142 .sm-survey-tools .sm-field-actions,
 body.sarch-v142 .sm-survey-tools .sm-utility-actions{gap:6px!important;flex-wrap:wrap!important}
