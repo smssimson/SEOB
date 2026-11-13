@@ -4,7 +4,7 @@ import { mkdirSync,writeFileSync } from "node:fs";
 const root="http://127.0.0.1:8765/",folder="test-results/browser";
 mkdirSync(folder,{recursive:true});
 const modules=["survey","drawing","schmidt","tilt"],results=[];
-const browser=await chromium.launch({headless:true,args:["--no-sandbox","--disable-dev-shm-usage"]});
+const browser=await chromium.launch({headless:true,executablePath:process.env.SARCH_CHROMIUM_PATH||undefined,args:["--no-sandbox","--disable-dev-shm-usage"]});
 function report(mod,test,ok,detail=""){
  results.push({mod,test,ok,detail});
  console.log((ok?"PASS":"FAIL")+" "+mod+" "+test+" "+detail);
@@ -63,6 +63,15 @@ async function check(mod,width,height){
       report(id,"backup preflight read-only",text.includes("✓ 백업 구조 확인"),text.slice(0,130));
     }else report(id,"backup preflight read-only",false,"No sample export available");
   }
+  if(verifyExists){
+    const before=await page.evaluate(async()=>await window.SARCHProjectBridge().text());
+    await page.locator("#sarchProtectMenu input[type=file]").setInputFiles({name:"invalid.json",mimeType:"application/json",buffer:Buffer.from('{"unrelated":true}')});
+    const message=await page.locator(".sarch-verify-result-142").innerText();
+    const after=await page.evaluate(async()=>await window.SARCHProjectBridge().text());
+    // Exports may contain timestamps; compare the actual data, excluding metadata.
+    const data=x=>{const o=JSON.parse(x);for(const k of ["exportedAt","savedAt","timestamp"])delete o[k];return JSON.stringify(o)};
+    report(id,"invalid backup rejected without mutation",message.includes("확인 실패")&&data(before)===data(after));
+  }
   if(width>1100)report(id,"worksite aligned",!!dom.siteSelect&&!!dom.siteButton&&Math.abs(dom.siteSelect.y-dom.siteButton.y)<18,JSON.stringify({s:dom.siteSelect?.y,b:dom.siteButton?.y}));
   await page.locator("#sarchQuickDock .sarch-dock-toggle").click();
   await page.waitForTimeout(240);
@@ -76,6 +85,17 @@ async function check(mod,width,height){
    const required={survey:"defects",drawing:"sheets",schmidt:"site",tilt:"sites"}[mod];
    report(id,"native JSON share",!!shared&&shared.name.endsWith(".json")&&shared.size>10&&shared.keys.includes(required),JSON.stringify(shared));
   }
+  if(width===390){
+   let downloads=0;page.on("download",()=>downloads++);
+   await page.evaluate(()=>Object.defineProperty(navigator,"share",{configurable:true,value:async()=>{throw new DOMException("Cancelled","AbortError")}}));
+   await page.locator("#sarchShare142").click();
+   await page.waitForTimeout(150);
+   report(id,"share cancellation has no download",downloads===0&&await page.locator("#sarchShare142").isEnabled());
+   await page.evaluate(()=>Object.defineProperty(navigator,"canShare",{configurable:true,value:()=>false}));
+   const download=page.waitForEvent("download");
+   await page.locator("#sarchShare142").click();
+   report(id,"unsupported sharing downloads JSON",(await download).suggestedFilename().endsWith(".json"));
+  }
   report(id,"uncaught JS errors",errors.length===0,errors.join(" | ").slice(0,250));
   await page.screenshot({path:folder+"/"+id+".png"});
  }catch(e){
@@ -84,7 +104,7 @@ async function check(mod,width,height){
  }finally{await context.close()}
 }
 try{
- for(const [w,h] of [[1280,800],[800,1280],[1440,900]]){
+ for(const [w,h] of [[390,844],[1280,800],[800,1280],[1440,900]]){
   for(const mod of modules)await check(mod,w,h);
  }
 }finally{await browser.close()}
