@@ -102,7 +102,7 @@ function restructureFloor(floor,site,header){
 function restructureEquipment(header){
  const root=header.parentNode;
  const main=document.querySelector('main.layout');
- const panel=document.querySelector('.sm43-tool-panel');
+ const panel=document.querySelector('.sm43-tool-panel,.sm-survey-tools');
  const box=document.getElementById('sarchFloor135');
  if(!panel||!box)return;
  // Move the original live tool panel after the floor selector, never its buttons.
