@@ -1,0 +1,68 @@
+/* S:ARCH v139 — collapsible module dock. Closed by default, no overlay until opened. */
+#sarchQuickDock{
+ position:fixed!important;z-index:9200!important;left:50%!important;
+ bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+ transform:translateX(-50%)!important;display:flex!important;align-items:center!important;
+ flex-direction:column!important;gap:8px!important;pointer-events:none!important;
+ width:max-content!important;max-width:calc(100vw - 20px)!important;
+ font:13px/1.35 Dotum,"돋움",sans-serif!important;
+}
+#sarchQuickDock *{box-sizing:border-box!important}
+#sarchQuickDock .sarch-dock-panel{
+ width:min(620px,calc(100vw - 20px))!important;
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;
+ padding:11px!important;border-radius:18px!important;border:1px solid #4a7596!important;
+ background:linear-gradient(125deg,#132d45ef,#091c2ff7)!important;
+ box-shadow:0 14px 35px #0008, inset 0 1px 1px #89c8ee2b!important;
+ opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+ transform:translateY(22px) scale(.97)!important;
+ transition:opacity .19s ease,transform .22s ease,visibility .22s!important;
+ transform-origin:bottom center!important;
+}
+#sarchQuickDock.is-open .sarch-dock-panel{
+ opacity:1!important;visibility:visible!important;pointer-events:auto!important;
+ transform:translateY(0) scale(1)!important;
+}
+#sarchQuickDock .sarch-dock-panel a{
+ display:flex!important;flex-direction:column!important;justify-content:center!important;
+ align-items:center!important;gap:5px!important;min-width:0!important;min-height:70px!important;
+ padding:8px 4px!important;text-decoration:none!important;position:relative!important;
+ color:#d5e9f8!important;background:#1a3d59!important;
+ border:1px solid #365c78!important;border-radius:13px!important;
+ white-space:nowrap!important;font:700 12px/1.2 Dotum,sans-serif!important;
+}
+#sarchQuickDock .sarch-dock-panel a:hover,
+#sarchQuickDock .sarch-dock-panel a:focus-visible{
+ background:#255a7b!important;border-color:#6cc8f7!important;outline:0!important;
+}
+#sarchQuickDock .sarch-dock-panel a[aria-current=page]{
+ background:#235b7c!important;border-color:#4dafdf!important;color:#fff!important;
+}
+#sarchQuickDock .sarch-dock-panel a svg{display:block!important;width:23px!important;height:23px!important}
+#sarchQuickDock .sarch-dock-toggle{
+ pointer-events:auto!important;display:inline-flex!important;align-items:center!important;
+ justify-content:center!important;gap:7px!important;
+ width:auto!important;min-width:106px!important;min-height:35px!important;height:35px!important;
+ padding:6px 13px!important;border-radius:19px!important;border:1px solid #527f9e!important;
+ background:#102d47ed!important;box-shadow:0 3px 16px #0006!important;
+ color:#eaf7ff!important;font:700 12px/1 Dotum,sans-serif!important;
+ cursor:pointer!important;white-space:nowrap!important;
+}
+#sarchQuickDock .sarch-dock-toggle:hover{background:#1b4665!important}
+#sarchQuickDock .sarch-dock-toggle:focus-visible{outline:2px solid #71ccff!important;outline-offset:2px!important}
+#sarchQuickDock .sarch-dock-chevron{
+ width:9px!important;height:9px!important;display:inline-block!important;
+ border-top:2px solid currentColor!important;border-left:2px solid currentColor!important;
+ transform:rotate(45deg) translate(2px,2px)!important;transition:transform .22s ease!important;
+}
+#sarchQuickDock.is-open .sarch-dock-chevron{
+ transform:rotate(225deg) translate(-2px,-2px)!important;
+}
+@media(max-width:480px){
+ #sarchQuickDock .sarch-dock-panel{padding:8px!important;gap:4px!important;border-radius:14px!important}
+ #sarchQuickDock .sarch-dock-panel a{font-size:10px!important;min-height:63px!important;padding:7px 2px!important}
+ #sarchQuickDock .sarch-dock-panel a svg{height:21px!important;width:21px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #sarchQuickDock .sarch-dock-panel,#sarchQuickDock .sarch-dock-chevron{transition:none!important}
+}
