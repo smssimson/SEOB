@@ -116,6 +116,17 @@ function installBackupVerifier(){
  wrap.append(button,input,result);menu.appendChild(wrap);
 }
 
+
+/* Keep original field-survey controls live. This module uses sm45 tabs rather
+   than the sm43 toolbar used by the other three modules. */
+function alignSurveyTools(){
+ if(moduleKey!=="survey")return;
+ const floor=document.getElementById("sarchFloor135"),tools=document.querySelector(".sm-survey-tools");
+ if(!floor||!tools)return;
+ tools.classList.add("sarch-top-tools-v142");
+ if(floor.nextElementSibling!==tools)floor.insertAdjacentElement("afterend",tools);
+}
+
 function connection(){
  const head=pick(".smetric-head-controls,.sm-topbar .right");
  if(!head||document.getElementById("sarchConnection142"))return;
@@ -142,9 +153,9 @@ function install(){
  // Existing theme pickers may change body attributes as the user works.
  new MutationObserver(updateTheme).observe(document.body,{attributes:true,attributeFilter:["data-theme"]});
  window.SARCHBackupMark=()=>{saveTime();noteUpdate()};
- connection();installShare();installBackupVerifier();
+ alignSurveyTools();connection();installShare();installBackupVerifier();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>requestAnimationFrame(install),{once:true});
 else requestAnimationFrame(install);
-window.addEventListener("load",()=>{connection();installShare();installBackupVerifier()},{once:true});
+window.addEventListener("load",()=>{alignSurveyTools();connection();installShare();installBackupVerifier()},{once:true});
 })();
