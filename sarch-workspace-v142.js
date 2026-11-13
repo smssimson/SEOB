@@ -69,8 +69,7 @@ function installShare(){
   else section.appendChild(note);
   noteUpdate();
  }
- // Existing export button remains the source of truth and is not intercepted.
- original.addEventListener("click",()=>{saveTime();setTimeout(noteUpdate,100)},{passive:true});
+ // Original export handlers explicitly notify success; cancelled exports never count as backups.
 }
 function connection(){
  const head=pick(".smetric-head-controls,.sm-topbar .right");
@@ -97,6 +96,7 @@ function install(){
  updateTheme();
  // Existing theme pickers may change body attributes as the user works.
  new MutationObserver(updateTheme).observe(document.body,{attributes:true,attributeFilter:["data-theme"]});
+ window.SARCHBackupMark=()=>{saveTime();noteUpdate()};
  connection();installShare();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>requestAnimationFrame(install),{once:true});
