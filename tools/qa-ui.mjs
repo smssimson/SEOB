@@ -48,6 +48,21 @@ async function check(mod,width,height){
     const returned=await page.locator("#smFieldGroup").isVisible();
     report(id,"survey tool tab switches",opened&&returned);
   }
+  const verifyExists=await page.locator("#sarchVerify142").count()===1;
+  report(id,"data protection preflight available",verifyExists);
+  if(verifyExists){
+    const json=await page.evaluate(async()=>{
+      const file=window.SARCHProjectBridge?.();
+      return file?await file.text():"";
+    });
+    if(json){
+      await page.locator("#sarchProtectMenu input[type=file]").setInputFiles({
+        name:"SARCH_QA_BACKUP.json",mimeType:"application/json",buffer:Buffer.from(json,"utf8")
+      });
+      const text=await page.locator(".sarch-verify-result-142").innerText();
+      report(id,"backup preflight read-only",text.includes("✓ 백업 구조 확인"),text.slice(0,130));
+    }else report(id,"backup preflight read-only",false,"No sample export available");
+  }
   if(width>1100)report(id,"worksite aligned",!!dom.siteSelect&&!!dom.siteButton&&Math.abs(dom.siteSelect.y-dom.siteButton.y)<18,JSON.stringify({s:dom.siteSelect?.y,b:dom.siteButton?.y}));
   await page.locator("#sarchQuickDock .sarch-dock-toggle").click();
   await page.waitForTimeout(240);
