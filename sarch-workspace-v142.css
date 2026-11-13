@@ -234,3 +234,77 @@ body.sarch-v142.sarch-light-142 .sm-survey-tools .sm-tool-group{background:#edf4
 body.sarch-v142.sarch-light-142 .sm-survey-tools .sm-mode-tabs button{background:#edf4fa!important;color:#385b77!important;border-color:#b8cfe0!important}
 body.sarch-v142.sarch-light-142 .sm-survey-tools .sm-mode-tabs button.sm-tab-active{background:#2776bd!important;color:#fff!important}
 @media(max-width:600px){body.sarch-v142 .sm-survey-tools .sm-field-actions button,body.sarch-v142 .sm-survey-tools .sm-utility-actions button{min-height:40px!important}}
+
+
+/* v142 QA: survey keeps its native live sm45 tool tabs; place them in the
+   same full-width order as the other three apps, with matching quiet styling. */
+body.sarch-v142 .sm-survey-tools.sarch-top-tools-v142{
+ display:block!important;box-sizing:border-box!important;
+ width:calc(100% - 24px)!important;max-width:none!important;min-width:0!important;
+ margin:9px 12px!important;padding:11px 12px!important;
+ border:1px solid var(--sa142-line)!important;border-radius:var(--sa142-radius)!important;
+ background:var(--sa142-panel)!important;color:var(--sa142-text)!important;
+ box-shadow:0 2px 9px #05142116!important;
+}
+body.sarch-v142 .sm-survey-tools .sm-mode-tabs{
+ display:flex!important;align-items:center!important;gap:6px!important;margin:0 0 8px!important;
+}
+body.sarch-v142 .sm-survey-tools .sm-mode-tabs button{
+ min-height:35px!important;padding:7px 13px!important;border:1px solid #3f5a76!important;
+ border-radius:8px!important;background:#213a54!important;color:#bed5e8!important;
+ font:700 12px/1.3 Dotum,"돋움",sans-serif!important;box-shadow:none!important;
+}
+body.sarch-v142 .sm-survey-tools .sm-mode-tabs button.sm-tab-active{
+ background:var(--sa142-accent)!important;color:white!important;border-color:#5babed!important;
+}
+body.sarch-v142 .sm-survey-tools .sm-tool-columns{
+ display:flex!important;flex-wrap:wrap!important;align-items:stretch!important;
+ gap:6px!important;min-width:0!important;
+}
+body.sarch-v142 .sm-survey-tools .sm-tool-group{
+ min-width:0!important;min-height:0!important;margin:0!important;
+ background:#1d344e!important;border:1px solid #334f6d!important;border-radius:9px!important;
+ padding:9px!important;box-shadow:none!important;opacity:1!important;
+}
+body.sarch-v142 .sm-survey-tools .sm-tool-group.sm45-shut{display:none!important}
+body.sarch-v142 .sm-survey-tools .sm-tool-group.sm45-open{
+ display:flex!important;flex:1 1 auto!important;align-items:center!important;flex-wrap:wrap!important;
+ gap:6px!important;
+}
+body.sarch-v142 .sm-survey-tools .sm-tool-group-title{display:none!important}
+body.sarch-v142 .sm-survey-tools .sm-field-actions,
+body.sarch-v142 .sm-survey-tools .sm-utility-actions{
+ display:flex!important;align-items:center!important;gap:6px!important;
+ flex-wrap:wrap!important;min-width:0!important;
+}
+body.sarch-v142 .sm-survey-tools .sm-field-actions button,
+body.sarch-v142 .sm-survey-tools .sm-utility-actions button{
+ border-radius:8px!important;min-height:36px!important;
+ padding:7px 11px!important;font-size:12px!important;box-shadow:none!important;
+}
+body.sarch-v142 .sm-survey-tools .quick-camera-toggle,
+body.sarch-v142 .sm-survey-tools .sm-finger-toggle{
+ color:var(--sa142-muted)!important;font-size:12px!important;white-space:normal!important;
+}
+body.sarch-v142 .sm-survey-tools .sm46-fixed-camera{
+ flex:0 0 auto!important;margin:0!important;min-height:43px!important;
+ border-radius:9px!important;
+}
+body.sarch-v142.sarch-light-142 .sm-survey-tools .sm-tool-group.sm45-open{
+ background:#edf4fa!important;border-color:#cadbe9!important;
+}
+body.sarch-v142.sarch-light-142 .sm-survey-tools .sm-mode-tabs button{
+ background:#edf4fa!important;color:#385b77!important;border-color:#b8cfe0!important;
+}
+body.sarch-v142.sarch-light-142 .sm-survey-tools .sm-mode-tabs button.sm-tab-active{
+ background:#2776bd!important;color:#fff!important;border-color:#2776bd!important;
+}
+@media(max-width:900px){
+ body.sarch-v142 .sm-survey-tools.sarch-top-tools-v142{
+  width:calc(100% - 16px)!important;margin:8px!important;
+ }
+}
+@media(max-width:600px){
+ body.sarch-v142 .sm-survey-tools .sm-field-actions button,
+ body.sarch-v142 .sm-survey-tools .sm-utility-actions button{min-height:42px!important}
+}
