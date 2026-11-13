@@ -85,6 +85,25 @@ async function check(mod,width,height){
    const required={survey:"defects",drawing:"sheets",schmidt:"site",tilt:"sites"}[mod];
    report(id,"native JSON share",!!shared&&shared.name.endsWith(".json")&&shared.size>10&&shared.keys.includes(required),JSON.stringify(shared));
   }
+  if(mod==="drawing"&&width>1100){
+   const baseline=await page.evaluate(()=>{
+    const info=JSON.parse(localStorage.getItem("smetric-drawing-sites-index-v40"));
+    return {count:info.sites.length,active:info.active,content:localStorage.getItem("smetric-drawing-site-v40-"+info.active)};
+   });
+   const exported=await page.evaluate(async()=>await window.SARCHProjectBridge().text());
+   page.once("dialog",dialog=>dialog.accept());
+   await page.locator("input#file").setInputFiles({
+    name:"QA_새현장_프로젝트.json",mimeType:"application/json",buffer:Buffer.from(exported,"utf8")
+   });
+   await page.waitForTimeout(550);
+   const after=await page.evaluate(()=>{
+    const info=JSON.parse(localStorage.getItem("smetric-drawing-sites-index-v40"));
+    return {count:info.sites.length,active:info.active,old:localStorage.getItem("smetric-drawing-site-v40-"+window.__oldDrawingId)};
+   });
+   const oldNow=await page.evaluate(oldId=>localStorage.getItem("smetric-drawing-site-v40-"+oldId),baseline.active);
+   const newNow=await page.evaluate(()=>localStorage.getItem("smetric-drawing-site-v40-"+JSON.parse(localStorage.getItem("smetric-drawing-sites-index-v40")).active));
+   report(id,"drawing import creates a separate site",after.count===baseline.count+1&&after.active!==baseline.active&&Boolean(newNow)&&Boolean(oldNow),JSON.stringify({before:baseline.count,after:after.count,oldSaved:Boolean(oldNow),newSaved:Boolean(newNow)}));
+  }
   if(width===390){
    let downloads=0;page.on("download",()=>downloads++);
    await page.evaluate(()=>Object.defineProperty(navigator,"share",{configurable:true,value:async()=>{throw new DOMException("Cancelled","AbortError")}}));
