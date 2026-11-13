@@ -1,0 +1,9 @@
+/* S:ARCH v141 — brief opening splash. No accounts, login or tracking. */
+#sarchSplash141{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%,#1b506e 0%,#0d2b44 40%,#061828 100%);color:#e9f7ff;pointer-events:none;opacity:1;visibility:visible;transition:opacity .28s ease,visibility .28s ease}
+#sarchSplash141.sarch-splash-hide{opacity:0;visibility:hidden}
+#sarchSplash141 .sarch-splash-content{text-align:center;font-family:Dotum,"돋움",sans-serif;animation:sarch-splash-rise .5s ease both}
+#sarchSplash141 img{display:block;width:90px;height:90px;object-fit:contain;margin:0 auto;filter:drop-shadow(0 12px 25px #0007)}
+#sarchSplash141 strong{display:block;margin:17px 0 8px;font:800 40px/1.15 Dotum,"돋움",sans-serif;letter-spacing:2px}
+#sarchSplash141 p{margin:0;color:#a6cde1;font:12px/1.5 Dotum,"돋움",sans-serif;letter-spacing:2px}
+@keyframes sarch-splash-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){#sarchSplash141,#sarchSplash141 .sarch-splash-content{animation:none;transition:none}}
