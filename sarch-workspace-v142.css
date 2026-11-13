@@ -170,3 +170,10 @@ body.sarch-v142.sarch-light-142 .sm43-tool-panel .sm43-tab[aria-selected=true]{
  #sarchConnection142{display:none}
 }
 @media(prefers-reduced-motion:reduce){#sarchToast142{transition:none}}
+
+
+/* v142 backup-file preflight: visible only inside the existing 자료 보호 menu */
+#sarchProtectMenu .sarch-verify-box-142{display:flex;flex-direction:column;gap:7px;margin-top:11px;padding-top:11px;border-top:1px solid #3b566e}
+#sarchProtectMenu .sarch-verify-button-142{width:100%;min-height:36px;border:1px solid #6286a0;background:#254c68;color:#eaf8ff;border-radius:8px;padding:8px 12px;font:700 12px Dotum,"돋움",sans-serif;cursor:pointer}
+#sarchProtectMenu .sarch-verify-button-142:hover{background:#2b6286}
+#sarchProtectMenu .sarch-verify-result-142{white-space:pre-line;color:#aac9dc;font:11px/1.6 Dotum,"돋움",sans-serif;overflow-wrap:anywhere}
