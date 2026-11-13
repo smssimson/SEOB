@@ -755,33 +755,7 @@ $('albumPrint').onclick=()=>{
  let pages=[`<section class="albumPage"><h2>시설물의 위치도</h2><div class="mapBlank"></div></section>`,albumPage('시설물의 전경사진',outside.map((v,i)=>albumCard(v.image,i+1,v.label))),albumPage('시설물의 부위별 사진',inside.map((v,i)=>albumCard(v.image,i+1,v.label)))];
  for(let i=0;i<cards.length;i+=6)pages.push(albumPage('외관조사 사진첩',cards.slice(i,i+6)));
  const style=`@page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:Dotum,'돋움',sans-serif;color:#111;margin:0}.albumPage{width:186mm;height:273mm;break-after:page;page-break-after:always;overflow:hidden;padding:2mm}.albumPage:last-child{break-after:auto;page-break-after:auto}.albumPage h2{text-align:center;font-size:16pt;margin:2mm 0 6mm}.mapBlank{height:240mm;border:1px solid #333}.photoGrid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,77mm);gap:4mm 3mm}.photoCard{border:1px solid #333;min-height:0;display:flex;flex-direction:column;overflow:hidden}.photoImg{height:61mm;padding:2mm;display:flex;align-items:center;justify-content:center}.photoImg img{width:100%;height:100%;object-fit:cover}.photoFoot{height:16mm;display:grid;grid-template-columns:22mm 1fr;border-top:1px solid #333;font-size:9pt;text-align:center;align-items:center}.photoNum{height:100%;border-right:1px solid #333;display:flex;align-items:center;justify-content:center}.photoDesc{height:100%;min-width:0;padding:1mm 2mm;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal;overflow-wrap:anywhere;word-break:keep-all;line-height:1.35}@media screen{body{background:#e5e9ee}.albumPage{margin:15px auto;background:#fff;box-shadow:0 2px 8px #999}}`;
- let win=window.open('','_blank');if(!win){alert('팝업이 차단되어 있습니다. 팝업을 허용한 뒤 다시 시도해 주세요.');return}win.document.open();win.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>외관조사 사진첩</title><style>'+style+'</style></head><body>'+pages.join('')+'<script defer src="../recovery-v92.js?v=114"><\/script><style id="sarch-floor-placement-v130">
-.sarch-floor-top{width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;margin:10px 0 12px!important;grid-column:1/-1!important;flex:0 0 100%!important;align-self:stretch!important}
-.sarch-floor-top.sm65-floorbar{margin:0!important}
-.sarch-floor-top .sm65-floorbar{width:100%!important;max-width:none!important;margin:0!important}
-body.sarch-v121-schmidt .sarch-floor-top{display:flex!important;flex-wrap:wrap!important}
-</style>
-<script id="sarch-floor-placement-v130">(function(){
- function arrange(){
- const floor=document.querySelector('.sm65-floorbar');
- const site=document.querySelector('.sarch-v121-site,.sm-draw-sitebar,.site-manager.smetric-sitebar,.projectbar,section.smetric-sitebar');
- if(!floor||!site)return;
- let block=floor.closest('.sm65-sheet-section')||floor;
- if(block.contains(site))block=floor;
- if(block===site||site.contains(block))return;
- if(site.nextElementSibling!==block){site.insertAdjacentElement('afterend',block)}
- block.classList.add('sarch-floor-top');
- floor.style.setProperty('width','100%','important');
- floor.style.setProperty('max-width','none','important');
- // The equipment page must not keep the floor selector inside its narrow work column.
- if(document.body.classList.contains('sarch-v121-schmidt')){
-  block.style.setProperty('width','100%','important');
-  block.style.setProperty('grid-column','1 / -1','important');
- }
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange);else arrange();
- window.addEventListener('load',arrange);
-})();</script></body></html>');win.document.close();
+ let win=window.open('','_blank');if(!win){alert('팝업이 차단되어 있습니다. 팝업을 허용한 뒤 다시 시도해 주세요.');return}win.document.open();win.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>외관조사 사진첩</title><style>'+style+'</style></head><body>'+pages.join('')+'<script defer src="../recovery-v92.js?v=114"><\/script></body></html>');win.document.close();
 };
 
 // 사용자 제공 HWPX 원본 틀의 표/쪽 배치를 유지하여 편집 가능한 한글 파일 생성
@@ -996,4 +970,30 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <link rel="stylesheet" href="../sarch-unified-v121.css?v=124">
 <script id="sarch-unified-v121">(function(){function unify(){document.body.classList.add('sarch-v121-survey');const site=document.querySelector('.projectbar');if(site){site.classList.add('sarch-v121-site');const header=document.querySelector('header.smetric-app-header');if(header&&site.previousElementSibling!==header)header.insertAdjacentElement('afterend',site);}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',unify,{once:true});else unify();})();</script>
-</body>
+<style id="sarch-floor-placement-v130">
+.sarch-floor-top{width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;margin:10px 0 12px!important;grid-column:1/-1!important;flex:0 0 100%!important;align-self:stretch!important}
+.sarch-floor-top.sm65-floorbar{margin:0!important}
+.sarch-floor-top .sm65-floorbar{width:100%!important;max-width:none!important;margin:0!important}
+body.sarch-v121-schmidt .sarch-floor-top{display:flex!important;flex-wrap:wrap!important}
+</style>
+<script id="sarch-floor-placement-v130">(function(){
+ function arrange(){
+ const floor=document.querySelector('.sm65-floorbar');
+ const site=document.querySelector('.sarch-v121-site,.sm-draw-sitebar,.site-manager.smetric-sitebar,.projectbar,section.smetric-sitebar');
+ if(!floor||!site)return;
+ let block=floor.closest('.sm65-sheet-section')||floor;
+ if(block.contains(site))block=floor;
+ if(block===site||site.contains(block))return;
+ if(site.nextElementSibling!==block){site.insertAdjacentElement('afterend',block)}
+ block.classList.add('sarch-floor-top');
+ floor.style.setProperty('width','100%','important');
+ floor.style.setProperty('max-width','none','important');
+ // The equipment page must not keep the floor selector inside its narrow work column.
+ if(document.body.classList.contains('sarch-v121-schmidt')){
+  block.style.setProperty('width','100%','important');
+  block.style.setProperty('grid-column','1 / -1','important');
+ }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange);else arrange();
+ window.addEventListener('load',arrange);
+})();</script></body>
