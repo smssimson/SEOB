@@ -177,3 +177,10 @@ body.sarch-v121-drawing.sarch-layout-v135 .sm-draw-sitebar .sm-draw-site-row #sm
 @media(max-width:700px){
  body.sarch-v121-drawing.sarch-layout-v135 .sm-draw-sitebar .sm-draw-site-row select{min-width:180px!important}
 }
+
+/* Project 7: preserve access to original floor actions not classified by the common toolbar. */
+#sarchFloor135 .sarch-floor-more-v135{width:100%;margin-top:8px;border-top:1px solid #38516c;padding-top:8px;min-width:0}
+#sarchFloor135 .sarch-floor-more-v135>summary{cursor:pointer;list-style-position:inside;color:#bcd8ed;font:700 12px/1.6 Dotum,"돋움",sans-serif;padding:6px 2px}
+#sarchFloor135 .sarch-floor-more-v135>.sarch-floor-extras-v135{display:flex!important;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 0;min-width:0}
+#sarchFloor135 .sarch-floor-more-v135 :is(button,input,select){max-width:100%;min-height:36px}
+#sarchFloor135 .sarch-floor-more-v135>summary:focus-visible{outline:2px solid #82d1ff;outline-offset:2px}
