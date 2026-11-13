@@ -688,4 +688,30 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
 <script defer src="../recovery-v92.js?v=114"></script>
 <link rel="stylesheet" href="../sarch-unified-v121.css?v=124">
 <script id="sarch-unified-v121">(function(){function unify(){document.body.classList.add('sarch-v121-schmidt');const site=document.querySelector('.site-manager.smetric-sitebar');if(site){site.classList.add('sarch-v121-site');const header=document.querySelector('header.smetric-app-header');if(header&&site.previousElementSibling!==header)header.insertAdjacentElement('afterend',site);}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',unify,{once:true});else unify();})();</script>
-</body></html>
+<style id="sarch-floor-placement-v130">
+.sarch-floor-top{width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;margin:10px 0 12px!important;grid-column:1/-1!important;flex:0 0 100%!important;align-self:stretch!important}
+.sarch-floor-top.sm65-floorbar{margin:0!important}
+.sarch-floor-top .sm65-floorbar{width:100%!important;max-width:none!important;margin:0!important}
+body.sarch-v121-schmidt .sarch-floor-top{display:flex!important;flex-wrap:wrap!important}
+</style>
+<script id="sarch-floor-placement-v130">(function(){
+ function arrange(){
+ const floor=document.querySelector('.sm65-floorbar');
+ const site=document.querySelector('.sarch-v121-site,.sm-draw-sitebar,.site-manager.smetric-sitebar,.projectbar,section.smetric-sitebar');
+ if(!floor||!site)return;
+ let block=floor.closest('.sm65-sheet-section')||floor;
+ if(block.contains(site))block=floor;
+ if(block===site||site.contains(block))return;
+ if(site.nextElementSibling!==block){site.insertAdjacentElement('afterend',block)}
+ block.classList.add('sarch-floor-top');
+ floor.style.setProperty('width','100%','important');
+ floor.style.setProperty('max-width','none','important');
+ // The equipment page must not keep the floor selector inside its narrow work column.
+ if(document.body.classList.contains('sarch-v121-schmidt')){
+  block.style.setProperty('width','100%','important');
+  block.style.setProperty('grid-column','1 / -1','important');
+ }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange);else arrange();
+ window.addEventListener('load',arrange);
+})();</script></body></html>
