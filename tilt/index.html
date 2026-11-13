@@ -808,7 +808,7 @@ let nl=name&&name.closest('label');if(!nl||nl===floor){nl=document.createElement
 [prev,sl,order,rotate,next,count].forEach(el=>move(el,left));
 [nl,del,upload,add].forEach(el=>move(el,right));
 if(add)add.textContent='＋ 새 도면';if(del)del.textContent='도면 삭제';
-floor.replaceChildren(left,right);
+const remaining=Array.from(floor.childNodes).filter(n=>n!==left&&n!==right);floor.replaceChildren(left,right);remaining.forEach(n=>{if(n.nodeType===1){n.hidden=true;n.style.display='none'}floor.appendChild(n)});
 const main=document.querySelector('main.layout'),panel=main&&main.querySelector(':scope > section.panel');
 if(document.getElementById('ckSH')&&main&&panel){
 let holder=document.getElementById('sarchTools134');if(!holder){holder=document.createElement('section');holder.id='sarchTools134';holder.className='sarch-tools-134'}
