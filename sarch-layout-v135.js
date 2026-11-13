@@ -65,7 +65,7 @@ function restructureFloor(floor,site,header){
  const sel=get('#sheet,#sheetSelect,#pageSelect');
  if(!sel)return;
  const order=get('#sm69Reorder');
- if(order&&order.closest('label'))order.remove();
+ // Preserve the original reorder control and its event listeners; never remove it.
  const selectLabel=makeLabel(sel,'도면 선택',floor);
  const name=get('#pageLabel,#floor,#sm46SheetName');
  const nameLabel=makeLabel(name,'도면명',floor);
@@ -86,7 +86,19 @@ function restructureFloor(floor,site,header){
  [prev,selectLabel,order,rotate,next,count].forEach(el=>move(el,left));
  [nameLabel,del,upload,add].forEach(el=>move(el,right));
  for(const child of Array.from(floor.childNodes))extra.appendChild(child);
- floor.append(left,right,extra);
+ // Keep unmatched original controls accessible instead of hiding them forever.
+ // The original nodes (and their event handlers) are retained without cloning.
+ const extrasHaveControls=!!extra.querySelector('button,select,input:not([type="hidden"]),textarea');
+ if(extrasHaveControls){
+  const details=document.createElement('details');
+  details.className='sarch-floor-more-v135';
+  const summary=document.createElement('summary');
+  summary.textContent='기타 도면 도구';
+  details.append(summary,extra);
+  floor.append(left,right,details);
+ }else{
+  floor.append(left,right,extra);
+ }
  if(add)add.textContent='＋ 새 도면';
  if(del)del.textContent='도면 삭제';
  if(rotate){
