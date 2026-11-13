@@ -59,6 +59,7 @@ async function check(mod,width,height){
       await page.locator("#sarchProtectMenu input[type=file]").setInputFiles({
         name:"SARCH_QA_BACKUP.json",mimeType:"application/json",buffer:Buffer.from(json,"utf8")
       });
+      await page.waitForFunction(()=>document.querySelector(".sarch-verify-result-142")?.textContent.includes("✓ 백업 구조 확인"));
       const text=await page.locator(".sarch-verify-result-142").innerText();
       report(id,"backup preflight read-only",text.includes("✓ 백업 구조 확인"),text.slice(0,130));
     }else report(id,"backup preflight read-only",false,"No sample export available");
@@ -66,6 +67,7 @@ async function check(mod,width,height){
   if(verifyExists){
     const before=await page.evaluate(async()=>await window.SARCHProjectBridge().text());
     await page.locator("#sarchProtectMenu input[type=file]").setInputFiles({name:"invalid.json",mimeType:"application/json",buffer:Buffer.from('{"unrelated":true}')});
+    await page.waitForFunction(()=>document.querySelector(".sarch-verify-result-142")?.textContent.includes("확인 실패"));
     const message=await page.locator(".sarch-verify-result-142").innerText();
     const after=await page.evaluate(async()=>await window.SARCHProjectBridge().text());
     // Exports may contain timestamps; compare the actual data, excluding metadata.
