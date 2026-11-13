@@ -177,3 +177,20 @@ body.sarch-v142.sarch-light-142 .sm43-tool-panel .sm43-tab[aria-selected=true]{
 #sarchProtectMenu .sarch-verify-button-142{width:100%;min-height:36px;border:1px solid #6286a0;background:#254c68;color:#eaf8ff;border-radius:8px;padding:8px 12px;font:700 12px Dotum,"돋움",sans-serif;cursor:pointer}
 #sarchProtectMenu .sarch-verify-button-142:hover{background:#2b6286}
 #sarchProtectMenu .sarch-verify-result-142{white-space:pre-line;color:#aac9dc;font:11px/1.6 Dotum,"돋움",sans-serif;overflow-wrap:anywhere}
+
+/* Field usability: keyboard focus, long labels and narrow screens. No application data changes. */
+body.sarch-v142 :is(button,a,select,input,textarea,[role="tab"]):focus-visible{
+ outline:2px solid #82d1ff!important;outline-offset:2px!important;
+}
+body.sarch-v142 :is(button,select,input,textarea){touch-action:manipulation}
+body.sarch-v142 .sm43-tool-panel .sm43-group-content{overflow-wrap:anywhere}
+body.sarch-v142 .sarch-site-v135,body.sarch-v142 #sarchFloor135,
+body.sarch-v142 .sarch-top-tools-v135{min-width:0!important}
+@media(max-width:600px){
+ body.sarch-v142 .sm43-tool-panel .sm43-group-content{gap:8px!important}
+ body.sarch-v142 .sm43-tool-panel .sm43-group-content :is(button,select){min-height:42px!important}
+ body.sarch-v142 .sarch-site-v135,body.sarch-v142 #sarchFloor135{overflow-wrap:anywhere}
+}
+@media(prefers-reduced-motion:reduce){
+ body.sarch-v142 .sarch-site-v135 button,body.sarch-v142 #sarchFloor135 button{transition:none!important}
+}
