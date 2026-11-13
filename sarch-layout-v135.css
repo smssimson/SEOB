@@ -9,7 +9,12 @@ body.sarch-layout-v135 .sarch-top-tools-v135{
   margin:10px 12px!important;grid-column:1 / -1!important;
 }
 body.sarch-layout-v135 .sarch-site-v135{
-  padding:12px!important;border-radius:11px!important;
+  display:flex!important;align-items:center!important;flex-wrap:wrap!important;
+  gap:8px!important;padding:12px!important;border-radius:11px!important;
+}
+body.sarch-layout-v135 .sm-draw-sitebar.sarch-site-v135{display:block!important}
+body.sarch-layout-v135 .sarch-site-v135 .site-title{
+  display:block!important;flex:0 0 100%!important;width:100%!important;
 }
 body.sarch-layout-v135 #sarchFloor135{
   padding:12px 14px!important;border:1px solid var(--sarch-rail)!important;
@@ -127,3 +132,8 @@ body.sarch-layout-v135 #side>button[onclick*="selected=null"]{display:none!impor
 
 /* Reparenting the real tool deck aligns its edges with the other full-width rows. */
 body.sarch-layout-v135 .sarch-top-tools-v135{min-height:0!important;float:none!important;max-width:none!important}
+
+body.sarch-layout-v135 .sarch-top-tools-v135{
+ display:flex!important;flex-wrap:wrap!important;align-items:stretch!important;
+ gap:8px!important;
+}
