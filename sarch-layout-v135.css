@@ -137,3 +137,43 @@ body.sarch-layout-v135 .sarch-top-tools-v135{
  display:flex!important;flex-wrap:wrap!important;align-items:stretch!important;
  gap:8px!important;
 }
+
+
+/* v140 FIX: drawing has a nested .sm-draw-site-row. The old v124 display:contents
+   and v135 display:block combination forced the site selector onto its own line.
+   Keep one consistent site title + one controls row, without moving any controls. */
+body.sarch-v121-drawing.sarch-layout-v135 .sm-draw-sitebar.sarch-site-v135{
+ display:block!important;width:calc(100% - 24px)!important;
+ margin:10px 12px!important;min-height:0!important;
+ padding:12px 14px!important;box-sizing:border-box!important
+}
+body.sarch-v121-drawing.sarch-layout-v135 .sm-draw-sitebar .sm-draw-site-title{
+ display:block!important;width:auto!important;height:auto!important;
+ margin:0 0 8px!important;line-height:20px!important
+}
+body.sarch-v121-drawing.sarch-layout-v135 .sm-draw-sitebar .sm-draw-site-row{
+ display:flex!important;width:100%!important;min-width:0!important;
+ flex-direction:row!important;flex-wrap:nowrap!important;
+ align-items:center!important;gap:7px!important;
+ overflow-x:auto!important;overflow-y:hidden!important;
+ padding-bottom:1px!important
+}
+body.sarch-v121-drawing.sarch-layout-v135 .sm-draw-sitebar .sm-draw-site-row select{
+ flex:1 1 auto!important;display:block!important;min-width:180px!important;
+ width:0!important;max-width:none!important;margin:0!important;
+ height:36px!important;min-height:36px!important;
+ grid-column:auto!important;grid-row:auto!important
+}
+body.sarch-v121-drawing.sarch-layout-v135 .sm-draw-sitebar .sm-draw-site-row button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto!important;width:auto!important;min-width:0!important;
+ height:36px!important;min-height:36px!important;padding:6px 10px!important;
+ margin:0!important;grid-column:auto!important;grid-row:auto!important
+}
+body.sarch-v121-drawing.sarch-layout-v135 .sm-draw-sitebar .sm-draw-site-row #smDrawSiteCount{
+ display:inline!important;flex:0 0 auto!important;white-space:nowrap!important;
+ margin:0!important;grid-column:auto!important;grid-row:auto!important
+}
+@media(max-width:700px){
+ body.sarch-v121-drawing.sarch-layout-v135 .sm-draw-sitebar .sm-draw-site-row select{min-width:180px!important}
+}
