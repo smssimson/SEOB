@@ -53,6 +53,12 @@ for(const m of moduleChecks){
  ok(sw.includes('sarch-workspace-v142.css?v=142')&&sw.includes('sarch-workspace-v142.js?v=142'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
+const layout=read('sarch-layout-v135.js');
+scriptSyntax(layout,'sarch-layout-v135.js');
+ok(!layout.includes("order.remove()"),'reorder control must not be deleted by shared layout');
+ok(layout.includes('sarch-floor-more-v135'),'unmatched floor controls remain accessible');
+const layoutCss=read('sarch-layout-v135.css');
+ok(layoutCss.includes('.sarch-floor-more-v135>.sarch-floor-extras-v135'),'extra floor tools must be visible when expanded');
 const home=read('index.html');
 checkInline(home,'index.html');
 for(const m of moduleChecks)ok(home.includes('href="./'+m.dir+'/'),m.dir+' home link preserved');
