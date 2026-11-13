@@ -970,56 +970,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <link rel="stylesheet" href="../sarch-unified-v121.css?v=124">
 <script id="sarch-unified-v121">(function(){function unify(){document.body.classList.add('sarch-v121-survey');const site=document.querySelector('.projectbar');if(site){site.classList.add('sarch-v121-site');const header=document.querySelector('header.smetric-app-header');if(header&&site.previousElementSibling!==header)header.insertAdjacentElement('afterend',site);}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',unify,{once:true});else unify();})();</script>
-<style id="sarch-layout-v134">
-.sarch-site-134,.sarch-floor-134,.sarch-tools-134{box-sizing:border-box!important;width:calc(100% - 16px)!important;max-width:none!important;min-width:0!important;margin:8px!important;grid-column:1/-1!important}
-.sarch-floor-134,.sarch-tools-134{background:#192d45!important;border:1px solid #38516c!important;border-radius:11px!important;padding:12px!important}
-.sarch-floor-134 .sarch-title-134{display:block!important;position:static!important;font-weight:700!important;font-size:13px!important;line-height:20px!important;margin:0 0 12px!important;padding:0!important}
-.sarch-floor-134 .sarch-controls-134{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important;width:100%!important;max-width:100%!important;min-height:38px!important;padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-.sarch-floor-134 .sarch-controls-134:before{display:none!important;content:none!important}
-.sarch-floor-134 .sarch-group-134{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:7px!important;min-width:0!important}
-.sarch-floor-134 .sarch-group-134 label{display:inline-flex!important;align-items:center!important;gap:7px!important;margin:0!important;white-space:nowrap!important}
-.sarch-floor-134 .sarch-group-134 select{width:155px!important;min-width:155px!important;max-width:180px!important;flex:0 0 155px!important}
-.sarch-floor-134 .sarch-group-134 input{width:130px!important;min-width:100px!important;max-width:150px!important}
-.sarch-floor-134 .sarch-group-134 button{white-space:nowrap!important;flex:0 0 auto!important;position:static!important}
-.sarch-floor-134 .sarch-group-134 .muted{white-space:nowrap!important}
-.sarch-floor-134 .sarch-group-134 .hint{display:none!important}
-.sarch-tools-134{display:flex!important;flex-direction:column!important;gap:9px!important}
-.sarch-tools-134>.tools{width:100%!important;max-width:none!important;margin:0!important;box-sizing:border-box!important;display:flex!important;flex-wrap:wrap!important;gap:7px!important}
-body:has(#sarchTools134) main.layout{width:calc(100% - 16px)!important;margin:8px!important;max-width:none!important;box-sizing:border-box!important;display:grid!important;grid-template-columns:minmax(0,4fr) minmax(280px,1fr)!important;gap:12px!important;align-items:start!important}
-body:has(#sarchTools134) main.layout>section.panel{min-width:0!important;width:100%!important}
-body:has(#sarchTools134) main.layout>aside.panel{min-width:0!important;width:100%!important;align-self:stretch!important}
-</style><script id="sarch-layout-v134">(function(){
-function apply(){
-const header=document.querySelector('header.smetric-app-header,header'),site=document.querySelector('.sarch-v121-site,.sm-draw-sitebar,.site-manager.smetric-sitebar,section.smetric-sitebar,.projectbar'),floor=document.querySelector('.sm65-floorbar');
-if(!header||!site||!floor)return;
-const root=header.parentElement;root.insertBefore(site,header.nextSibling);site.classList.add('sarch-site-134');
-let box=document.getElementById('sarchFloor134');if(!box){box=document.createElement('section');box.id='sarchFloor134';box.className='sarch-floor-134';let h=document.createElement('div');h.className='sarch-title-134';h.textContent='층/도면 관리';box.appendChild(h)}
-root.insertBefore(box,site.nextSibling);
-let old=floor.parentElement;box.appendChild(floor);floor.classList.add('sarch-controls-134');
-if(old&&old!==box&&old.classList.contains('sarch-floor-133'))old.remove();
-for(const el of Array.from(root.children)){if(el!==box&&el.id==='sarchFloor133')el.remove()}
-let left=document.createElement('div'),right=document.createElement('div');left.className='sarch-group-134';right.className='sarch-group-134';
-const get=sel=>floor.querySelector(sel);
-const prev=get('#prevPage,#prev,#sm61PrevSheet'),next=get('#nextPage,#next,#sm61NextSheet'),sel=get('#sheet,#sheetSelect,#pageSelect'),order=get('#sm69Reorder'),rotate=get('#sm63Rotate,#sm61RotateSheet'),count=get('#pageCounter,#pageCount'),name=get('#pageLabel,#floor,#sm46SheetName'),add=get('#sm46AddBlank,#addSheet'),del=get('#removePage,#deletePage,#deleteSheet'),upload=get('#uploadBtn');
-const move=(el,target)=>{if(el&&el!==floor)target.appendChild(el)};
-let sl=sel&&sel.closest('label');if(sl&&sl.contains(order))sl.removeChild(order);
-if(!sl||sl===floor){sl=document.createElement('label');if(sel){sel.parentNode.insertBefore(sl,sel);sl.appendChild(document.createTextNode('도면 선택'));sl.appendChild(sel)}}
-else if(!sl.textContent.includes('도면 선택'))sl.insertBefore(document.createTextNode('도면 선택 '),sl.firstChild);
-let nl=name&&name.closest('label');if(!nl||nl===floor){nl=document.createElement('label');if(name){name.parentNode.insertBefore(nl,name);nl.appendChild(document.createTextNode('도면명'));nl.appendChild(name)}}
-[prev,sl,order,rotate,next,count].forEach(el=>move(el,left));
-[nl,del,upload,add].forEach(el=>move(el,right));
-if(add)add.textContent='＋ 새 도면';if(del)del.textContent='도면 삭제';
-const remaining=Array.from(floor.childNodes).filter(n=>n!==left&&n!==right);floor.replaceChildren(left,right);remaining.forEach(n=>{if(n.nodeType===1){n.hidden=true;n.style.display='none'}floor.appendChild(n)});
-const main=document.querySelector('main.layout'),panel=main&&main.querySelector(':scope > section.panel');
-if(document.getElementById('ckSH')&&main&&panel){
-let holder=document.getElementById('sarchTools134');if(!holder){holder=document.createElement('section');holder.id='sarchTools134';holder.className='sarch-tools-134'}
-root.insertBefore(holder,main);
-const rows=Array.from(document.querySelectorAll('.tools')).filter(el=>!el.classList.contains('sm65-floorbar')&&!el.closest('aside')&&!el.closest('#sarchFloor134')&&el.querySelector('#sketchNew,#markMode,#ckSH,#camera'));
-rows.forEach(el=>holder.appendChild(el));
-for(const id of ['sarchTools133','sarchEquipmentTools']){const el=document.getElementById(id);if(el){Array.from(el.querySelectorAll(':scope > .tools')).forEach(row=>holder.appendChild(row));el.remove()}}
-const orphan=Array.from(root.children).filter(el=>el.classList.contains('sarch-equipment-tool-row-132')&&!el.querySelector('button,input,select'));orphan.forEach(el=>el.remove());
-}
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
-window.addEventListener('load',apply);
-})();</script></body>
+
+<link rel="stylesheet" href="../sarch-layout-v135.css?v=135">
+<script defer src="../sarch-layout-v135.js?v=135"></script>
+</body>
