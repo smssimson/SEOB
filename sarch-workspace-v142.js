@@ -37,7 +37,9 @@ async function shareProject(btn){
  if(typeof bridge!=="function"){show("이 프로그램에서 프로젝트 파일을 준비할 수 없습니다. 기존 내보내기를 이용해 주세요.");return}
  btn.disabled=true;const prior=btn.textContent;btn.textContent="공유 준비 중";
  try{
-  const file=await bridge();
+  // Preserve the user activation required by Android's native file share sheet.
+  const file=bridge();
+  if(file&&typeof file.then==="function")throw Error("비동기 파일 생성은 직접 공유를 지원하지 않습니다.");
   if(!file){return}
   if(!(file instanceof File)||!file.size)throw Error("프로젝트 파일 생성에 실패했습니다.");
   const data={files:[file],title:"S:ARCH 프로젝트 공유"};
@@ -71,6 +73,47 @@ function installShare(){
  }
  // Original export handlers explicitly notify success; cancelled exports never count as backups.
 }
+
+function installBackupVerifier(){
+ const menu=pick("#sarchProtectMenu");
+ if(!menu||document.getElementById("sarchVerify142"))return;
+ const wrap=document.createElement("div");wrap.className="sarch-verify-box-142";
+ const button=document.createElement("button");button.type="button";button.id="sarchVerify142";
+ button.className="sarch-verify-button-142";button.textContent="백업 파일 검사";
+ button.title="현재 프로젝트에 영향을 주지 않고 JSON 백업의 구조를 확인합니다.";
+ const input=document.createElement("input");input.type="file";input.accept=".json,application/json";input.hidden=true;
+ const result=document.createElement("span");result.className="sarch-verify-result-142";
+ result.setAttribute("role","status");result.textContent="선택한 파일을 읽기 전용으로 검사합니다.";
+ button.addEventListener("click",()=>input.click());
+ input.addEventListener("change",async()=>{
+  const file=input.files?.[0];if(!file)return;
+  result.textContent="백업 파일을 검사하는 중입니다…";
+  try{
+   if(file.size>120*1024*1024)throw Error("120MB보다 큰 파일은 자동 검사를 건너뜁니다.");
+   const data=JSON.parse(await file.text());
+   let valid=false,summary="";
+   if(moduleKey==="survey"){
+    valid=Array.isArray(data.defects)&&typeof data.nextId==="number";
+    if(valid)summary="결함 "+data.defects.length+"건";
+   }else if(moduleKey==="schmidt"){
+    valid=!!data.site&&Array.isArray(data.site.pages)&&Array.isArray(data.site.marks);
+    if(valid)summary="장비조사 "+data.site.marks.length+"건";
+   }else if(moduleKey==="drawing"){
+    valid=Array.isArray(data.sheets)&&data.sheets.length>0&&(Array.isArray(data.paths)||Array.isArray(data.sheets[0]?.paths));
+    if(!valid)valid=Array.isArray(data.paths)||Array.isArray(data.pts);
+    if(valid)summary="도면 "+(data.sheets?.length||1)+"개";
+   }else if(moduleKey==="tilt"){
+    valid=Array.isArray(data.sites)&&data.sites.length>0;
+    if(valid)summary="현장 "+data.sites.length+"개";
+   }
+   if(!valid)throw Error("현재 프로그램의 프로젝트 내보내기 형식과 다릅니다.");
+   result.textContent="✓ 백업 구조 확인 · "+summary+"\n"+file.name+"\n기존 작업은 변경하지 않았습니다.";
+  }catch(e){result.textContent="확인 실패 · "+(e?.message||"지원되지 않는 파일입니다.")+"\n현재 작업 자료는 유지됩니다."}
+  finally{input.value=""}
+ });
+ wrap.append(button,input,result);menu.appendChild(wrap);
+}
+
 function connection(){
  const head=pick(".smetric-head-controls,.sm-topbar .right");
  if(!head||document.getElementById("sarchConnection142"))return;
@@ -97,9 +140,9 @@ function install(){
  // Existing theme pickers may change body attributes as the user works.
  new MutationObserver(updateTheme).observe(document.body,{attributes:true,attributeFilter:["data-theme"]});
  window.SARCHBackupMark=()=>{saveTime();noteUpdate()};
- connection();installShare();
+ connection();installShare();installBackupVerifier();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>requestAnimationFrame(install),{once:true});
 else requestAnimationFrame(install);
-window.addEventListener("load",()=>{connection();installShare()},{once:true});
+window.addEventListener("load",()=>{connection();installShare();installBackupVerifier()},{once:true});
 })();
