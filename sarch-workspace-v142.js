@@ -24,7 +24,7 @@ function formatTime(){
 function noteUpdate(){
  const note=pick("#sarchBackup142");if(!note)return;
  const last=formatTime();
- note.textContent=(last?"마지막 내보내기·공유: "+last+" · ":"")+"현장자료는 기기 안에 자동 저장됩니다. 별도로 프로젝트 파일을 공유하거나 안전한 곳에 백업해 주세요.";
+ note.textContent=(last?"최근 내보내기·공유 요청: "+last+" · ":"")+"작업자료는 현재 기기의 저장공간을 사용합니다. 앱 재실행 후 저장 상태를 확인하고 프로젝트 파일을 별도로 백업해 주세요.";
 }
 function downloadFile(file){
  const url=URL.createObjectURL(file),a=document.createElement("a");
@@ -44,7 +44,9 @@ async function shareProject(btn){
   if(!(file instanceof File)||!file.size)throw Error("프로젝트 파일 생성에 실패했습니다.");
   const data={files:[file],title:"S:ARCH 프로젝트 공유"};
   // Use system-native share sheet only if file sharing is supported.
-  if(typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files:[file]})){
+  let nativeShare=false;
+  try{nativeShare=typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files:[file]})===true}catch(e){nativeShare=false}
+  if(nativeShare){
    try{await navigator.share(data);saveTime();noteUpdate();show("기기 공유 메뉴로 전달했습니다. 상대방의 수신·업로드 완료 여부는 별도로 확인해 주세요.");}
    catch(err){if(err&&err.name==="AbortError")return;downloadFile(file);saveTime();noteUpdate();show("공유 메뉴를 사용할 수 없어 파일 저장을 요청했습니다. 다운로드 목록에서 파일을 확인해 주세요.");}
   }else{
@@ -60,7 +62,7 @@ function installShare(){
  const btn=document.createElement("button");
  btn.type="button";btn.id="sarchShare142";btn.className="sarch-share-button";
  btn.textContent="↗ 프로젝트 공유";
- btn.title="현재 프로젝트 JSON을 갤럭시 공유 메뉴로 보내거나 파일로 저장합니다.";
+ btn.title="현재 프로젝트 JSON을 기기 공유 메뉴로 전달하거나 다운로드를 요청합니다. 저장·수신 여부는 직접 확인하세요.";
  btn.addEventListener("click",()=>shareProject(btn));
  original.insertAdjacentElement("afterend",btn);
  const section=original.closest("section,aside,.smetric-output")||original.parentElement?.parentElement;
