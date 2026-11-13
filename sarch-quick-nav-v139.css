@@ -66,3 +66,12 @@
 @media(prefers-reduced-motion:reduce){
  #sarchQuickDock .sarch-dock-panel,#sarchQuickDock .sarch-dock-chevron{transition:none!important}
 }
+
+
+/* v140 FIX: the drawing editor's global svg { min-height:620px } was inherited
+   by dock icons and stretched every module link to nearly the canvas height. */
+#sarchQuickDock .sarch-dock-panel{height:auto!important;min-height:0!important;max-height:130px!important;grid-auto-rows:76px!important;align-items:stretch!important}
+#sarchQuickDock .sarch-dock-panel a{height:76px!important;max-height:76px!important;min-height:0!important;overflow:hidden!important}
+#sarchQuickDock .sarch-dock-panel a svg{min-height:0!important;min-width:0!important;max-height:23px!important;max-width:23px!important;flex:none!important}
+#sarchQuickDock .sarch-dock-panel a span{display:block!important;height:auto!important;min-height:0!important;line-height:1.25!important;flex:none!important}
+@media(max-width:480px){#sarchQuickDock .sarch-dock-panel{max-height:115px!important;grid-auto-rows:68px!important}#sarchQuickDock .sarch-dock-panel a{height:68px!important;max-height:68px!important}}
