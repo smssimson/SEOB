@@ -50,7 +50,7 @@ for(const m of moduleChecks){
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
  ok(sw.includes("smetric-"+m.dir+"-v143"),m.dir+' offline cache version');
- ok(sw.includes('sarch-workspace-v142.css?v=142')&&sw.includes('sarch-workspace-v142.js?v=142'),m.dir+' shared files cached offline');
+ ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=143'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
 const layout=read('sarch-layout-v135.js');
