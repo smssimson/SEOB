@@ -24,6 +24,7 @@ function setMode(next){
  E("sarchSignupFields").hidden=!joining;
  E("sarchConfirmFields").hidden=!joining;
  E("sarchAuthSubmit").textContent=joining?"회원가입":"로그인";
+ E("sarchAuthPassword").setAttribute("autocomplete",joining?"new-password":"current-password");
  E("sarchResetPassword").hidden=joining;
  status(configured?"":"인증 서비스 연결 전입니다. 로그인·회원가입 화면을 미리 확인하고, 기존 방식으로 이용할 수 있습니다.");
 }
@@ -81,6 +82,8 @@ async function submit(ev){
  try{
   if(mode==="signup"){
    const cred=await api.createUserWithEmailAndPassword(auth,email,pass);
+   const displayName=E("sarchDisplayName").value.trim();
+   if(displayName)await api.updateProfile(cred.user,{displayName});
    await api.sendEmailVerification(cred.user);
    await api.signOut(auth);
    setMode("signin");
