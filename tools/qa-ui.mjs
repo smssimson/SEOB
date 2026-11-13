@@ -98,11 +98,11 @@ async function check(mod,width,height){
    await page.waitForTimeout(550);
    const after=await page.evaluate(()=>{
     const info=JSON.parse(localStorage.getItem("smetric-drawing-sites-index-v40"));
-    return {count:info.sites.length,active:info.active,old:localStorage.getItem("smetric-drawing-site-v40-"+window.__oldDrawingId)};
+    return {count:info.sites.length,active:info.active};
    });
    const oldNow=await page.evaluate(oldId=>localStorage.getItem("smetric-drawing-site-v40-"+oldId),baseline.active);
    const newNow=await page.evaluate(()=>localStorage.getItem("smetric-drawing-site-v40-"+JSON.parse(localStorage.getItem("smetric-drawing-sites-index-v40")).active));
-   report(id,"drawing import creates a separate site",after.count===baseline.count+1&&after.active!==baseline.active&&Boolean(newNow)&&Boolean(oldNow),JSON.stringify({before:baseline.count,after:after.count,oldSaved:Boolean(oldNow),newSaved:Boolean(newNow)}));
+   report(id,"drawing import creates a separate site",after.count===baseline.count+1&&after.active!==baseline.active&&Boolean(newNow)&&baseline.content===oldNow,JSON.stringify({before:baseline.count,after:after.count,oldSaved:Boolean(oldNow),newSaved:Boolean(newNow)}));
   }
   if(width===390){
    let downloads=0;page.on("download",()=>downloads++);
