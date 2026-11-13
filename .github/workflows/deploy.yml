@@ -149,6 +149,9 @@ jobs:
             sleep 3
           done
 
+      - name: Verify S:ARCH source and export integrity
+        run: node tools/verify-sarch.mjs
+
       - name: Prepare published site
         run: |
           mkdir -p _site
