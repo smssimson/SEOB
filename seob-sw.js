@@ -1,5 +1,5 @@
 /* SMETRIC offline v60: root cache covers home and all four modules. */
-const CACHE='smetric-offline-v142-p7b';
+const CACHE='smetric-offline-v142-p7c';
 const CORE=["./sarch-workspace-v142.css","./sarch-workspace-v142.js","./sarch-splash-v141.css","./sarch-splash-v141.js","./sarch-home-v139.css","./sarch-home-v139.js","./sarch-quick-nav-v139.css","./sarch-quick-nav-v139.js","./sarch-layout-v135.css","./sarch-layout-v135.js","./", "./index.html", "./manifest.webmanifest", "./sarch-theme.css", "./sarch-unified-v121.css", "./sarch-icon.svg", "./smetric-icon-180.png", "./smetric-icon-192.png", "./smetric-icon-512.png", "./survey/", "./survey/index.html", "./survey/jszip.min.js", "./survey/manifest.webmanifest", "./survey/icon-180.png", "./survey/icon-192.png", "./survey/icon-512.png", "./survey/photo_album_template.hwpx", "./drawing/", "./drawing/index.html", "./schmidt/", "./schmidt/index.html", "./tilt/", "./tilt/index.html"];
 const OPTIONAL=["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"];
 self.addEventListener('install',event=>event.waitUntil((async()=>{
