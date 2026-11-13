@@ -1,0 +1,74 @@
+/* S:ARCH v139 — brand-aligned module gallery (visual-only; existing links stay intact) */
+body.sarch-home-v139 .header{min-height:70px!important}
+body.sarch-home-v139 .wrap{width:min(1220px,calc(100% - 32px))!important;padding-top:34px!important;padding-bottom:60px!important}
+body.sarch-home-v139 .hero{margin-bottom:27px!important}
+body.sarch-home-v139 .hero h1{font-size:clamp(46px,5vw,69px)!important;letter-spacing:-2px!important;margin:8px 0 9px!important}
+body.sarch-home-v139 .hero p{max-width:650px!important;line-height:1.7!important}
+body.sarch-home-v139 .hero-mark{width:112px!important;height:112px!important;flex:0 0 112px!important;border-radius:27px!important}
+body.sarch-home-v139 .hero-mark img{display:block;width:85px;height:85px;filter:drop-shadow(0 8px 13px #0004)}
+body.sarch-home-v139 .modules{gap:17px!important}
+body.sarch-home-v139 .module{
+  display:block!important;min-height:252px!important;height:252px!important;
+  padding:23px 26px!important;overflow:hidden!important;border-radius:22px!important;
+  color:#153047!important;isolation:isolate!important;
+  border:1px solid #b8d5ea!important;
+  box-shadow:0 18px 32px #020f1d2e,inset 0 1px 1px #fff!important;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important
+}
+body.sarch-home-v139 .module.blue{--accent:#2078ca!important;background:linear-gradient(122deg,#fafdff 0%,#ebf7ff 50%,#dcefff 100%)!important}
+body.sarch-home-v139 .module.orange{--accent:#b87225!important;background:linear-gradient(122deg,#fffefb 0%,#fff7e9 50%,#ffebd2 100%)!important}
+body.sarch-home-v139 .module.teal{--accent:#16867d!important;background:linear-gradient(122deg,#fcfffe 0%,#e9faf7 53%,#d5f2ec 100%)!important}
+body.sarch-home-v139 .module.violet{--accent:#6857b2!important;background:linear-gradient(122deg,#ffffff 0%,#f4f0ff 53%,#e9e2ff 100%)!important}
+body.sarch-home-v139 .module:hover{transform:translateY(-4px)!important;border-color:var(--accent)!important;box-shadow:0 22px 40px #020f1d49,0 0 0 1px var(--accent)!important}
+body.sarch-home-v139 .module:focus-visible{outline:3px solid #3eb6f6!important;outline-offset:4px!important}
+body.sarch-home-v139 .module:before{background:radial-gradient(circle,#fff9,transparent 72%)!important;right:-130px!important;bottom:-185px!important;width:440px!important;height:440px!important}
+body.sarch-home-v139 .module:after{opacity:.35!important;border-color:#8eb4ca!important}
+body.sarch-home-v139 .module-icon{
+  width:55px!important;height:55px!important;border-radius:14px!important;
+  display:grid!important;place-items:center!important;color:var(--accent)!important;
+  background:#fffdf9!important;border:1px solid #cfdfed!important;
+  box-shadow:0 6px 18px #2e537b18!important
+}
+body.sarch-home-v139 .module-icon svg{width:31px!important;height:31px!important}
+body.sarch-home-v139 .module h2{
+  position:relative!important;z-index:2!important;
+  font-size:26px!important;line-height:1.2!important;letter-spacing:-.8px!important;
+  color:#142f49!important;margin:16px 0 8px!important
+}
+body.sarch-home-v139 .module p{
+  position:relative!important;z-index:2!important;
+  font-size:12px!important;color:#5c7489!important;line-height:1.6!important;
+  max-width:52%!important;min-height:20px!important;margin:0!important
+}
+body.sarch-home-v139 .module .sarch-card-index{
+  position:absolute;top:25px;right:26px;z-index:2;
+  color:var(--accent);font:700 11px/1.4 Dotum,sans-serif;letter-spacing:1.2px;
+  opacity:.8
+}
+body.sarch-home-v139 .module .art{
+  position:absolute!important;right:7px!important;bottom:2px!important;
+  width:min(57%,320px)!important;height:85%!important;max-width:none!important;
+  opacity:1!important;filter:none!important;pointer-events:none!important;
+  z-index:1!important
+}
+body.sarch-home-v139 .module .art svg{width:100%!important;height:100%!important;display:block!important}
+body.sarch-home-v139 .module .arrow{
+  position:absolute!important;right:19px!important;bottom:16px!important;z-index:3!important;
+  background:#fffffff0!important;border:1px solid #c9dceb!important;
+  color:var(--accent)!important;width:35px!important;height:35px!important;
+  display:grid!important;place-items:center!important;border-radius:12px!important
+}
+body.sarch-home-v139 .footer{color:#82a7c2!important}
+@media(max-width:800px){
+ body.sarch-home-v139 .modules{grid-template-columns:1fr!important}
+ body.sarch-home-v139 .module{height:220px!important;min-height:220px!important}
+ body.sarch-home-v139 .module .art{width:47%!important}
+}
+@media(max-width:430px){
+ body.sarch-home-v139 .hero-mark{display:none!important}
+ body.sarch-home-v139 .module{height:205px!important;min-height:205px!important;padding:18px 19px!important}
+ body.sarch-home-v139 .module h2{font-size:23px!important;margin-top:11px!important}
+ body.sarch-home-v139 .module p{max-width:58%!important}
+ body.sarch-home-v139 .module .art{width:46%!important;bottom:5px!important}
+}
+@media(prefers-reduced-motion:reduce){body.sarch-home-v139 .module{transition:none!important}}
