@@ -89,6 +89,15 @@ function restructureFloor(floor,site,header){
  floor.append(left,right,extra);
  if(add)add.textContent='＋ 새 도면';
  if(del)del.textContent='도면 삭제';
+ if(rotate){
+  const normalizeRotate=()=>{
+   const current=rotate.textContent.trim();
+   const canonical=current.replace(/^⟳\s*도면\s*회전/,'⟳ 회전');
+   if(current!==canonical)rotate.textContent=canonical;
+  };
+  normalizeRotate();
+  new MutationObserver(normalizeRotate).observe(rotate,{subtree:true,childList:true,characterData:true});
+ }
 }
 function restructureEquipment(header){
  const root=header.parentNode;
