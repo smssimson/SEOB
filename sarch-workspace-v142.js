@@ -45,11 +45,11 @@ async function shareProject(btn){
   const data={files:[file],title:"S:ARCH 프로젝트 공유"};
   // Use system-native share sheet only if file sharing is supported.
   if(typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files:[file]})){
-   try{await navigator.share(data);saveTime();noteUpdate();show("프로젝트 공유가 완료되었습니다.");}
-   catch(err){if(err&&err.name==="AbortError")return;downloadFile(file);saveTime();noteUpdate();show("공유가 지원되지 않아 프로젝트 파일로 저장했습니다.");}
+   try{await navigator.share(data);saveTime();noteUpdate();show("기기 공유 메뉴로 전달했습니다. 상대방의 수신·업로드 완료 여부는 별도로 확인해 주세요.");}
+   catch(err){if(err&&err.name==="AbortError")return;downloadFile(file);saveTime();noteUpdate();show("공유 메뉴를 사용할 수 없어 파일 저장을 요청했습니다. 다운로드 목록에서 파일을 확인해 주세요.");}
   }else{
    downloadFile(file);saveTime();noteUpdate();
-   show("프로젝트 파일을 저장했습니다. 파일 앱에서 MYBOX·카카오톡 등으로 전달하세요.");
+   show("프로젝트 파일 다운로드를 요청했습니다. 파일 저장 여부를 확인한 뒤 전달해 주세요.");
   }
  }catch(err){console.warn("S:ARCH share error",err);show("프로젝트 공유 실패 · 기존 프로젝트 내보내기를 이용해 주세요.");}
  finally{btn.disabled=false;btn.textContent=prior}
@@ -121,8 +121,8 @@ function connection(){
  const update=()=>{
   const online=navigator.onLine!==false;
   el.classList.toggle("offline",!online);
-  el.textContent=online?"기기 저장":"오프라인 · 기기 저장";
-  el.title="프로젝트는 이 기기에 저장됩니다. 네트워크 연결과 관계없이 외부 백업을 권장합니다.";
+  el.textContent=online?"로컬 작업":"오프라인 · 로컬 작업";
+  el.title="연결 상태 안내입니다. 실제 저장 성공을 보장하지 않으며, 별도 프로젝트 백업을 권장합니다.";
  };
  head.appendChild(el);update();
  window.addEventListener("online",update);window.addEventListener("offline",update);
