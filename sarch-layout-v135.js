@@ -93,14 +93,15 @@ function restructureFloor(floor,site,header){
 function restructureEquipment(header){
  const root=header.parentNode;
  const main=document.querySelector('main.layout');
- if(!main||!document.getElementById('ckSH'))return;
- // The actual two-tab tool panel, including the camera, must span both columns.
- // Never create a placeholder or move only its child buttons.
  const panel=document.querySelector('.sm43-tool-panel');
- if(!panel)return;
  const box=document.getElementById('sarchFloor135');
- if(!box)return;
- root.insertBefore(panel,main);
+ if(!panel||!box)return;
+ // Move the original live tool panel after the floor selector, never its buttons.
+ // Applies to all modules so their outer left and right edges also align.
+ root.insertBefore(panel,box.nextSibling);
+ panel.classList.add('sarch-top-tools-v135');
+ const equipment=!!document.getElementById('ckSH');
+ if(!equipment||!main)return;
  panel.classList.add('sarch-equipment-tools-v135');
  // Legacy injected containers are never required to run the survey controls.
  for(const id of ['sarchTools133','sarchTools134','sarchEquipmentTools']){
@@ -140,5 +141,5 @@ function schedule(){requestAnimationFrame(apply)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});
 else schedule();
 window.addEventListener('load',schedule,{once:true});
-setTimeout(()=>{if(!layoutDone||document.getElementById('ckSH'))apply()},850);
+setTimeout(()=>{if(!layoutDone||document.querySelector('.sm43-tool-panel'))apply()},850);
 })();
