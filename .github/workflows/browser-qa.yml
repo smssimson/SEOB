@@ -7,6 +7,13 @@ on:
       - '.github/workflows/browser-qa.yml'
       - 'sarch-workspace-v142.css'
       - 'sarch-workspace-v142.js'
+      - 'sarch-layout-v135.js'
+      - 'sarch-layout-v135.css'
+      - 'recovery-v92.js'
+      - 'survey/index.html'
+      - 'drawing/index.html'
+      - 'schmidt/index.html'
+      - 'tilt/index.html'
 permissions:
   contents: read
 jobs:
