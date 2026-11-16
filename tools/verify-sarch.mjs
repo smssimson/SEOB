@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===162,'version.json should report v162');
+ok(version.version===163,'version.json should report v163');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v162"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v163"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -114,6 +114,13 @@ ok(surveyV155.includes("input.focus();input.select();")&&surveyV155.includes("se
 ok(surveyV155.includes("const direct=String(d.manualSpec??'').trim()")&&surveyV155.includes('if(direct)return direct.replace('),'manual dimension overrides generated drawing/photo/repair labels');
 ok(surveyV155.includes("normalized.match(")&&surveyV155.includes("if(!m)return null"),'free-form manual dimension does not borrow stale measurements for area calculation');
 ok(report.includes('var direct=txt(d.manualSpec)')&&report.includes('n+"EA"'),'XLSX report displays 1EA only when dimensions are absent');
+ok(!surveyV155.includes('id="frontPhotoJump"')&&surveyV155.includes('order:-1;scroll-margin-top'),'photo workspace above drawing, old jump button removed');
+ok(surveyV155.includes('id="sm163MergeToggle"')&&surveyV155.includes('id="sm163MergeRemove"'),'visual group and per-defect release buttons');
+ok(surveyV155.includes('sm163Chosen.add(d.id)')&&surveyV155.includes('function sm163Finish()'),'multi-selection and second-click grouping');
+ok(surveyV155.includes('mismatchedType')&&surveyV155.includes('mismatchedSize')&&surveyV155.includes('if(!confirm('),'different kinds and sizes receive double confirmation');
+ok(surveyV155.includes('function sm163Release()')&&surveyV155.includes('delete d.mergeGroupId'),'single defect release');
+ok(surveyV155.includes('sm163Labels(ctx')&&surveyV155.includes('sm163Labels(g,ds'),'screen and PNG share label grouping and links');
+ok(surveyV155.includes('d.mergeGroupId=id')&&surveyV155.includes('function sm163Groups()'),'group IDs persist inside original defect data');
 const defectSpecFn=new Function(surveyV155.match(/function defectSpecText\(d\)\{[\s\S]*?\n\}/)?.[0]+';return defectSpecText')();
 ok(defectSpecFn({types:['철근노출'],manualSpec:'120x350'})==='120X350','manual specification accepts lowercase x and normalizes dimension separator');
 ok(defectSpecFn({manualSpec:'1ea'})==='1EA','manual EA-only display is preserved');
@@ -138,7 +145,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v162'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v163'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -186,4 +193,4 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v162 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v163 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');

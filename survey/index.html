@@ -89,7 +89,7 @@ body[data-theme="graphite"] .theme-picker select{color:#fff!important}
 @media(max-width:850px){.annotationLegend{font-size:10px;gap:5px}}
 
 /* v25: 전경사진 별도 등록 공간 (외부/내부 분류, 현장별 저장) */
-.front-workspace{grid-column:1/-1;scroll-margin-top:16px}
+.front-workspace{grid-column:1/-1;order:-1;scroll-margin-top:16px}
 .front-heading{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}
 .front-heading h2{font-size:21px;margin:5px 0 8px;color:var(--ink)}
 .front-heading p{font-size:13px;line-height:1.65;margin:0;color:var(--muted)}
@@ -114,7 +114,7 @@ body[data-theme="graphite"] .theme-picker select{color:#fff!important}
 .front-photo-actions button:disabled{opacity:.5;cursor:default}
 .front-photo-actions input[type=file]{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
 .front-note{font-size:12px;line-height:1.6;color:var(--muted);margin:6px 0 0}
-#frontPhotoJump{border-color:var(--accent)!important;color:var(--accent)!important;font-weight:700}
+#sm163MergeToggle,#sm163MergeRemove{font-weight:700;white-space:nowrap}#sm163MergeToggle.active{background:#237bd0!important;color:white!important}#sm163MergeRemove:disabled{opacity:.5}#sm163MergeStatus{color:#d8e9ff;font-size:11px;max-width:190px}
 @media(max-width:900px){.front-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:580px){.front-heading{align-items:flex-start;flex-direction:column}.front-photo-grid{grid-template-columns:1fr}.front-photo-card .front-photo-preview{height:190px}}
 @media print{.front-workspace{display:none!important}}
@@ -330,7 +330,7 @@ window.SM47Export={
   <output id="sm155SizeValue" for="sm155MarkerSize">100%</output>
   <button type="button" id="sm155SizeAll" title="선택 해제 후 전체 결함표시 크기를 조절합니다">전체</button>
 </div>
-<button id="frontPhotoJump" type="button" class="front-jump">📷 전경사진 등록</button>
+<button id="sm163MergeToggle" type="button" aria-pressed="false" title="결함 번호를 선택한 후 다시 눌러 통합">결함 통합</button><button id="sm163MergeRemove" type="button" disabled title="선택한 결함 하나만 그룹에서 해제">해제</button><span id="sm163MergeStatus" role="status" aria-live="polite"></span>
 <span class="annotationLegend"><span class="red-dot">● 구조체</span><span class="purple-dot">● 비구조체</span></span>
 </div>
 </div>
@@ -458,9 +458,87 @@ $('sm155SizeAll').addEventListener('click',()=>{
  selected=null;sm155SizeDragging=false;refresh();draw()
 });
 
+
+/* v163: Visual-only grouping. Defect data, ids, measurements and photos stay intact. */
+let sm163MergeMode=false,sm163Chosen=new Set();
+function sm163Groups(){
+ const groups=new Map();
+ currentDefects().forEach(d=>{if(!d.mergeGroupId)return;
+  if(!groups.has(d.mergeGroupId))groups.set(d.mergeGroupId,[]);
+  groups.get(d.mergeGroupId).push(d)});
+ return groups;
+}
+function sm163UI(){
+ const button=$('sm163MergeToggle'),release=$('sm163MergeRemove'),status=$('sm163MergeStatus');
+ if(!button||!release||!status)return;
+ button.textContent=sm163MergeMode?'✓ 통합 완료':'결함 통합';
+ button.classList.toggle('active',sm163MergeMode);
+ button.setAttribute('aria-pressed',String(sm163MergeMode));
+ const d=state.defects.find(x=>x.id===selected&&x.pageId===state.activePage);
+ const size=d&&sm163Groups().get(d.mergeGroupId)?.length||0;
+ release.disabled=sm163MergeMode||size<2;
+ status.textContent=sm163MergeMode?sm163Chosen.size+'개 선택됨':size>1?pageNumber(d)+'번 통합 그룹 ('+size+'개)':'';
+}
+function sm163Pick(d){
+ if(d.mergeGroupId&&(sm163Groups().get(d.mergeGroupId)?.length||0)>1){
+  alert(pageNumber(d)+'번은 이미 통합되어 있습니다. 먼저 개별 해제한 후 선택하세요.');return;
+ }
+ if(sm163Chosen.has(d.id))sm163Chosen.delete(d.id);else sm163Chosen.add(d.id);
+ selected=d.id;refresh();draw();
+}
+function sm163Finish(){
+ const choices=currentDefects().filter(d=>sm163Chosen.has(d.id));
+ if(choices.length===1){alert('통합할 결함을 최소 2개 선택하세요.');return}
+ if(choices.length>=2){
+  const first=choices[0],name=d=>(d.types||[]).map(cleanDefectType).sort().join('|');
+  const mismatchedType=choices.filter(d=>name(d)!==name(first)).map(pageNumber);
+  const mismatchedSize=choices.filter(d=>defectSpecText(d)!==defectSpecText(first)).map(pageNumber);
+  if(mismatchedType.length||mismatchedSize.length){
+   const detail=[mismatchedType.length?'종류가 다른 번호: '+mismatchedType.join(', ')+'번':'',
+    mismatchedSize.length?'크기가 다른 번호: '+mismatchedSize.join(', ')+'번':''].filter(Boolean).join('\\n');
+   if(!confirm(first&&pageNumber(first)+'번을 기준으로 확인했습니다.\\n'+detail+'\\n계속 진행하시겠습니까?'))return;
+   if(!confirm('결함 종류 또는 크기가 다른 항목이 포함됩니다.\\n도면에는 대표 결함의 설명만 표시하며, 원본 결함 내용과 사진은 유지됩니다.\\n통합을 최종 확정하시겠습니까?'))return;
+  }
+  snapshot();const id='merge-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
+  choices.forEach(d=>{d.mergeGroupId=id});selected=first.id;persist();
+  if(!showDefectLabels)$('labelToggle').click();
+ }
+ sm163MergeMode=false;sm163Chosen.clear();refresh();draw();
+}
+function sm163Release(){
+ if(sm163MergeMode)return;
+ const d=state.defects.find(x=>x.id===selected&&x.pageId===state.activePage);
+ const peers=d&&d.mergeGroupId?sm163Groups().get(d.mergeGroupId)||[]:[];
+ if(peers.length<2)return;
+ snapshot();delete d.mergeGroupId;
+ const remaining=peers.filter(x=>x!==d);
+ if(remaining.length===1)delete remaining[0].mergeGroupId;
+ persist();refresh();draw();
+}
+$('sm163MergeToggle').onclick=()=>{
+ if(sm163MergeMode)return sm163Finish();
+ sm163MergeMode=true;sm163Chosen.clear();
+ if(!showDefectLabels)$('labelToggle').click();
+ sm163UI();draw();
+};
+$('sm163MergeRemove').onclick=sm163Release;
+function sm163Labels(g,defs,points,bounds,fontFor,offset){
+ const occupied=[],groups=new Map(),rects=[];
+ defs.forEach(d=>{if(!d.mergeGroupId)return;
+  if(!groups.has(d.mergeGroupId))groups.set(d.mergeGroupId,[]);
+  groups.get(d.mergeGroupId).push(d)});
+ defs.forEach((d,i)=>{
+  const grp=d.mergeGroupId?groups.get(d.mergeGroupId):null;
+  if(grp&&grp.length>1&&grp[0]!==d)return;
+  const links=grp&&grp.length>1?grp.map(m=>({d:m,p:points[defs.indexOf(m)]})):[];
+  rects.push(drawLabel(g,points[i],d,bounds,fontFor(d),offset,occupied,points,links));
+ });
+ return rects;
+}
+
 let annotationRects=[];
 function overlaps(a,b,pad=4){return a.x<b.x+b.w+pad&&a.x+a.w+pad>b.x&&a.y<b.y+b.h+pad&&a.y+a.h+pad>b.y}
-function drawLabel(g,p,d,bounds,fontSize,offsetFactor,occupied,markers){
+function drawLabel(g,p,d,bounds,fontSize,offsetFactor,occupied,markers,links=[]){
  g.save();g.font=`bold ${fontSize}px Dotum, Arial, sans-serif`;g.textBaseline='middle';g.textAlign='left';const text=defectLabel(d);const fullW=g.measureText(text).width;const maxW=Math.max(80,bounds.width-8);let display=text;
  if(fullW>maxW){let cut=text.length;while(cut>3&&g.measureText(text.slice(0,cut)+'…').width>maxW)cut--;display=text.slice(0,cut)+'…'}
  const tw=g.measureText(display).width,h=fontSize+6,gap=fontSize+2;
@@ -471,13 +549,20 @@ function drawLabel(g,p,d,bounds,fontSize,offsetFactor,occupied,markers){
   for(let dy=2;dy<=10;dy++)proposals.push({x:p.x+gap,y:p.y+dy*h},{x:p.x+gap,y:p.y-dy*h});
   let chosen=proposals.find(q=>{const r={x:q.x,y:q.y-h/2,w:tw,h};return r.x>=2&&r.y>=1&&r.x+r.w<=bounds.width-2&&r.y+r.h<=bounds.height-1&&!occupied.some(o=>overlaps(r,o,3))&&!markers.some(m=>Math.abs(q.x-m.x)<12&&Math.abs(q.y-m.y)<12)})||proposals[0];x=Math.max(2,Math.min(bounds.width-tw-2,chosen.x));y=Math.max(h/2+1,Math.min(bounds.height-h/2-1,chosen.y));
  }
+ for(const link of links){
+  const q=link.p,ax=Math.max(x,Math.min(x+tw,q.x)),ay=Math.max(y-h/2,Math.min(y+h/2,q.y));
+  const dx=q.x-ax,dy=q.y-ay,dist=Math.hypot(dx,dy);
+  if(dist>5){const edge=Math.min(dist-1,Math.max(8,fontSize*.7));
+   g.beginPath();g.strokeStyle=annotationColor(link.d);g.lineWidth=Math.max(1.2,fontSize*.13);g.lineCap='round';
+   g.moveTo(ax,ay);g.lineTo(q.x-dx/dist*edge,q.y-dy/dist*edge);g.stroke()}
+ }
  g.fillStyle=annotationColor(d);g.fillText(display,x,y);g.restore();
  const rect={x,y:y-h/2,w:tw,h,baseline:y,id:d.id};occupied.push(rect);return rect
 }
 $('labelToggle').onclick=()=>{showDefectLabels=!showDefectLabels;$('labelToggle').textContent=showDefectLabels?'결함 표시 ON':'결함 표시 OFF';$('labelToggle').classList.toggle('active',showDefectLabels);$('labelToggle').setAttribute('aria-pressed',String(showDefectLabels));$('sm156MarkerSizeWrap').hidden=!showDefectLabels;sm155SyncMarkerUI();draw()};
 function draw(){let dpr=window.devicePixelRatio||1,w=board.clientWidth,h=board.clientHeight;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle='#e4e9ee';ctx.fillRect(0,0,w,h);annotationRects=[];if(!img){ctx.fillStyle='#657a8d';ctx.textAlign='center';ctx.font='16px Dotum, sans-serif';return}ctx.save();ctx.translate(pan.x,pan.y);ctx.scale(zoom,zoom);const smAngle=((state.pages[state.activePage]?.rotation||0)%360+360)%360*Math.PI/180;ctx.translate(img.width/2,img.height/2);ctx.rotate(smAngle);const smSwap=Math.round(smAngle/(Math.PI/2))%2!==0;const smRatio=smSwap?Math.min(img.width/img.height,img.height/img.width):1;ctx.scale(smRatio,smRatio);ctx.drawImage(img,-img.width/2,-img.height/2);ctx.restore();
-const defects=currentDefects(),markers=defects.map(d=>screen(d.point));defects.forEach((d,i)=>{if(d.line&&d.line.length){ctx.beginPath();d.line.forEach((p,j)=>{let q=screen(p);j?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.strokeStyle='#e02936';ctx.lineWidth=2;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke()}let p=markers[i],sc=sm155MarkerFactor(d),radius=(selected===d.id?10:9)*sc;ctx.beginPath();ctx.arc(p.x,p.y,radius,0,Math.PI*2);ctx.fillStyle=annotationColor(d);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.2*sc;ctx.stroke();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${11*sc}px Dotum, sans-serif`;ctx.fillText(String(sm69NumberAt(i)),p.x,p.y+.3*sc)});
-if(showDefectLabels){const occupied=[];defects.forEach((d,i)=>{annotationRects.push(drawLabel(ctx,markers[i],d,{width:w,height:h},12*sm155MarkerFactor(d),zoom,occupied,markers))})}
+const defects=currentDefects(),markers=defects.map(d=>screen(d.point));defects.forEach((d,i)=>{if(d.line&&d.line.length){ctx.beginPath();d.line.forEach((p,j)=>{let q=screen(p);j?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.strokeStyle='#e02936';ctx.lineWidth=2;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke()}let p=markers[i],sc=sm155MarkerFactor(d),radius=(selected===d.id?10:9)*sc;ctx.beginPath();ctx.arc(p.x,p.y,radius,0,Math.PI*2);ctx.fillStyle=annotationColor(d);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.2*sc;ctx.stroke();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${11*sc}px Dotum, sans-serif`;ctx.fillText(String(sm69NumberAt(i)),p.x,p.y+.3*sc);if(sm163MergeMode&&sm163Chosen.has(d.id)){ctx.beginPath();ctx.arc(p.x,p.y,radius+4,0,Math.PI*2);ctx.strokeStyle='#ffd54a';ctx.lineWidth=3;ctx.stroke()}});
+if(showDefectLabels)annotationRects=sm163Labels(ctx,defects,markers,{width:w,height:h},d=>12*sm155MarkerFactor(d),zoom)
 sm83DrawScreenLegend();
 if(preview&&preview.length>1){ctx.beginPath();preview.forEach((p,j)=>{let q=screen(p);j?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.strokeStyle='#e02936';ctx.lineWidth=2;ctx.stroke()}}
 // v83: Movable, per-page legend in original drawing coordinates.
@@ -583,7 +668,7 @@ function sm77ClassifyOrder(id){
  // Keep structural defects in front while preserving order inside each category.
  sm79AutoOrder();
 }
-function refresh(){sm155SyncMarkerUI();let el=$('list');el.innerHTML='';currentDefects().forEach((d,i)=>{
+function refresh(){sm155SyncMarkerUI();sm163UI();let el=$('list');el.innerHTML='';currentDefects().forEach((d,i)=>{
  const row=document.createElement('div');row.className='sm75-defect-row';row.dataset.defectId=d.id;
  const b=document.createElement('button');b.type='button';b.className='sm75-defect-main'+(d.id===selected?' active':'');
  b.innerHTML=`<span class="num">${sm69NumberAt(i)}</span><span class="sm75-defect-text">${escapeHtml(defectNames(d))} <small class="muted">${(d.photos||[]).length}장 ${d.line?'· 균열선':''}</small></span>`;
@@ -678,8 +763,8 @@ $('cameraBtn').onclick=openSelectedCamera;
 $('autoCamera').checked=localStorage.getItem('smetric_auto_camera')!=='off';
 $('autoCamera').onchange=e=>localStorage.setItem('smetric_auto_camera',e.target.checked?'on':'off');
 $('quickDefectType').onchange=()=>{const d=state.defects.find(x=>x.id===selected);if(d&&(!d.types||!d.types.length)){d.types=[$('quickDefectType').value];persist();refresh();draw()}};
-function deleteDefect(id){const d=state.defects.find(x=>x.id===id);if(!d)return;const n=pageNumber(d);if(!window.confirm(n+'번 결함을 삭제할까요? 삭제 후 번호가 자동으로 정렬됩니다.'))return;snapshot();state.defects=state.defects.filter(x=>x.id!==id);selected=null;persist();refresh();draw()}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function add(point,line){snapshot();let d={id:state.nextId++,pageId:state.activePage,point:clampPoint(point),line:line||null,types:line?['구조체 균열']:[],location:'',width:'',length:'',count:1,qtyManual:false,memo:'',photos:[]};state.defects.push(d);sm79AutoOrder();selected=d.id;persist();refresh();draw();if($('autoCamera').checked)openSelectedCamera()}function setMode(m){mode=m;for(let [id,key] of [['pinBtn','pin'],['crackBtn','crack'],['moveBtn','move']])$(id).classList.toggle('active',m===key)}$('pinBtn').onclick=()=>setMode('pin');$('crackBtn').onclick=()=>setMode('crack');$('moveBtn').onclick=()=>setMode('move');canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);let p=coords(e);pointers.set(e.pointerId,p);if(pointers.size===2){let a=[...pointers.values()];pinch={dist:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),zoom,center:{x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2},world:world({x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2})};preview=null;drag=null;return}if(!img)return;if(sm83HitLegend(p)){drag={kind:'sm83Legend',start:p,origin:sm83LegendPos(),moved:false};return}let found=hit(p);
+function deleteDefect(id){const d=state.defects.find(x=>x.id===id);if(!d)return;const n=pageNumber(d);if(!window.confirm(n+'번 결함을 삭제할까요? 삭제 후 번호가 자동으로 정렬됩니다.'))return;snapshot();state.defects=state.defects.filter(x=>x.id!==id);if(d.mergeGroupId){const remain=state.defects.filter(x=>x.mergeGroupId===d.mergeGroupId);if(remain.length===1)delete remain[0].mergeGroupId}selected=null;persist();refresh();draw()}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function add(point,line){snapshot();let d={id:state.nextId++,pageId:state.activePage,point:clampPoint(point),line:line||null,types:line?['구조체 균열']:[],location:'',width:'',length:'',count:1,qtyManual:false,memo:'',photos:[]};state.defects.push(d);sm79AutoOrder();selected=d.id;persist();refresh();draw();if($('autoCamera').checked)openSelectedCamera()}function setMode(m){mode=m;for(let [id,key] of [['pinBtn','pin'],['crackBtn','crack'],['moveBtn','move']])$(id).classList.toggle('active',m===key)}$('pinBtn').onclick=()=>setMode('pin');$('crackBtn').onclick=()=>setMode('crack');$('moveBtn').onclick=()=>setMode('move');canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);let p=coords(e);pointers.set(e.pointerId,p);if(pointers.size===2){let a=[...pointers.values()];pinch={dist:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),zoom,center:{x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2},world:world({x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2})};preview=null;drag=null;return}if(!img)return;if(sm163MergeMode){const found=hit(p);if(found)sm163Pick(found);drag=null;return}if(sm83HitLegend(p)){drag={kind:'sm83Legend',start:p,origin:sm83LegendPos(),moved:false};return}let found=hit(p);
 if(found){selected=found.id;refresh();draw();drag={kind:'sm69MarkHold',id:found.id,start:p,last:p,ready:false,timer:setTimeout(()=>{if(drag?.kind==='sm69MarkHold'&&drag.id===found.id){snapshot();drag.ready=true;try{navigator.vibrate?.(25)}catch(e){}}},550)};return}
 if(e.pointerType==='touch'&&!document.getElementById('smFingerDraw').checked){drag={kind:'move',last:p};return}
 let labelHit=hitAnnotation(p);if(labelHit){let d=state.defects.find(x=>x.id===labelHit.id);if(d){selected=d.id;refresh();drag={kind:'label',id:d.id,grabX:p.x-labelHit.x,grabY:p.y-labelHit.baseline,start:p,moved:false};draw();return}}if(mode==='crack'){preview=[clampPoint(world(p))];drag={kind:'crack'}}else if(mode==='move'){drag={kind:'move',last:p}}else drag={kind:'pin',start:p}});canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;let p=coords(e);pointers.set(e.pointerId,p);if(pointers.size===2&&pinch){let a=[...pointers.values()],dist=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),mid={x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2};zoom=Math.max(.05,Math.min(15,pinch.zoom*dist/pinch.dist));pan={x:mid.x-pinch.world.x*zoom,y:mid.y-pinch.world.y*zoom};draw();return}if(!drag)return;
@@ -687,7 +772,7 @@ if(drag.kind==='sm83Legend'){const origin=drag.origin;const page=sm83LegendPage(
 if(drag.kind==='sm69MarkHold'){if(!drag.ready){if(Math.hypot(p.x-drag.start.x,p.y-drag.start.y)>14){clearTimeout(drag.timer);drag={kind:'move',last:p}}}else{const d=state.defects.find(x=>x.id===drag.id);if(d){d.point=clampPoint(world(p));draw()}}return}
 if(drag.kind==='label'){let d=state.defects.find(x=>x.id===drag.id);if(d){if(!drag.moved&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)>3){snapshot();drag.moved=true}if(drag.moved){let mark=screen(d.point);d.labelOffset={x:(p.x-drag.grabX-mark.x)/zoom,y:(p.y-drag.grabY-mark.y)/zoom};draw()}}}else if(drag.kind==='crack'){let q=clampPoint(world(p));if(Math.hypot(q.x-preview[preview.length-1].x,q.y-preview[preview.length-1].y)>2/zoom)preview.push(q);draw()}else if(drag.kind==='move'){pan.x+=p.x-drag.last.x;pan.y+=p.y-drag.last.y;drag.last=p;draw()}});canvas.addEventListener('pointerup',e=>{let p=coords(e);pointers.delete(e.pointerId);if(pinch){if(pointers.size<2)pinch=null;drag=null;return}if(!img||!drag)return;if(drag.kind==='sm83Legend'){if(drag.moved)persist();drag=null;draw();return}if(drag.kind==='sm69MarkHold'){clearTimeout(drag.timer);if(drag.ready){persist();refresh()}drag=null;draw();return}if(drag.kind==='label'&&drag.moved){persist()}if(drag.kind==='pin'&&Math.hypot(p.x-drag.start.x,p.y-drag.start.y)<14){add(world(p),null)}if(drag.kind==='crack'&&preview&&preview.length>1){let pts=preview;add(pts[pts.length-1],pts)}preview=null;drag=null;draw()});canvas.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);if(drag?.kind==='sm69MarkHold')clearTimeout(drag.timer);drag=null;preview=null;pinch=null;draw()});function zoomAt(f){let c={x:board.clientWidth/2,y:board.clientHeight/2},w=world(c);zoom=Math.max(.05,Math.min(15,zoom*f));pan={x:c.x-w.x*zoom,y:c.y-w.y*zoom};draw()}$('zoomIn').onclick=()=>zoomAt(1.25);$('zoomOut').onclick=()=>zoomAt(.8);$('fit').onclick=fit;$('undo').onclick=()=>{if(!undoStack.length)return;state=undoStack.pop();updateUndo();selected=null;normalizeState();$('projectName').value=state.project||'';$('drawingName').value=state.drawingName||'';refreshPages();loadImage(state.pages[state.activePage]?.image||null);persist();refresh()};
 function fileToData(file){return new Promise((res,rej)=>{let r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}function compressed(src,max){return new Promise(resolve=>{let im=new Image();im.onload=()=>{let sc=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.82))};im.onerror=()=>resolve(src);im.src=src})}async function openPdf(data){try{if(!window.pdfjsLib){let script=document.createElement('script');script.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';await new Promise((res,rej)=>{script.onload=res;script.onerror=rej;document.head.appendChild(script)})}pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';let raw=atob(data.split(',')[1]),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);let pdf=await pdfjsLib.getDocument({data:bytes}).promise;let pages=[];for(let n=1;n<=pdf.numPages;n++){$('status').textContent=`PDF 변환 중 ${n}/${pdf.numPages}`;await new Promise(r=>setTimeout(r,0));let page=await pdf.getPage(n),v=page.getViewport({scale:1.6}),c=document.createElement('canvas');let factor=Math.min(1,2200/Math.max(v.width,v.height));v=page.getViewport({scale:1.6*factor});c.width=Math.round(v.width);c.height=Math.round(v.height);await page.render({canvasContext:c.getContext('2d'),viewport:v}).promise;pages.push({name:`${n}페이지`,image:c.toDataURL('image/jpeg',.78)})}return pages}catch(e){alert('PDF를 열 수 없습니다. 인터넷 연결을 확인하거나 PDF를 이미지로 변환해 주세요.\n'+e.message);return null}}$('drawingFile').onchange=async e=>{const files=Array.from(e.target.files||[]);if(!files.length)return;const startCount=state.pages.length;let added=[];try{for(let k=0;k<files.length;k++){const f=files[k];$('status').textContent=`파일 추가 중 ${k+1}/${files.length}: ${f.name}`;const data=await fileToData(f);let pages;if(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf'))pages=await openPdf(data);else pages=[{name:f.name,image:await compressed(data,2500)}];if(!pages)continue;pages.forEach((p,i)=>added.push({...p,name:pages.length>1?`${f.name} · ${i+1}페이지`:p.name,sourceFile:f.name}));}if(!added.length){$('status').textContent='추가된 도면 없음';return;}snapshot();state.pages.push(...added);state.activePage=startCount;selected=null;refreshPages();loadImage(state.pages[state.activePage].image);refresh();persist();$('status').textContent=`${added.length}개 도면 추가됨 · 전체 ${state.pages.length}개`; }catch(err){alert('도면 추가 중 오류: '+err.message);$('status').textContent='도면 추가 오류';}finally{e.target.value='';}};$('projectName').oninput=e=>{state.project=e.target.value;let p=siteList.find(p=>p.id===siteId);if(p)p.name=state.project||'이름 없는 현장';refreshSiteList();persist()};$('drawingName').oninput=e=>{state.drawingName=e.target.value;persist()};function download(blob,name){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}function basename(){return (state.project||'현장점검').replace(/[\\/:*?"<>|]/g,'_')}function sarchExportStamp147(){const d=new Date(),p=n=>String(n).padStart(2,'0');return ''+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())}
-function sarchSurveyFile(){return new File([JSON.stringify({...state,version:1,exportedAt:new Date().toISOString()})],basename()+'_점검자료_'+sarchExportStamp147()+'.json',{type:'application/json'});}window.SARCHProjectBridge=sarchSurveyFile;$('export').onclick=()=>{const f=sarchSurveyFile();download(f,f.name);window.SARCHBackupMark?.()};$('import').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let o=JSON.parse(await f.text());if(!Array.isArray(o.defects)||typeof o.nextId!=='number')throw Error();if(!confirm('불러온 자료를 새 현장으로 추가할까요? 기존 현장 자료는 유지됩니다.'))return;await flushSave();siteId=uid();clearUndo();state={project:o.project||'',drawingName:o.drawingName||'',image:o.image||null,pages:o.pages||[],activePage:o.activePage||0,defects:o.defects,nextId:o.nextId,albumPhotos:o.albumPhotos||{outside:[],inside:[]}};normalizeState();refreshPages();selected=null;$('projectName').value=state.project;$('drawingName').value=state.drawingName;normalizeState();refreshPages();loadImage(state.pages[state.activePage]?.image||null);await saveNow();await syncSiteList();refresh();renderFrontPhotoWorkspace();e.target.value=''}catch(err){alert('프로젝트 파일 형식이 올바르지 않습니다.')}};$('png').onclick=()=>{if(!img)return alert('도면을 먼저 열어주세요');let c=document.createElement('canvas');c.width=img.width;c.height=img.height;let g=c.getContext('2d');g.drawImage(img,0,0);currentDefects().forEach((d,i)=>{if(d.line){g.beginPath();d.line.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.strokeStyle='#e02936';g.lineWidth=Math.max(2,img.width/900);g.stroke()}let sc=sm155MarkerFactor(d),r=Math.max(11,img.width/115)*sc,p=d.point;g.beginPath();g.arc(p.x,p.y,r,0,Math.PI*2);g.fillStyle=annotationColor(d);g.fill();g.strokeStyle='white';g.lineWidth=Math.max(1.8,r*.14);g.stroke();g.fillStyle='white';g.textAlign='center';g.textBaseline='middle';g.font=`bold ${Math.max(13,r*1.18)}px Dotum, sans-serif`;g.fillText(String(sm69NumberAt(i)),p.x,p.y);/* 라벨은 번호를 모두 그린 뒤 별도 배치 */});if(showDefectLabels){const taken=[],markers=currentDefects().map(d=>d.point);currentDefects().forEach(d=>drawLabel(g,d.point,d,{width:c.width,height:c.height},Math.max(20,img.width/75)*sm155MarkerFactor(d),1,taken,markers))}sm83LegendDraw(g,c.width,c.height);SM47Export.downloadCanvas(c,b=>download(b,basename()+'_'+(state.pages[state.activePage]?.name||'도면')+'_외관조사망도.png'))};$('csv').onclick=async()=>{
+function sarchSurveyFile(){return new File([JSON.stringify({...state,version:1,exportedAt:new Date().toISOString()})],basename()+'_점검자료_'+sarchExportStamp147()+'.json',{type:'application/json'});}window.SARCHProjectBridge=sarchSurveyFile;$('export').onclick=()=>{const f=sarchSurveyFile();download(f,f.name);window.SARCHBackupMark?.()};$('import').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let o=JSON.parse(await f.text());if(!Array.isArray(o.defects)||typeof o.nextId!=='number')throw Error();if(!confirm('불러온 자료를 새 현장으로 추가할까요? 기존 현장 자료는 유지됩니다.'))return;await flushSave();siteId=uid();clearUndo();state={project:o.project||'',drawingName:o.drawingName||'',image:o.image||null,pages:o.pages||[],activePage:o.activePage||0,defects:o.defects,nextId:o.nextId,albumPhotos:o.albumPhotos||{outside:[],inside:[]}};normalizeState();refreshPages();selected=null;$('projectName').value=state.project;$('drawingName').value=state.drawingName;normalizeState();refreshPages();loadImage(state.pages[state.activePage]?.image||null);await saveNow();await syncSiteList();refresh();renderFrontPhotoWorkspace();e.target.value=''}catch(err){alert('프로젝트 파일 형식이 올바르지 않습니다.')}};$('png').onclick=()=>{if(!img)return alert('도면을 먼저 열어주세요');let c=document.createElement('canvas');c.width=img.width;c.height=img.height;let g=c.getContext('2d');g.drawImage(img,0,0);currentDefects().forEach((d,i)=>{if(d.line){g.beginPath();d.line.forEach((p,j)=>j?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.strokeStyle='#e02936';g.lineWidth=Math.max(2,img.width/900);g.stroke()}let sc=sm155MarkerFactor(d),r=Math.max(11,img.width/115)*sc,p=d.point;g.beginPath();g.arc(p.x,p.y,r,0,Math.PI*2);g.fillStyle=annotationColor(d);g.fill();g.strokeStyle='white';g.lineWidth=Math.max(1.8,r*.14);g.stroke();g.fillStyle='white';g.textAlign='center';g.textBaseline='middle';g.font=`bold ${Math.max(13,r*1.18)}px Dotum, sans-serif`;g.fillText(String(sm69NumberAt(i)),p.x,p.y);/* 라벨은 번호를 모두 그린 뒤 별도 배치 */});if(showDefectLabels){const ds=currentDefects(),ms=ds.map(d=>d.point);sm163Labels(g,ds,ms,{width:c.width,height:c.height},d=>Math.max(20,img.width/75)*sm155MarkerFactor(d),1)}sm83LegendDraw(g,c.width,c.height);SM47Export.downloadCanvas(c,b=>download(b,basename()+'_'+(state.pages[state.activePage]?.name||'도면')+'_외관조사망도.png'))};$('csv').onclick=async()=>{
  if(!window.SARCHDefectStatusV157)return alert('결함 현황표 출력 모듈을 불러오지 못했습니다. 앱을 업데이트해 주세요.');
  const btn=$('csv');btn.disabled=true;
  try{
@@ -865,9 +950,9 @@ function renderFrontPhotoWorkspace(){
   $(countId).textContent=`${registered} / ${labels.length}장`;
  }
  const uploaded=ALBUM_OUT.filter((_,i)=>!!albumSlot('outside',i).image).length+ALBUM_IN.filter((_,i)=>!!albumSlot('inside',i).image).length;
- $('frontPhotoJump').textContent=`📷 전경사진 등록 (${uploaded}/10)`;
+ // 등록 사진 개수는 위쪽 전경사진 영역의 개별 카운터에 표시합니다.
 }
-$('frontPhotoJump').onclick=()=>{$('frontPhotoWorkspace').scrollIntoView({behavior:'smooth',block:'start'})};
+
 
 function albumEditor(kind){const root=$(kind==='outside'?'albumOutside':'albumInside');const labels=kind==='outside'?ALBUM_OUT:ALBUM_IN;root.innerHTML='';labels.forEach((label,i)=>{const slot=albumSlot(kind,i);let div=document.createElement('div');div.style.cssText='display:grid;grid-template-columns:1fr 1.5fr auto;gap:8px;align-items:center;margin:7px 0';let input=document.createElement('input');input.value=slot.label||label;input.setAttribute('aria-label','사진 이름');input.onchange=()=>{while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});state.albumPhotos[kind][i]={...state.albumPhotos[kind][i],label:input.value};persist();renderFrontPhotoWorkspace()};let file=document.createElement('input');file.type='file';file.accept='image/*';file.setAttribute('aria-label',label+' 사진 선택');file.onchange=async()=>{if(!file.files[0])return;let data=await compressed(await fileToData(file.files[0]),1600);while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});state.albumPhotos[kind][i]={label:input.value,image:data};persist();albumEditor(kind);renderFrontPhotoWorkspace()};let del=document.createElement('button');del.textContent=slot.image?'사진 삭제':'미등록';del.disabled=!slot.image;del.onclick=()=>{state.albumPhotos[kind][i]={label:input.value,image:''};persist();albumEditor(kind);renderFrontPhotoWorkspace()};div.append(input,file,del);if(slot.image){let preview=document.createElement('img');preview.src=slot.image;preview.style.cssText='width:95px;height:60px;object-fit:cover';div.append(preview)}root.append(div)})}
 
