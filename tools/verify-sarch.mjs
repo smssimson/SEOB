@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===155,'version.json should report v155');
+ok(version.version===157,'version.json should report v157');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v155"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v157"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=155'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -69,16 +69,25 @@ ok(home.includes('sarch-splash-v141.js'),'splash screen preserved');
 const shared=read('sarch-workspace-v142.js');
 scriptSyntax(shared,'sarch-workspace-v142.js');
 ok(shared.includes('navigator.canShare')&&shared.includes('navigator.share'),'native file sharing capability');
-ok(shared.includes('downloadFile(original)'),'file download fallback');
-ok(shared.includes('+".sarch.txt"')&&shared.includes('type:"text/plain"'),'native Android share uses allowed .txt extension and text/plain MIME');
-ok(!shared.includes('canFile(original)')&&!shared.includes('retryFile=original'),'never share disallowed .json via navigator.share');
+ok(shared.includes('downloadFile(transfer)'),'share failure downloads a real PDF file');
+const carrier=read('sarch-transfer-v156.js');
+scriptSyntax(carrier,'sarch-transfer-v156.js');
+ok(carrier.includes('application/pdf')&&carrier.includes('EmbeddedFile'),'PDF carrier embeds JSON project');
+ok(shared.includes('SARCHTransferV156.pdfFromJson'),'native sharing uses real PDF attachment');
+ok(!shared.includes('retryFile=original'),'never share original JSON directly');
 ok(shared.includes('navigator.share({files:[transfer]})')&&!shared.includes('title:"S:ARCH 현장 프로젝트"'),'share only the file, not an ambiguous text title');
 ok(shared.includes('CHROME_ANDROID_MAX_SHARE_BYTES'),'50MB Android share limit handled');
-ok(shared.includes('allowReceivedProjectFiles')&&shared.includes('.txt,application/json'),'received file picker supports JSON and text wrappers');
+ok(shared.includes('allowReceivedProjectFiles')&&shared.includes('.pdf,application/json'),'received file picker handles PDF carrier');
 ok(shared.includes('navigator.userActivation'),'resilient large-project share preparation');
 ok(shared.includes('openReceivedProject')&&shared.includes('sarch_received'),'share inbox auto routing to native project import');
 ok(shared.includes('previous.retried'),'native share re-try preserves prepared file');
 ok(!shared.includes('fetch(')&&!shared.includes('XMLHttpRequest'),'sharing does not upload company data automatically');
+const report=read('sarch-defect-status-v157.js');
+scriptSyntax(report,'sarch-defect-status-v157.js');
+ok(report.includes('SARCHDefectStatusV157')&&report.includes('workbook.xml'),'per-building XLSX report generator');
+const surveyReport=read('survey/index.html');
+ok(surveyReport.includes('id="causeEstimate"')&&surveyReport.includes('결함 현황표 엑셀'),'cause editor and Excel output');
+ok(surveyReport.includes('id="sm156MarkerSizeWrap"')&&surveyReport.includes('hidden=!showDefectLabels'),'marker size slider visible only with labels ON');
 const style=read('sarch-workspace-v142.css');
 ok(style.includes('body.sarch-v142'),'styles are scoped to modern workspace');
 ok((style.match(/{/g)||[]).length===(style.match(/}/g)||[]).length,'CSS braces balance');
@@ -98,10 +107,12 @@ const received=read('receive.html');
 checkInline(received,'receive.html');
 ok(received.includes('새 현장으로 추가')&&received.includes('sarch_received'),'received file routed for confirmation');
 ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual received file picker available');
+ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v155'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v157'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
+ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
 ok(rootSW.includes('"./receive.html"'),'received file confirmation precached offline');
 scriptSyntax(rootSW,'seob-sw.js');
@@ -147,4 +158,4 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v155 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v157 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
