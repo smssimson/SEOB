@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===143,'version.json should report v143');
+ok(version.version===144,'version.json should report v144');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v143"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v144"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=143'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -73,7 +73,24 @@ const style=read('sarch-workspace-v142.css');
 ok(style.includes('body.sarch-v142'),'styles are scoped to modern workspace');
 ok((style.match(/{/g)||[]).length===(style.match(/}/g)||[]).length,'CSS braces balance');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v143'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v144'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 scriptSyntax(rootSW,'seob-sw.js');
-console.log('S:ARCH v143 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+
+// v144 drawing: four categorized tools, original command nodes and safe file export retained.
+const drawHTML=read('drawing/index.html');
+onlyOnce(drawHTML,'href="../sarch-drawing-tools-v144.css?v=144"','drawing v144 stylesheet');
+onlyOnce(drawHTML,'src="../sarch-drawing-tools-v144.js?v=144"','drawing v144 controller');
+const drawingUI=read('sarch-drawing-tools-v144.js');
+scriptSyntax(drawingUI,'sarch-drawing-tools-v144.js');
+ok(['draw','member','edit','export'].every(id=>drawingUI.includes('key:"'+id+'"')),'four drawing tool categories preserved');
+ok(!drawingUI.includes('cloneNode('),'v144 controls must keep existing event handlers');
+ok(drawingUI.includes('sarch-draw-legacy-v144'),'advanced/legacy tool access maintained');
+const drawingUIStyle=read('sarch-drawing-tools-v144.css');
+ok(drawingUIStyle.includes('sarch-drawing-v144'),'v144 styles limited to drawing workspace');
+ok((drawingUIStyle.match(/{/g)||[]).length===(drawingUIStyle.match(/}/g)||[]).length,'v144 CSS braces balanced');
+const drawSW=read('drawing/sw.js');
+ok(drawSW.includes('sarch-drawing-tools-v144.css?v=144')&&drawSW.includes('sarch-drawing-tools-v144.js?v=144'),'new drawing tools cached offline');
+ok(rootSW.includes('sarch-drawing-tools-v144.js'),'new drawing JS cached by root PWA');
+
+console.log('S:ARCH v144 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
