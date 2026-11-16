@@ -40,12 +40,26 @@ async function check(mod,width,height){
   report(id,"camera aligned with tool tabs",cameraAligned);
   if(width===800){
     const header=await page.evaluate(()=>{
-     const h=document.querySelector("header.smetric-app-header");
-     const r=h?.getBoundingClientRect();
-     const p=document.querySelector(".sarch-protect-toggle")?.getBoundingClientRect();
-     return {h:Math.round(r?.height||0),width:Math.round(r?.width||0),protectTop:Math.round(p?.top||0),headerTop:Math.round(r?.top||0)};
+      const root=document.querySelector("header.smetric-app-header");
+      const group=root?.querySelector(".smetric-head-controls");
+      const box=root?.getBoundingClientRect();
+      const candidates=[
+        root?.querySelector(".smetric-brand"),root?.querySelector("#smSaveIndicator"),
+        ...(group?[...group.children]:[])
+      ].filter(Boolean);
+      const rects=candidates.map(el=>({name:el.className||el.id||el.tagName,r:el.getBoundingClientRect()}))
+        .filter(x=>x.r.width>1&&x.r.height>1);
+      const bound=rects.every(x=>x.r.left>=-1&&x.r.right<=innerWidth+1);
+      const overlapping=[];
+      for(let a=0;a<rects.length;a++)for(let b=a+1;b<rects.length;b++){
+        const x=rects[a].r,y=rects[b].r;
+        if(Math.min(x.right,y.right)-Math.max(x.left,y.left)>3&&
+           Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top)>3)
+          overlapping.push(String(rects[a].name)+" / "+String(rects[b].name));
+      }
+      return {height:Math.round(box.height),bounds:bound,overlapping,parts:rects.map(x=>({name:String(x.name),left:Math.round(x.r.left),right:Math.round(x.r.right),top:Math.round(x.r.top)}))};
     });
-    report(id,"tablet header compact",header.h>0&&header.h<=74&&header.width<=800,JSON.stringify(header));
+    report(id,"tablet header no overlap",header.height>0&&header.height<=115&&header.bounds&&header.overlapping.length===0,JSON.stringify(header));
   }
 
   await page.screenshot({path:folder+"/"+id+"-initial.png",animations:"disabled"});
