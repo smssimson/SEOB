@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===159,'version.json should report v159');
+ok(version.version===160,'version.json should report v160');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v159"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v160"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=157'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -99,16 +99,21 @@ ok(surveyV155.includes('id="sm155MarkerSize"')&&surveyV155.includes('id="sm155Si
 ok(surveyV155.includes('12*sm155MarkerFactor(d)')&&surveyV155.includes('Math.max(11,img.width/115)*sc'),'survey screen and PNG labels use selected marker scale');
 ok(surveyV155.includes('state.defects.forEach(d=>{d.defectMarkerSize=pct})'),'global slider updates all site defects');
 ok(surveyV155.includes('target.defectMarkerSize=pct'),'selected slider modifies one defect');
-ok(surveyV155.includes('d.countExplicit===true')&&surveyV155.includes('count>=1&&explicit'),'explicit 1EA, 2EA markers preserved without implicit defaults');
-ok(surveyV155.includes('d.countExplicit=e.target.value.trim()')&&surveyV155.includes('persist();updateQtyUI();draw()'),'EA selection updates marker label immediately');
-ok(surveyV155.includes('id="manualSpec"')&&surveyV155.includes("d.manualSpec=e.target.value"),'single bottom manual dimension field persists the typed specification');
+ok(surveyV155.includes('return size?(n>1?')&&surveyV155.includes('):`${n}EA`'),'default 1EA appears only when no dimensions are present');
+ok(surveyV155.includes('id="eaPreset" aria-label="개수 고정" disabled'),'EA is fixed readonly 1EA for new records');
+ok(!surveyV155.includes('id="manualSpec"'),'separate bottom manual-spec field removed');
+ok(['widthCustom','lengthCustom'].every(id=>surveyV155.includes('id="'+id+'"')),'width and length have in-place number input fields');
+ok(surveyV155.includes('<option value="__custom__">직접 입력</option>'),'dropdowns end with direct-entry option');
+ok(surveyV155.includes("input.focus();input.select();")&&surveyV155.includes("send(value)"),'direct-entry fields are focused and save original fields');
 ok(surveyV155.includes("const direct=String(d.manualSpec??'').trim()")&&surveyV155.includes('if(direct)return direct.replace('),'manual dimension overrides generated drawing/photo/repair labels');
 ok(surveyV155.includes("normalized.match(")&&surveyV155.includes("if(!m)return null"),'free-form manual dimension does not borrow stale measurements for area calculation');
-ok(report.includes('var direct=txt(d.manualSpec)')&&report.includes('d.countExplicit===true'),'XLSX output preserves manual size and explicit EA-only counts');
+ok(report.includes('var direct=txt(d.manualSpec)')&&report.includes('n+"EA"'),'XLSX report displays 1EA only when dimensions are absent');
 const defectSpecFn=new Function(surveyV155.match(/function defectSpecText\(d\)\{[\s\S]*?\n\}/)?.[0]+';return defectSpecText')();
 ok(defectSpecFn({types:['철근노출'],manualSpec:'120x350'})==='120X350','manual specification accepts lowercase x and normalizes dimension separator');
 ok(defectSpecFn({manualSpec:'1ea'})==='1EA','manual EA-only display is preserved');
-ok(defectSpecFn({width:'',length:'',count:1,countExplicit:true})==='1EA','explicit 1EA from preset is preserved');
+ok(defectSpecFn({width:'',length:'',count:1})==='1EA','default 1EA appears for defect without dimensions');
+ok(defectSpecFn({width:'300',length:'250',count:1})==='300X250','default 1EA is hidden when dimensions exist');
+ok(defectSpecFn({width:'300',length:'250',count:2})==='300X250X2EA','old multiple-EA records are preserved');
 const measuredSource=surveyV155.split('function measuredQty(d){')[1]?.split('\n')[0];
 const measuredFn=new Function('isCrackDefect','function measuredQty(d){'+measuredSource+';return measuredQty')(()=>false);
 ok(Math.abs(measuredFn({manualSpec:'300X300X2EA'})-0.18)<0.000001,'manual dimensions calculate quantity when unambiguous');
@@ -127,7 +132,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v159'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v160'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
