@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===158,'version.json should report v158');
+ok(version.version===159,'version.json should report v159');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v158"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v159"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=157'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -101,7 +101,13 @@ ok(surveyV155.includes('state.defects.forEach(d=>{d.defectMarkerSize=pct})'),'gl
 ok(surveyV155.includes('target.defectMarkerSize=pct'),'selected slider modifies one defect');
 ok(surveyV155.includes('d.countExplicit===true')&&surveyV155.includes('count>=1&&explicit'),'explicit 1EA, 2EA markers preserved without implicit defaults');
 ok(surveyV155.includes('d.countExplicit=e.target.value.trim()')&&surveyV155.includes('persist();updateQtyUI();draw()'),'EA selection updates marker label immediately');
+ok(surveyV155.includes('id="manualSpec"')&&surveyV155.includes("d.manualSpec=e.target.value"),'single bottom manual dimension field persists the typed specification');
+ok(surveyV155.includes("const direct=String(d.manualSpec??'').trim()")&&surveyV155.includes('if(direct)return direct.replace('),'manual dimension overrides generated drawing/photo/repair labels');
+ok(surveyV155.includes("normalized.match(")&&surveyV155.includes("if(!m)return null"),'free-form manual dimension does not borrow stale measurements for area calculation');
+ok(report.includes('var direct=txt(d.manualSpec)')&&report.includes('d.countExplicit===true'),'XLSX output preserves manual size and explicit EA-only counts');
+ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=159')&&rootSWCacheCheck(),'manual-size report asset cache invalidation');
 ok(read('survey/sw.js').includes("sarch-share-inbox-v1")&&read('survey/sw.js').includes("req.formData()"),'independently installed survey app stages received files safely');
+function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=159')}
 const rootManifest=JSON.parse(read('manifest.webmanifest'));
 ok(rootManifest.share_target?.action==='/SEOB/share-target','installed app accepts Android file shares');
 ok(rootManifest.share_target?.params?.files?.[0]?.accept?.includes('.json'),'JSON extension registered for share target');
@@ -112,7 +118,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v158'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v159'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
