@@ -31,13 +31,19 @@ function downloadFile(file){
  a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
-/* v150: Android Quick Share sends a real file; JSON export stays unchanged.
-   Android browsers commonly allow text/plain .txt but may reject application/json shares.
-   This .sarch.txt contains the unmodified JSON payload and can be imported as a new site. */
+/* v151: Both downloads and native Quick Share have a .json filename.
+   Use text/plain only as the transport MIME when needed by Android; the data
+   itself remains byte-identical JSON. Earlier .sarch.txt imports remain supported. */
 let preparedShare=null;
 function transferableFile(original){
- const base=original.name.replace(/\.json$/i,"");
- return new File([original],base+".sarch.txt",{type:"text/plain",lastModified:original.lastModified});
+ return new File([original],original.name,{type:"text/plain",lastModified:original.lastModified});
+}
+function sharingFile(original){
+ const transport=transferableFile(original);
+ const canFile=file=>{try{return navigator.canShare({files:[file]})===true}catch(e){return false}};
+ if(canFile(transport))return transport;
+ if(canFile(original))return original;
+ return null;
 }
 function shareErrorText(err){
  const code=String(err&&err.name||"UnknownError");
@@ -64,10 +70,10 @@ async function shareProject(btn){
    if(!original)return;
    if(!(original instanceof File)||!original.size)throw Error("프로젝트 파일을 생성하지 못했습니다.");
   }
-  const transfer=preparedShare&&preparedShare.transfer||transferableFile(original);
-  const nativeReady=typeof navigator.share==="function" &&
-   typeof navigator.canShare==="function" &&
-   (()=>{try{return navigator.canShare({files:[transfer]})===true}catch(e){return false}})();
+  const transfer=preparedShare&&preparedShare.transfer||(
+   typeof navigator.share==="function"&&typeof navigator.canShare==="function" ? sharingFile(original) : null
+  );
+  const nativeReady=!!transfer;
   if(!nativeReady){
    preparedShare=null;downloadFile(original);saveTime();noteUpdate();
    show("이 기기는 파일 공유를 지원하지 않아 JSON 다운로드를 요청했습니다. 저장된 파일을 Quick Share로 전송해 주세요.");
@@ -105,7 +111,7 @@ function installShare(){
  const btn=document.createElement("button");
  btn.type="button";btn.id="sarchShare142";btn.className="sarch-share-button";
  btn.textContent="↗ 프로젝트 공유";
- btn.title="Quick Share 등 기기 공유 메뉴로 현장 JSON을 전송합니다. 공유용 .sarch.txt는 JSON과 같은 데이터이며 받은 기기에서 프로젝트 불러오기로 추가할 수 있습니다.";
+ btn.title="Quick Share 등 기기 공유 메뉴로 .json 프로젝트 파일을 전송합니다. 받은 기기에서는 프로젝트 불러오기로 새 현장으로 추가합니다.";
  btn.addEventListener("click",()=>shareProject(btn));
  original.insertAdjacentElement("afterend",btn);
  const section=original.closest("section,aside,.smetric-output")||original.parentElement?.parentElement;
@@ -121,7 +127,7 @@ function installShare(){
 
 function allowReceivedProjectFiles(){
  // Keep the original import handlers and their validation; just expose received
- // Quick Share .sarch.txt files alongside normal JSON backups in the file picker.
+ // older Quick Share .sarch.txt files alongside current .json backups in the file picker.
  const selector=moduleKey==="drawing"?"#file":moduleKey==="tilt"?"#restore":"#import";
  const input=pick(selector);
  if(input&&input.type==="file")input.accept=".json,.txt,application/json,text/plain";
