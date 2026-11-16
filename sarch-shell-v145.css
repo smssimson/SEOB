@@ -84,7 +84,7 @@ body.sarch-shell-v145 .sm-survey-tools .sm-tool-columns{
  body.sarch-shell-v145 header.smetric-app-header{
   display:grid!important;
   grid-template-columns:minmax(0,1fr) auto!important;
-  grid-template-areas:"brand status" "actions actions"!important;
+  grid-template-areas:"brand status" "actions protect"!important;
   align-items:center!important;justify-content:stretch!important;
   gap:5px 10px!important;padding:7px 10px!important;
   min-height:0!important;height:auto!important;
@@ -110,4 +110,12 @@ body.sarch-shell-v145 .sm-survey-tools .sm-tool-columns{
  body.sarch-shell-v145 header.smetric-app-header .smetric-head-controls select{
   width:98px!important;max-width:98px!important;
  }
+ body.sarch-shell-v145 header.smetric-app-header>.sarch-protect{
+  grid-area:protect!important;align-self:center!important;justify-self:end!important;
+  margin:0!important;min-width:0!important;
+ }
+ body.sarch-shell-v145 header.smetric-app-header>.sarch-protect .sarch-protect-toggle{
+  min-height:32px!important;padding:6px 8px!important;font-size:11px!important;
+ }
+
 }
