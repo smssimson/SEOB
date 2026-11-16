@@ -83,7 +83,7 @@ async function check(mod,width,height){
   report(id,"dated unique backup filename",/_\d{8}_\d{6}\.json$/.test(datedName),datedName);
 
   if(mod==="drawing"){
-    await page.waitForSelector("body.sarch-drawing-v144",{timeout:10000});
+    await page.waitForSelector("body.sarch-drawing-v148",{timeout:10000});
     const nav=page.locator("#sarchDrawTabs144 [role=tab]");
     const labels=await nav.allTextContents();
     const initCount=await nav.count();
@@ -97,14 +97,28 @@ async function check(mod,width,height){
     const structural=await page.locator("#modeColumn").isVisible();
     await page.locator("#sarchDrawTab144-edit").click();
     const eraser=await page.locator("#modeErase").isVisible();
-    await page.locator("#sarchDrawTab144-export").click();
-    const output=await page.locator(".sm-drawing-output").isVisible()&&await page.locator("#sarchShare142").isVisible();
-    const compact=await page.locator(".sarch-draw-export-grid-v144>button").count()===7;
+    await page.locator("#modeSelect").click();
+    const initialHidden=!(await page.locator("#sarchEraseOptions148").isVisible());
+    await page.locator("#modeErase").click();
+    const eraserOptionsVisible=await page.locator("#sarchEraseOptions148").isVisible()&&
+      await page.locator("#eraseSize").isVisible()&&await page.locator("#eraseMode").isVisible();
+    const buttonGrouped=await page.locator("#modeErase").evaluate(el=>el.parentElement?.classList.contains("sarch-eraser-unit-v148"));
+    await page.locator("#modeSelect").click();
+    const hiddenAfter=!(await page.locator("#sarchEraseOptions148").isVisible());
+    const output=await page.locator("#side > .sm-drawing-output").isVisible()&&await page.locator("#sarchShare142").isVisible();
+    const compact=await page.locator("#side .sarch-draw-export-grid-v144>button").count()===7;
     const cameraDocked=await page.locator("#sarchDrawTabs144 #sm52FixedCamera").count()===1;
     const helpCollapsed=await page.locator(".sarch-draw-output-help-v144").evaluate(el=>el.open===false);
+    const noExtras=await page.locator("#sarchFloor135 .sarch-floor-more-v135").count()===0;
+    const noLegacy=await page.locator("#sarchDrawSurface144 .sarch-draw-legacy-v144,#sarchDrawSurface144 .sarch-draw-more-v144").count()===0;
     await page.locator("#sarchDrawTab144-draw").click();
     const drawing=await page.locator("#modeFree").isVisible();
-    report(id,"drawing four tool categories",initCount===4&&labels.join("").includes("출력")&&structural&&eraser&&output&&compact&&cameraDocked&&helpCollapsed&&drawing&&Object.values(counts).every(n=>n===1),JSON.stringify({labels,counts,structural,eraser,output,compact,cameraDocked,helpCollapsed,drawing}));
+    report(id,"drawing concise edit and right-side output",
+      initCount===3&&labels.join("").includes("편집")&&structural&&eraser&&initialHidden&&
+      eraserOptionsVisible&&buttonGrouped&&hiddenAfter&&output&&compact&&cameraDocked&&
+      helpCollapsed&&noExtras&&noLegacy&&drawing&&Object.values(counts).every(n=>n===1),
+      JSON.stringify({labels,counts,structural,eraser,initialHidden,eraserOptionsVisible,buttonGrouped,
+      hiddenAfter,output,compact,cameraDocked,helpCollapsed,noExtras,noLegacy,drawing}));
   }
   if(mod==="survey"){
     await page.locator("#smUtilityTab").click();
@@ -146,7 +160,7 @@ async function check(mod,width,height){
   report(id,"dock compact",dock.height>10&&dock.height<170&&dock.icons.length===5&&dock.icons.every(h=>h<35),JSON.stringify(dock));
   await page.locator("#sarchQuickDock .sarch-dock-toggle").click();
   if(width>1100){
-   if(mod==="drawing")await page.locator("#sarchDrawTab144-export").click();
+
    await page.locator("#sarchShare142").click({timeout:10000});
    await page.waitForTimeout(600);
    const shared=await page.evaluate(()=>window.__sharedFile);
