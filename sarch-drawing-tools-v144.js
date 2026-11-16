@@ -79,8 +79,12 @@ function init(){
   }
  }
  const eraser=document.getElementById("modeErase");
- if(eraser)eraser.insertAdjacentElement("afterend",eraseOptions);
- else panes.edit.appendChild(eraseOptions);
+ if(eraser){
+  const group=document.createElement("span");
+  group.className="sarch-eraser-unit-v148";
+  eraser.parentNode.insertBefore(group,eraser);
+  group.append(eraser,eraseOptions);
+ }else panes.edit.appendChild(eraseOptions);
  const syncEraser=()=>{eraseOptions.hidden=!eraser?.classList.contains("active")};
  if(eraser){
   new MutationObserver(syncEraser).observe(eraser,{attributes:true,attributeFilter:["class"]});
