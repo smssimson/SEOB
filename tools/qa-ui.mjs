@@ -76,6 +76,12 @@ async function check(mod,width,height){
   });
   report(id,"core workspace",!!dom.site&&!!dom.floor&&!!dom.tools,JSON.stringify({site:dom.site?.h,floor:dom.floor?.h,tools:dom.tools?.h}));
   report(id,"project export/share",dom.share&&dom.bridge&&dom.tabs>=2,JSON.stringify({share:dom.share,bridge:dom.bridge,tabs:dom.tabs}));
+  const datedName=await page.evaluate(()=>{
+    const f=window.SARCHProjectBridge?.();
+    return f?.name||"";
+  });
+  report(id,"dated unique backup filename",/_\d{8}_\d{6}\.json$/.test(datedName),datedName);
+
   if(mod==="drawing"){
     await page.waitForSelector("body.sarch-drawing-v144",{timeout:10000});
     const nav=page.locator("#sarchDrawTabs144 [role=tab]");
