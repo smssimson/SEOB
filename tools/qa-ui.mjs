@@ -41,6 +41,27 @@ async function check(mod,width,height){
   });
   report(id,"core workspace",!!dom.site&&!!dom.floor&&!!dom.tools,JSON.stringify({site:dom.site?.h,floor:dom.floor?.h,tools:dom.tools?.h}));
   report(id,"project export/share",dom.share&&dom.bridge&&dom.tabs>=2,JSON.stringify({share:dom.share,bridge:dom.bridge,tabs:dom.tabs}));
+  if(mod==="drawing"){
+    await page.waitForSelector("body.sarch-drawing-v144",{timeout:10000});
+    const nav=page.locator("#sarchDrawTabs144 [role=tab]");
+    const labels=await nav.allTextContents();
+    const initCount=await nav.count();
+    const counts=await page.evaluate(()=>({
+      select:document.querySelectorAll("#modeSelect").length,
+      free:document.querySelectorAll("#modeFree").length,
+      column:document.querySelectorAll("#modeColumn").length,
+      export:document.querySelectorAll(".sm-drawing-output").length
+    }));
+    await page.locator("#sarchDrawTab144-member").click();
+    const structural=await page.locator("#modeColumn").isVisible();
+    await page.locator("#sarchDrawTab144-edit").click();
+    const eraser=await page.locator("#modeErase").isVisible();
+    await page.locator("#sarchDrawTab144-export").click();
+    const output=await page.locator(".sm-drawing-output").isVisible()&&await page.locator("#sarchShare142").isVisible();
+    await page.locator("#sarchDrawTab144-draw").click();
+    const drawing=await page.locator("#modeFree").isVisible();
+    report(id,"drawing four tool categories",initCount===4&&labels.join("").includes("출력")&&structural&&eraser&&output&&drawing&&Object.values(counts).every(n=>n===1),JSON.stringify({labels,counts,structural,eraser,output,drawing}));
+  }
   if(mod==="survey"){
     await page.locator("#smUtilityTab").click();
     const opened=await page.locator("#smUtilityGroup").isVisible();
@@ -81,6 +102,7 @@ async function check(mod,width,height){
   report(id,"dock compact",dock.height>10&&dock.height<170&&dock.icons.length===5&&dock.icons.every(h=>h<35),JSON.stringify(dock));
   await page.locator("#sarchQuickDock .sarch-dock-toggle").click();
   if(width>1100){
+   if(mod==="drawing")await page.locator("#sarchDrawTab144-export").click();
    await page.locator("#sarchShare142").click({timeout:10000});
    await page.waitForTimeout(600);
    const shared=await page.evaluate(()=>window.__sharedFile);
@@ -109,6 +131,7 @@ async function check(mod,width,height){
   if(width===390){
    let downloads=0;page.on("download",()=>downloads++);
    await page.evaluate(()=>Object.defineProperty(navigator,"share",{configurable:true,value:async()=>{throw new DOMException("Cancelled","AbortError")}}));
+   if(mod==="drawing")await page.locator("#sarchDrawTab144-export").click();
    await page.locator("#sarchShare142").click();
    await page.waitForTimeout(150);
    report(id,"share cancellation has no download",downloads===0&&await page.locator("#sarchShare142").isEnabled());
