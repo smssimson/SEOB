@@ -85,11 +85,34 @@ function init(){
   eraser.parentNode.insertBefore(group,eraser);
   group.append(eraser,eraseOptions);
  }else panes.edit.appendChild(eraseOptions);
- const syncEraser=()=>{eraseOptions.hidden=!eraser?.classList.contains("active")};
- if(eraser){
-  new MutationObserver(syncEraser).observe(eraser,{attributes:true,attributeFilter:["class"]});
-  eraser.addEventListener("click",()=>requestAnimationFrame(syncEraser));
+ // Old toolbar helpers may reparent live buttons after the first layout pass.
+ // Recover the same original nodes without cloning, on every relevant mutation.
+ function syncEraser(){
+  const activeButton=document.getElementById("modeErase");
+  const options=document.getElementById("sarchEraseOptions148");
+  if(!activeButton||!options||!panes.edit.contains(activeButton))return;
+  let group=activeButton.parentElement?.classList.contains("sarch-eraser-unit-v148")
+    ?activeButton.parentElement:null;
+  if(!group){
+   group=document.createElement("span");
+   group.className="sarch-eraser-unit-v148";
+   activeButton.parentNode.insertBefore(group,activeButton);
+   group.appendChild(activeButton);
+  }
+  if(options.parentElement!==group)group.appendChild(options);
+  options.hidden=!activeButton.classList.contains("active");
  }
+ // Child-list and class changes both matter; hidden changes aren't observed.
+ new MutationObserver(syncEraser).observe(panes.edit,{
+  childList:true,subtree:true,attributes:true,attributeFilter:["class"]
+ });
+ document.addEventListener("click",event=>{
+  const target=event.target?.closest?.("button");
+  if(target&&(target.id?.startsWith("mode")||target.closest("#sarchDrawTabs144"))){
+   queueMicrotask(syncEraser);
+   requestAnimationFrame(syncEraser);
+  }
+ });
  syncEraser();
 
  // Keep export, sharing and import in the permanent right-side edit panel.
