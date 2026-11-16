@@ -31,19 +31,23 @@ function downloadFile(file){
  a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
-/* v151: Both downloads and native Quick Share have a .json filename.
-   Use text/plain only as the transport MIME when needed by Android; the data
-   itself remains byte-identical JSON. Earlier .sarch.txt imports remain supported. */
+/* v153: Android Chromium permits text/plain + .txt, but does NOT allow
+   files ending .json through navigator.share. Never attempt .json native sharing.
+   Persistent backups/downloads stay .json. Shared .sarch.txt has identical JSON
+   bytes and the receiving S:ARCH importer recognizes both extensions. */
 let preparedShare=null;
 const INBOX_CACHE="sarch-share-inbox-v1";
+const CHROME_ANDROID_MAX_SHARE_BYTES=50*1024*1024;
 function transferableFile(original){
- return new File([original],original.name,{type:"text/plain",lastModified:original.lastModified});
+ const name=String(original.name||"SARCH_프로젝트.json").replace(/\.json$/i,"")+".sarch.txt";
+ return new File([original],name,{type:"text/plain",lastModified:original.lastModified});
 }
 function sharingFile(original){
- const transport=transferableFile(original);
- const canFile=file=>{try{return navigator.canShare({files:[file]})===true}catch(e){return false}};
- if(canFile(transport))return transport;
- if(canFile(original))return original;
+ if(typeof navigator.share!=="function"||typeof navigator.canShare!=="function")return null;
+ const transfer=transferableFile(original);
+ try{
+  if(navigator.canShare({files:[transfer]})===true)return transfer;
+ }catch(err){console.warn("S:ARCH file capability check:",err)}
  return null;
 }
 function shareErrorText(err){
@@ -72,9 +76,15 @@ async function shareProject(btn){
    if(!original)return;
    if(!(original instanceof File)||!original.size)throw Error("프로젝트 파일을 생성하지 못했습니다.");
   }
-  const transfer=previous&&previous.transfer||(
-   typeof navigator.share==="function"&&typeof navigator.canShare==="function" ? sharingFile(original) : null
-  );
+  // Chromium Android rejects the .json extension even when canShare appears
+  // permissive; use only a valid .txt transport for the system share sheet.
+  if(/Android/i.test(navigator.userAgent||"")&&original.size>=CHROME_ANDROID_MAX_SHARE_BYTES){
+   preparedShare=null;
+   downloadFile(original);saveTime();noteUpdate();
+   show("현장 파일이 50MB 이상이어서 Android 기본 공유가 제한될 수 있습니다. JSON 다운로드를 요청했습니다. 내 파일 앱에서 Quick Share를 사용해 주세요.");
+   return;
+  }
+  const transfer=previous&&previous.transfer||sharingFile(original);
   const nativeReady=!!transfer;
   if(!nativeReady){
    preparedShare=null;downloadFile(original);saveTime();noteUpdate();
@@ -90,7 +100,7 @@ async function shareProject(btn){
   try{
    await navigator.share({files:[transfer],title:"S:ARCH 현장 프로젝트"});
    preparedShare=null;saveTime();noteUpdate();
-   show("공유 메뉴로 파일을 전달했습니다. Quick Share로 수신한 기기에서 '프로젝트 불러오기'를 선택해 새 현장으로 추가하세요.");
+   show("기기 공유를 시작했습니다. 전송 파일은 JSON 내용의 .sarch.txt이며, 받는 기기에서 S:ARCH로 공유해 새 현장으로 추가할 수 있습니다.");
   }catch(err){
    if(err&&err.name==="AbortError"){
     preparedShare=null;
@@ -101,11 +111,9 @@ async function shareProject(btn){
    // Some Android browsers reject a valid file when the user activation expires.
    // Keep the already-created file and allow one fresh user gesture to retry.
    if(!(previous&&previous.retried)){
-    let retryFile=transfer;
-    if(err&&err.name==="TypeError"&&transfer.type!=="application/json"){
-     try{if(navigator.canShare({files:[original]}))retryFile=original}catch(e){}
-    }
-    preparedShare={original,transfer:retryFile,retried:true};
+    // Retry only the verified .txt MIME/extension pair: .json cannot be
+    // passed directly to Chromium's Web Share file API.
+    preparedShare={original,transfer,retried:true};
     needsSecondClick=true;
     show("공유 메뉴 열기 실패("+shareErrorText(err)+"). 파일 준비는 완료되었습니다. '다시 눌러 공유'로 한 번 더 시도해 주세요.");
     return;
@@ -130,7 +138,7 @@ function installShare(){
  const btn=document.createElement("button");
  btn.type="button";btn.id="sarchShare142";btn.className="sarch-share-button";
  btn.textContent="↗ 프로젝트 공유";
- btn.title="Quick Share 등 기기 공유 메뉴로 .json 프로젝트 파일을 전송합니다. 받은 기기에서는 프로젝트 불러오기로 새 현장으로 추가합니다.";
+ btn.title="Quick Share 전송은 브라우저 허용 형식(.sarch.txt)을 사용합니다. 파일 내용은 JSON과 동일하며, 내보내기 백업은 .json입니다. 받은 현장은 새 현장으로 추가합니다.";
  btn.addEventListener("click",()=>shareProject(btn));
  original.insertAdjacentElement("afterend",btn);
  const section=original.closest("section,aside,.smetric-output")||original.parentElement?.parentElement;
