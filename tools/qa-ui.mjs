@@ -102,6 +102,12 @@ async function check(mod,width,height){
     await page.locator("#modeErase").click();
     const eraserOptionsVisible=await page.locator("#sarchEraseOptions148").isVisible()&&
       await page.locator("#eraseSize").isVisible()&&await page.locator("#eraseMode").isVisible();
+    const eraserClickedState=await page.evaluate(()=>{
+      const b=document.getElementById("modeErase"),o=document.getElementById("sarchEraseOptions148"),p=document.getElementById("eraseSize");
+      return {active:b?.className,optionHidden:o?.hidden,optionDisplay:o?getComputedStyle(o).display:null,
+        sliderVisible:p?getComputedStyle(p).display:null,sliderRect:p?.getBoundingClientRect()?.toJSON(),
+        mode:document.getElementById("eraseMode")?.value,buttonParent:b?.parentElement?.className};
+    });
     const buttonGrouped=await page.locator("#modeErase").evaluate(el=>el.parentElement?.classList.contains("sarch-eraser-unit-v148"));
     await page.locator("#modeSelect").click();
     const hiddenAfter=!(await page.locator("#sarchEraseOptions148").isVisible());
@@ -125,7 +131,7 @@ async function check(mod,width,height){
       eraserOptionsVisible&&buttonGrouped&&hiddenAfter&&output&&compact&&cameraDocked&&
       helpCollapsed&&noExtras&&noLegacy&&drawing&&Object.values(counts).every(n=>n===1),
       JSON.stringify({labels,counts,structural,eraser,initialHidden,eraserOptionsVisible,buttonGrouped,
-      hiddenAfter,output,compact,cameraDocked,helpCollapsed,noExtras,noLegacy,drawing,eraserDebug}));
+      hiddenAfter,output,compact,cameraDocked,helpCollapsed,noExtras,noLegacy,drawing,eraserClickedState,eraserDebug}));
   }
   if(mod==="survey"){
     await page.locator("#smUtilityTab").click();
