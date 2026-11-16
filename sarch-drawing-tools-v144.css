@@ -3,7 +3,7 @@ body.sarch-drawing-v144 .sm43-tool-panel.sarch-top-tools-v135{
  display:block!important;min-height:0!important;padding:11px 12px!important;
 }
 body.sarch-drawing-v144 #sarchDrawTabs144{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) 70px;gap:6px;
  margin-bottom:9px!important;
 }
 body.sarch-drawing-v144 #sarchDrawTabs144 .sarch-draw-tab-v144{
@@ -85,4 +85,48 @@ body.sarch-drawing-v144.sarch-light-142 .sarch-draw-pane-v144 .sm-drawing-output
 }
 @media print{
  body.sarch-drawing-v144 .sm43-tool-panel{display:none!important}
+}
+
+
+/* Compact output area: keep the drawing canvas prominent. */
+body.sarch-drawing-v144 .sarch-draw-export-grid-v144{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ align-items:stretch;gap:7px;width:100%;
+}
+body.sarch-drawing-v144 .sarch-draw-export-grid-v144>button{
+ min-height:39px!important;max-width:none!important;width:100%!important;
+ margin:0!important;padding:7px 10px!important;white-space:normal!important;
+ font:700 12px/1.35 Dotum,"돋움",sans-serif!important;
+ border-radius:8px!important;
+}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 .sm-drawing-output h3{display:none!important}
+body.sarch-drawing-v144 .sarch-draw-output-help-v144{
+ width:100%;margin:7px 0 0;padding:2px 0 0;border-top:1px solid #36516c;
+}
+body.sarch-drawing-v144 .sarch-draw-output-help-v144>summary{
+ cursor:pointer;padding:5px 2px;color:#afc9dc;
+ font:11px/1.5 Dotum,"돋움",sans-serif;list-style-position:inside;
+}
+body.sarch-drawing-v144 .sarch-draw-output-help-v144 p{
+ margin:6px 0!important;line-height:1.6!important;
+}
+body.sarch-drawing-v144 #sarchDrawTabs144 #sm52FixedCamera{
+ position:static!important;display:inline-flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;
+ width:70px!important;min-width:0!important;max-width:70px!important;
+ height:42px!important;min-height:42px!important;max-height:42px!important;
+ padding:3px 5px!important;margin:0!important;
+ border-radius:9px!important;box-shadow:none!important;
+ background:#236eaa!important;border:1px solid #68ace0!important;
+ font:700 10px/1.15 Dotum,"돋움",sans-serif!important;white-space:normal!important;
+}
+body.sarch-drawing-v144 #sarchDrawTabs144 #sm52FixedCamera span:first-child{
+ font-size:16px!important;line-height:18px!important;
+}
+body.sarch-drawing-v144.sarch-light-142 .sarch-draw-output-help-v144>summary{color:#49667d}
+@media(max-width:650px){
+ body.sarch-drawing-v144 #sarchDrawTabs144{grid-template-columns:repeat(4,minmax(0,1fr)) 51px!important;gap:4px!important}
+ body.sarch-drawing-v144 #sarchDrawTabs144 #sm52FixedCamera{width:51px!important;max-width:51px!important;min-height:44px!important;height:44px!important;max-height:44px!important}
+ body.sarch-drawing-v144 .sarch-draw-export-grid-v144{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.sarch-drawing-v144 .sarch-draw-export-grid-v144>button{min-height:42px!important}
 }
