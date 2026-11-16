@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===149,'version.json should report v147');
+ok(version.version===150,'version.json should report v147');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -41,7 +41,7 @@ for(const m of moduleChecks){
  ok(html.length>m.minimum,m.dir+' application source unexpectedly truncated');
  onlyOnce(html,'window.SARCHProjectBridge='+m.bridge,m.dir+' native sharing bridge');
  onlyOnce(html,'href="../sarch-workspace-v142.css?v=143"',m.dir+' shared CSS');
- onlyOnce(html,'src="../sarch-workspace-v142.js?v=143"',m.dir+' shared JS');
+ onlyOnce(html,'src="../sarch-workspace-v142.js?v=150"',m.dir+' shared JS');
  ok(html.includes(m.exportId),m.dir+' project export preserved');
  ok(html.includes(m.importId),m.dir+' project import preserved');
  ok(html.includes('sarch-quick-nav-v139.js'),m.dir+' module dock preserved');
@@ -49,8 +49,8 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v149"),m.dir+' offline cache version');
- ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=143'),m.dir+' shared files cached offline');
+ ok(sw.includes("smetric-"+m.dir+"-v150"),m.dir+' offline cache version');
+ ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=150'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
 const layout=read('sarch-layout-v135.js');
@@ -73,7 +73,7 @@ const style=read('sarch-workspace-v142.css');
 ok(style.includes('body.sarch-v142'),'styles are scoped to modern workspace');
 ok((style.match(/{/g)||[]).length===(style.match(/}/g)||[]).length,'CSS braces balance');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v149'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v150'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 scriptSyntax(rootSW,'seob-sw.js');
 
@@ -114,4 +114,4 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v149 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v150 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
