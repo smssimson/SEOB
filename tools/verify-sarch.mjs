@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===145,'version.json should report v145');
+ok(version.version===146,'version.json should report v146');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v145"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v146"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=143'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -73,7 +73,7 @@ const style=read('sarch-workspace-v142.css');
 ok(style.includes('body.sarch-v142'),'styles are scoped to modern workspace');
 ok((style.match(/{/g)||[]).length===(style.match(/}/g)||[]).length,'CSS braces balance');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v145'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v146'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 scriptSyntax(rootSW,'seob-sw.js');
 
@@ -102,11 +102,11 @@ ok(!shellJS.includes('cloneNode('),'camera buttons must not be duplicated');
 ok((shellCSS.match(/{/g)||[]).length===(shellCSS.match(/}/g)||[]).length,'v145 CSS braces balanced');
 for(const mod of ['survey','drawing','schmidt','tilt']){
  const page=read(mod+'/index.html');
- onlyOnce(page,'href="../sarch-shell-v145.css?v=145"',mod+' shell stylesheet');
+ onlyOnce(page,'href="../sarch-shell-v145.css?v=146"',mod+' shell stylesheet');
  onlyOnce(page,'src="../sarch-shell-v145.js?v=145"',mod+' shell controller');
  const sw=read(mod+'/sw.js');
- ok(sw.includes('sarch-shell-v145.css?v=145')&&sw.includes('sarch-shell-v145.js?v=145'),mod+' shell cached for offline');
+ ok(sw.includes('sarch-shell-v145.css?v=146')&&sw.includes('sarch-shell-v145.js?v=145'),mod+' shell cached for offline');
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v145 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v146 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
