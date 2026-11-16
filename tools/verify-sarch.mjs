@@ -105,6 +105,15 @@ ok(surveyV155.includes('id="manualSpec"')&&surveyV155.includes("d.manualSpec=e.t
 ok(surveyV155.includes("const direct=String(d.manualSpec??'').trim()")&&surveyV155.includes('if(direct)return direct.replace('),'manual dimension overrides generated drawing/photo/repair labels');
 ok(surveyV155.includes("normalized.match(")&&surveyV155.includes("if(!m)return null"),'free-form manual dimension does not borrow stale measurements for area calculation');
 ok(report.includes('var direct=txt(d.manualSpec)')&&report.includes('d.countExplicit===true'),'XLSX output preserves manual size and explicit EA-only counts');
+const defectSpecFn=new Function(surveyV155.match(/function defectSpecText\\(d\\)\\{[\\s\\S]*?\\n\\}/)?.[0]+';return defectSpecText')();
+ok(defectSpecFn({types:['철근노출'],manualSpec:'120x350'})==='120X350','manual specification accepts lowercase x and normalizes dimension separator');
+ok(defectSpecFn({manualSpec:'1ea'})==='1EA','manual EA-only display is preserved');
+ok(defectSpecFn({width:'',length:'',count:1,countExplicit:true})==='1EA','explicit 1EA from preset is preserved');
+const measuredSource=surveyV155.split('function measuredQty(d){')[1]?.split('\\n')[0];
+const measuredFn=new Function('isCrackDefect','function measuredQty(d){'+measuredSource+';return measuredQty')(()=>false);
+ok(Math.abs(measuredFn({manualSpec:'300X300X2EA'})-0.18)<0.000001,'manual dimensions calculate quantity when unambiguous');
+ok(measuredFn({manualSpec:'2EA',width:300,length:300})===null,'EA-only manual input does not accidentally use stale preset dimensions');
+
 ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=159')&&rootSWCacheCheck(),'manual-size report asset cache invalidation');
 ok(read('survey/sw.js').includes("sarch-share-inbox-v1")&&read('survey/sw.js').includes("req.formData()"),'independently installed survey app stages received files safely');
 function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=159')}

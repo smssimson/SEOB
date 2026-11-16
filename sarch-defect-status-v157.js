@@ -29,7 +29,7 @@ function groups(state){
  return Array.from(m.entries()).sort((a,b)=>{var x=parseInt(a[0],10),y=parseInt(b[0],10);return isFinite(x)&&isFinite(y)?x-y:a[0].localeCompare(b[0],"ko")});
 }
 function types(d){return Array.from(new Set((d.types||[]).filter(Boolean).map(v=>txt(v).replace(/^(구조체|비구조체)\s*/,"")))).join(", ")||"미지정"}
-function spec(d){var direct=txt(d.manualSpec);if(direct)return direct.replace(/×/g,"X").replace(/(\\d)\\s*x\\s*(?=\\d)/gi,"$1X").replace(/(\\d)\\s*ea\\b/gi,"$1EA");var p=[d.width,d.length].map(txt).filter(Boolean),base=p.join("X"),n=Number(d.count),explicit=d.countExplicit===true||(Number.isInteger(n)&&n>1),ea=Number.isInteger(n)&&n>=1&&explicit?n+"EA":"";return base&&ea?base+"X"+ea:base||ea||"-"}
+function spec(d){var direct=txt(d.manualSpec);if(direct)return direct.replace(/×/g,"X").replace(/(\d)\s*x\s*(?=\d)/gi,"$1X").replace(/(\d)\s*ea\b/gi,"$1EA");var p=[d.width,d.length].map(txt).filter(Boolean),base=p.join("X"),n=Number(d.count),explicit=d.countExplicit===true||(Number.isInteger(n)&&n>1),ea=Number.isInteger(n)&&n>=1&&explicit?n+"EA":"";return base&&ea?base+"X"+ea:base||ea||"-"}
 function member(d){var match=txt(d.location).match(/기둥|벽체|보|슬래브|바닥|천장|계단|난간|창호|문|옥상|지붕|외벽|내벽/);return match?match[0]:"-"}
 function remedy(d){var t=(d.types||[]).join(" ");return /누수|백태/.test(t)?"수분 유입 원인 확인 및 방수·배수상태 점검 후 보수 검토":/균열/.test(t)?"진행 여부 주기적 관찰 및 필요 시 보수 검토":/철근노출|박락|파손/.test(t)?"손상 범위 확인 후 단면복구·재발방지 검토":"유지관리계획에 따른 주의관찰 및 보수 검토"}
 var header=["번호","층/도면","부재(부위)","결함 종류","결함 크기","손상원인추정","사진","조치 필요사항"];

@@ -396,7 +396,7 @@ function cleanDefectType(t){return sm81TypeName(t).replace(/^(구조체|비구�
 // 도면 표시, 보수표, 사진첩(HWPX 포함)의 결함 규격을 하나의 형식으로 통일합니다.
 function defectSpecText(d){
  const direct=String(d.manualSpec??'').trim();
- if(direct)return direct.replace(/×/g,'X').replace(/(\\d)\\s*x\\s*(?=\\d)/gi,'$1X').replace(/(\\d)\\s*ea\\b/gi,'$1EA');
+ if(direct)return direct.replace(/×/g,'X').replace(/(\d)\s*x\s*(?=\d)/gi,'$1X').replace(/(\d)\s*ea\b/gi,'$1EA');
  const parts=[d.width,d.length].map(v=>String(v??'').trim()).filter(Boolean);
  const count=Number(d.count);
  const size=parts.join('X');
@@ -537,7 +537,7 @@ function sm83HitLegend(p){const r=sm83LegendRect;return r&&p.x>=r.x-8&&p.x<=r.x+
 function hitAnnotation(p){if(!showDefectLabels)return null;for(let i=annotationRects.length-1;i>=0;i--){const r=annotationRects[i];if(p.x>=r.x-5&&p.x<=r.x+r.w+5&&p.y>=r.y-5&&p.y<=r.y+r.h+5)return r}return null}
 function isCrackDefect(d){return (d.types||[]).some(t=>/균열/.test(t))}
 function hasAreaDefect(d){return (d.types||[]).some(t=>/누수|백태|박리|박락|철근노출|재료분리|마감재|도장|오염|파손|탈락|천공/.test(t))}
-function measuredQty(d){let a=Number(d.width),b=Number(d.length),count=(Number.isFinite(Number(d.count))&&Number(d.count)>0?Number(d.count):1);const direct=String(d.manualSpec??'').trim();if(direct){const normalized=direct.replace(/×/g,'X').replace(/\\s+/g,'').replace(/mm/gi,'').toUpperCase();const m=normalized.match(/^(\\d+(?:\\.\\d+)?)X(\\d+(?:\\.\\d+)?)(?:X(\\d+)EA)?$/);if(!m)return null;a=Number(m[1]);b=Number(m[2]);count=m[3]?Number(m[3]):1}if(!Number.isFinite(b)||b<=0)return null;if(isCrackDefect(d)){let band=Number(d.treatmentWidth)>0?Number(d.treatmentWidth):a;return Number.isFinite(band)&&band>0?band*b/1000000*count:null}if(!Number.isFinite(a)||a<=0)return null;return a*b/1000000*count}
+function measuredQty(d){let a=Number(d.width),b=Number(d.length),count=(Number.isFinite(Number(d.count))&&Number(d.count)>0?Number(d.count):1);const direct=String(d.manualSpec??'').trim();if(direct){const normalized=direct.replace(/×/g,'X').replace(/\s+/g,'').replace(/mm/gi,'').toUpperCase();const m=normalized.match(/^(\d+(?:\.\d+)?)X(\d+(?:\.\d+)?)(?:X(\d+)EA)?$/);if(!m)return null;a=Number(m[1]);b=Number(m[2]);count=m[3]?Number(m[3]):1}if(!Number.isFinite(b)||b<=0)return null;if(isCrackDefect(d)){let band=Number(d.treatmentWidth)>0?Number(d.treatmentWidth):a;return Number.isFinite(band)&&band>0?band*b/1000000*count:null}if(!Number.isFinite(a)||a<=0)return null;return a*b/1000000*count}
 function effectiveQty(d){if(d.qtyManual===true){if(isCrackDefect(d)&&d.repairQtyBasis!=='㎡')return null;let v=d.repairQty;return v===''||v===null||v===undefined?null:Number(v)}return measuredQty(d)}
 function formatQty(v){return v===null||!Number.isFinite(v)?'':String(Math.round(v*1000000)/1000000)}
 function sm75ReorderDefect(id,targetId){
