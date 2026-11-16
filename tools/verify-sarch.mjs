@@ -102,10 +102,10 @@ ok(!shellJS.includes('cloneNode('),'camera buttons must not be duplicated');
 ok((shellCSS.match(/{/g)||[]).length===(shellCSS.match(/}/g)||[]).length,'v145 CSS braces balanced');
 for(const mod of ['survey','drawing','schmidt','tilt']){
  const page=read(mod+'/index.html');
- onlyOnce(page,'href="../sarch-shell-v145.css?v=146"',mod+' shell stylesheet');
+ onlyOnce(page,'href="../sarch-shell-v145.css?v=147"',mod+' shell stylesheet');
  onlyOnce(page,'src="../sarch-shell-v145.js?v=145"',mod+' shell controller');
  const sw=read(mod+'/sw.js');
- ok(sw.includes('sarch-shell-v145.css?v=146')&&sw.includes('sarch-shell-v145.js?v=145'),mod+' shell cached for offline');
+ ok(sw.includes('sarch-shell-v145.css?v=147')&&sw.includes('sarch-shell-v145.js?v=145'),mod+' shell cached for offline');
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
