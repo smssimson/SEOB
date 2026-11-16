@@ -35,6 +35,7 @@ function downloadFile(file){
    Use text/plain only as the transport MIME when needed by Android; the data
    itself remains byte-identical JSON. Earlier .sarch.txt imports remain supported. */
 let preparedShare=null;
+const INBOX_CACHE="sarch-share-inbox-v1";
 function transferableFile(original){
  return new File([original],original.name,{type:"text/plain",lastModified:original.lastModified});
 }
@@ -61,7 +62,8 @@ async function shareProject(btn){
  btn.disabled=true;
  let needsSecondClick=false;
  try{
-  let original=preparedShare&&preparedShare.original;
+  const previous=preparedShare;
+  let original=previous&&previous.original;
   if(!original){
    // First create a consistent snapshot. If this is slow, a second tap restores
    // Android's required user activation without rebuilding a large photo project.
@@ -70,7 +72,7 @@ async function shareProject(btn){
    if(!original)return;
    if(!(original instanceof File)||!original.size)throw Error("프로젝트 파일을 생성하지 못했습니다.");
   }
-  const transfer=preparedShare&&preparedShare.transfer||(
+  const transfer=previous&&previous.transfer||(
    typeof navigator.share==="function"&&typeof navigator.canShare==="function" ? sharingFile(original) : null
   );
   const nativeReady=!!transfer;
@@ -80,7 +82,7 @@ async function shareProject(btn){
    return;
   }
   if(navigator.userActivation && !navigator.userActivation.isActive){
-   preparedShare={original,transfer};
+   preparedShare={original,transfer,retried:previous&&previous.retried||false};
    needsSecondClick=true;
    show("공유 파일 준비 완료. '다시 눌러 공유'를 누르면 기기 공유 메뉴가 열립니다.");
    return;
@@ -90,11 +92,28 @@ async function shareProject(btn){
    preparedShare=null;saveTime();noteUpdate();
    show("공유 메뉴로 파일을 전달했습니다. Quick Share로 수신한 기기에서 '프로젝트 불러오기'를 선택해 새 현장으로 추가하세요.");
   }catch(err){
-   preparedShare=null;
-   if(err&&err.name==="AbortError"){show("공유가 취소되었거나 공유 대상을 찾지 못했습니다. 자료는 변경되지 않았습니다.");return}
+   if(err&&err.name==="AbortError"){
+    preparedShare=null;
+    show("공유가 취소되었거나 사용 가능한 공유 대상이 없습니다. 현장 데이터는 유지됩니다.");
+    return;
+   }
    console.warn("S:ARCH native file share:",err);
+   // Some Android browsers reject a valid file when the user activation expires.
+   // Keep the already-created file and allow one fresh user gesture to retry.
+   if(!(previous&&previous.retried)){
+    let retryFile=transfer;
+    if(err&&err.name==="TypeError"&&transfer.type!=="application/json"){
+     try{if(navigator.canShare({files:[original]}))retryFile=original}catch(e){}
+    }
+    preparedShare={original,transfer:retryFile,retried:true};
+    needsSecondClick=true;
+    show("공유 메뉴 열기 실패("+shareErrorText(err)+"). 파일 준비는 완료되었습니다. '다시 눌러 공유'로 한 번 더 시도해 주세요.");
+    return;
+   }
+   preparedShare=null;
    downloadFile(original);saveTime();noteUpdate();
-   show("공유 메뉴 오류("+shareErrorText(err)+"). JSON 다운로드를 요청했습니다. 다운로드 목록에서 파일을 확인해 주세요.");
+   show("기기 공유를 실행할 수 없습니다("+shareErrorText(err)+"). JSON 다운로드를 요청했습니다. 갤럭시탭의 내 파일 앱에서 JSON 선택 → Quick Share로 보낼 수 있습니다.");
+
   }
  }catch(err){
   preparedShare=null;console.warn("S:ARCH project share:",err);
@@ -131,6 +150,40 @@ function allowReceivedProjectFiles(){
  const selector=moduleKey==="drawing"?"#file":moduleKey==="tilt"?"#restore":"#import";
  const input=pick(selector);
  if(input&&input.type==="file")input.accept=".json,.txt,application/json,text/plain";
+}
+/* v152: An installed S:ARCH PWA can be selected as an Android share target.
+   The root service worker only stages the file; original per-module importer
+   validates it and asks for confirmation before creating a new site. */
+async function openReceivedProject(){
+ const token=new URL(location.href).searchParams.get("sarch_received");
+ if(!token)return;
+ const clean=()=>{try{const u=new URL(location.href);u.searchParams.delete("sarch_received");history.replaceState(null,"",u.pathname+u.search+u.hash)}catch(e){}};
+ const originalPage=location.pathname;
+ const fail=msg=>{
+  show("받은 파일 연결 실패: "+msg+" · 수신함에서 다시 열거나 프로젝트 불러오기를 사용해 주세요.");
+ };
+ if(!/^[0-9a-f-]{24,64}$/i.test(token)){clean();fail("파일 식별값이 올바르지 않습니다");return}
+ try{
+  const input=pick(moduleKey==="drawing"?"#file":moduleKey==="tilt"?"#restore":"#import");
+  if(!input||input.type!=="file")throw Error("프로젝트 불러오기 입력이 없습니다");
+  const cache=await caches.open(INBOX_CACHE);
+  const response=await cache.match(new URL("../inbox/"+token,location.href));
+  if(!response)throw Error("수신함에서 파일을 찾지 못했습니다");
+  const blob=await response.blob();
+  if(!blob.size||blob.size>300*1024*1024)throw Error("파일 크기를 확인해 주세요");
+  const rawName=decodeURIComponent(response.headers.get("X-SARCH-Filename")||"받은현장.json");
+  const filename=/\.json$/i.test(rawName)?rawName:rawName.replace(/\.(?:sarch\.txt|txt)$/i,"")+".json";
+  const project=new File([blob],filename,{type:"application/json"});
+  if(typeof DataTransfer!=="function")throw Error("이 브라우저는 직접 불러오기를 지원하지 않습니다");
+  const dt=new DataTransfer();dt.items.add(project);
+  input.files=dt.files;
+  clean();
+  show("받은 프로젝트를 "+({"survey":"현장조사","drawing":"도면작성","schmidt":"장비조사","tilt":"기울기"}[moduleKey]||"S:ARCH")+"로 연결합니다. 새 현장 추가를 확인해 주세요.");
+  input.dispatchEvent(new Event("change",{bubbles:true}));
+ }catch(err){
+  console.warn("S:ARCH incoming share:",err);
+  clean();fail(err&&err.message||"파일을 열지 못했습니다");
+ }
 }
 function installBackupVerifier(){
  const menu=pick("#sarchProtectMenu");
@@ -213,5 +266,5 @@ function install(){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>requestAnimationFrame(install),{once:true});
 else requestAnimationFrame(install);
-window.addEventListener("load",()=>{alignSurveyTools();connection();allowReceivedProjectFiles();installShare();installBackupVerifier()},{once:true});
+window.addEventListener("load",()=>{alignSurveyTools();connection();allowReceivedProjectFiles();installShare();installBackupVerifier();setTimeout(openReceivedProject,350)},{once:true});
 })();
