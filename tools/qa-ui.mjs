@@ -140,12 +140,17 @@ async function check(mod,width,height){
     const returned=await page.locator("#smFieldGroup").isVisible();
     report(id,"survey tool tab switches",opened&&returned);
     if(width===1280){
-      const photoFirst=await page.evaluate(()=>{
-        const photos=document.getElementById("frontPhotoWorkspace")?.getBoundingClientRect();
-        const drawing=document.getElementById("board")?.getBoundingClientRect();
-        return !!photos&&!!drawing&&photos.top<drawing.top;
+      const photoUnderMap=await page.evaluate(()=>{
+        const section=document.getElementById("frontPhotoWorkspace"),board=document.getElementById("board");
+        const area=board?.closest("section.panel"),photo=section?.getBoundingClientRect(),drawing=board?.getBoundingClientRect();
+        const inMapPanel=!!section&&section.parentElement===area;
+        const afterDrawing=!!photo&&!!drawing&&photo.top>drawing.bottom;
+        const sameColumn=!!photo&&!!drawing&&Math.abs(photo.left-drawing.left)<28&&photo.right<=drawing.right+28;
+        const followsHint=section?.previousElementSibling?.classList.contains("hint");
+        return {inMapPanel,afterDrawing,sameColumn,followsHint};
       });
-      report(id,"front photos above drawing",photoFirst);
+      report(id,"front photos directly under drawing in map column",
+        Object.values(photoUnderMap).every(Boolean),JSON.stringify(photoUnderMap));
       await page.evaluate(()=>{
         window.__qaSurveyBeforeMerge=structuredClone(state);
         const picture=document.createElement("canvas");picture.width=640;picture.height=400;
