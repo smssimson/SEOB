@@ -482,12 +482,51 @@ async function tiltDownloadXlsx(){
 $('exportTiltExcel').onclick=async()=>{try{await tiltDownloadXlsx()}catch(e){alert('기울기 엑셀 출력 실패: '+e.message)}};
 function sarchExportStamp147(){const d=new Date(),p=n=>String(n).padStart(2,'0');return ''+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())}
 function sarchTiltExportName147(){const n=state.sites.find(s=>s.id===state.siteId)?.name||'현장';return String(n).replace(/[\\/:*?"<>|]/g,'_').slice(0,65)+'_기울기_'+sarchExportStamp147()+'.json'}
-function sarchTiltFile(){const pending=[];for(const st of state.sites)for(const sh of st.sheets)sh.points.forEach((p,i)=>{if(!p.unavailable&&(!p.distance||!['lowerV','upperV','upperH','hDisp'].every(k=>Array.isArray(p[k])&&p[k].length===3&&p[k].every(v=>String(v).trim()!==''))))pending.push(`${st.name}/${sh.name} 조사 ${i+1}`)});if(pending.length&&!confirm(`측정값이 완료되지 않은 조사 ${pending.length}건이 있습니다.\n${pending.slice(0,8).join('\n')}\n\n미입력 상태 그대로 백업할까요?`))return;return new File([JSON.stringify(state,null,2)],sarchTiltExportName147(),{type:'application/json'})}window.SARCHProjectBridge=sarchTiltFile;$('backup').onclick=()=>{const f=sarchTiltFile();if(f){fileDownload(f,f.name);window.SARCHBackupMark?.()}};$('restoreBtn').onclick=()=>$('restore').click();$('restore').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const obj=JSON.parse(await f.text());if(!Array.isArray(obj.sites)||!obj.sites.length)throw Error('올바른 기울기 백업 파일이 아닙니다.');if(!confirm('현재 기울기 현장 데이터를 백업 파일로 교체할까요?'))return;
-if(!sm85DB)throw Error('대용량 저장소를 사용할 수 없어 불러오기를 중단했습니다. 기존 자료는 그대로 유지됩니다.');
-const candidate={...obj};if(!candidate.sites.some(s=>s.id===candidate.siteId))candidate.siteId=candidate.sites[0].id;
-const target=candidate.sites.find(s=>s.id===candidate.siteId);if(!target.sheets?.some(sh=>sh.id===candidate.sheetId))candidate.sheetId=target.sheets[0].id;
-clearTimeout(sm85SaveTimer);await sm85WriteQueue.catch(()=>{});
-await sm85QueueWrite(JSON.stringify(candidate));state=candidate;selected=null;loadingBg='';refresh();alert('기울기 프로젝트 불러오기 및 저장이 완료되었습니다. 현장 '+candidate.sites.length+'개를 확인하세요.')}catch(err){alert(err.message)}e.target.value=''};$('audit').onclick=()=>{const pts=sheet().points;let missing=pts.filter(p=>!p.photo).length,empty=pts.filter(p=>!p.unavailable&&(!p.distance||!['lowerV','upperV','upperH','hDisp'].every(k=>Array.isArray(p[k])?p[k].every(v=>String(v).trim()!==''):String(p[k]||'').trim()!==''))).length;alert(`현재 도면 조사 ${pts.length}건\n사진 누락 ${missing}건\n측정값 미완료 ${empty}건\n\n엑셀은 원본 계산표와 SMETRIC 입력자료 시트를 함께 제공합니다.`)};
+function sarchTiltFile(){const pending=[];for(const st of state.sites)for(const sh of st.sheets)sh.points.forEach((p,i)=>{if(!p.unavailable&&(!p.distance||!['lowerV','upperV','upperH','hDisp'].every(k=>Array.isArray(p[k])&&p[k].length===3&&p[k].every(v=>String(v).trim()!==''))))pending.push(`${st.name}/${sh.name} 조사 ${i+1}`)});if(pending.length&&!confirm(`측정값이 완료되지 않은 조사 ${pending.length}건이 있습니다.\n${pending.slice(0,8).join('\n')}\n\n미입력 상태 그대로 백업할까요?`))return;return new File([JSON.stringify(state,null,2)],sarchTiltExportName147(),{type:'application/json'})}window.SARCHProjectBridge=function(mode){
+ if(mode==="share"){
+  const active=site();
+  if(!active||!Array.isArray(active.sheets)||!active.sheets.length)return null;
+  // Share exactly the selected site. Full-project JSON backups still use sarchTiltFile().
+  const outgoing={sites:[active],siteId:active.id,sheetId:state.sheetId};
+  return new File([JSON.stringify(outgoing,null,2)],sarchTiltExportName147(),{type:"application/json"});
+ }
+ return sarchTiltFile();
+};$('backup').onclick=()=>{const f=sarchTiltFile();if(f){fileDownload(f,f.name);window.SARCHBackupMark?.()}};$('restoreBtn').onclick=()=>$('restore').click();$('restore').onchange=async e=>{
+ const f=e.target.files?.[0];if(!f)return;
+ try{
+  // This import is additive. A received file must NEVER overwrite another site's
+  // measurements, photos or drawings.
+  const obj=JSON.parse(await f.text());
+  if(!Array.isArray(obj.sites)||!obj.sites.length||
+     !obj.sites.every(s=>s&&typeof s.name==="string"&&
+       Array.isArray(s.sheets)&&s.sheets.length&&
+       s.sheets.every(sh=>sh&&Array.isArray(sh.points))))
+   throw Error("올바른 기울기 프로젝트 파일이 아닙니다.");
+  if(!sm85Ready||!sm85DB)throw Error("대용량 저장소를 사용할 수 없어 가져오기를 중단했습니다. 기존 자료는 그대로 유지됩니다.");
+  if(!confirm("받은 현장 "+obj.sites.length+"개를 새 현장으로 추가할까요?\n현재 저장된 현장·도면·조사자료는 변경하지 않습니다."))return;
+  clearTimeout(sm85SaveTimer);
+  await sm85WriteQueue.catch(()=>{});
+  const used=new Set(state.sites.map(s=>s.name));
+  const incoming=obj.sites.map(src=>{
+   let name=src.name.trim()||"받은 현장";
+   if(used.has(name)){
+    const root=name+" (받음)";let candidate=root,i=2;
+    while(used.has(candidate))candidate=root+" "+i++;
+    name=candidate;
+   }
+   used.add(name);
+   return {...src,id:uid(),name,
+    sheets:src.sheets.map(sh=>({...sh,id:uid()}))};
+  });
+  const candidate={...state,sites:[...state.sites,...incoming],
+   siteId:incoming[0].id,sheetId:incoming[0].sheets[0].id};
+  // Commit the combined snapshot to IndexedDB BEFORE changing in-memory state.
+  await sm85QueueWrite(JSON.stringify(candidate));
+  state=candidate;selected=null;loadingBg="";refresh();
+  alert("받은 기울기 현장 "+incoming.length+"개를 새로 추가했습니다. 기존 "+(candidate.sites.length-incoming.length)+"개 현장은 유지됩니다.");
+ }catch(err){console.warn("S:ARCH tilt additive import:",err);alert("현장 추가 실패: "+(err&&err.message||"파일을 확인해 주세요."))}
+ finally{e.target.value=""}
+};$('audit').onclick=()=>{const pts=sheet().points;let missing=pts.filter(p=>!p.photo).length,empty=pts.filter(p=>!p.unavailable&&(!p.distance||!['lowerV','upperV','upperH','hDisp'].every(k=>Array.isArray(p[k])?p[k].every(v=>String(v).trim()!==''):String(p[k]||'').trim()!==''))).length;alert(`현재 도면 조사 ${pts.length}건\n사진 누락 ${missing}건\n측정값 미완료 ${empty}건\n\n엑셀은 원본 계산표와 SMETRIC 입력자료 시트를 함께 제공합니다.`)};
 const t=$('theme');t.value=localStorage.getItem('smetric-shared-theme-v14')||'dark';document.body.dataset.theme=t.value;t.onchange=()=>{document.body.dataset.theme=t.value;localStorage.setItem('smetric-shared-theme-v14',t.value)};// Reorder must run in the main tilt scope where state, refresh and save are defined.
 (function(){
  const sel=$('sheet'),btn=$('sm69Reorder');
