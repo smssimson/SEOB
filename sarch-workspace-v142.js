@@ -98,9 +98,12 @@ async function shareProject(btn){
    return;
   }
   try{
-   await navigator.share({files:[transfer],title:"S:ARCH 현장 프로젝트"});
+   // Send ONLY the attached file. On some Samsung sharing surfaces, a
+   // title/text payload produces a blank text preview with Copy/Share buttons
+   // instead of the intended file-target chooser.
+   await navigator.share({files:[transfer]});
    preparedShare=null;saveTime();noteUpdate();
-   show("기기 공유를 시작했습니다. 전송 파일은 JSON 내용의 .sarch.txt이며, 받는 기기에서 S:ARCH로 공유해 새 현장으로 추가할 수 있습니다.");
+   show("공유 파일을 전달했습니다. 받는 기기에서는 파일을 S:ARCH로 공유하거나 프로젝트 불러오기로 새 현장에 추가하세요.");
   }catch(err){
    if(err&&err.name==="AbortError"){
     preparedShare=null;
@@ -138,7 +141,7 @@ function installShare(){
  const btn=document.createElement("button");
  btn.type="button";btn.id="sarchShare142";btn.className="sarch-share-button";
  btn.textContent="↗ 프로젝트 공유";
- btn.title="Quick Share 전송은 브라우저 허용 형식(.sarch.txt)을 사용합니다. 파일 내용은 JSON과 동일하며, 내보내기 백업은 .json입니다. 받은 현장은 새 현장으로 추가합니다.";
+ btn.title="현장 데이터를 .sarch.txt 파일로 Quick Share 등에 전송합니다. 수신 후 해당 파일을 S:ARCH로 공유하면 새 현장으로 추가할 수 있습니다.";
  btn.addEventListener("click",()=>shareProject(btn));
  original.insertAdjacentElement("afterend",btn);
  const section=original.closest("section,aside,.smetric-output")||original.parentElement?.parentElement;
