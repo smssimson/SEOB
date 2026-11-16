@@ -31,23 +31,21 @@ function downloadFile(file){
  a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
-/* v153: Android Chromium permits text/plain + .txt, but does NOT allow
-   files ending .json through navigator.share. Never attempt .json native sharing.
-   Persistent backups/downloads stay .json. Shared .sarch.txt has identical JSON
-   bytes and the receiving S:ARCH importer recognizes both extensions. */
+/* v156: Real PDF carrier with embedded unmodified JSON.
+   Chromium Android permits application/pdf, unlike application/json/.zip.
+   This avoids Samsung Quick Share treating text/plain as clipboard text. */
 let preparedShare=null;
 const INBOX_CACHE="sarch-share-inbox-v1";
 const CHROME_ANDROID_MAX_SHARE_BYTES=50*1024*1024;
 function transferableFile(original){
- const name=String(original.name||"SARCH_프로젝트.json").replace(/\.json$/i,"")+".sarch.txt";
- return new File([original],name,{type:"text/plain",lastModified:original.lastModified});
+ if(!window.SARCHTransferV156)throw Error("프로젝트 전송 기능을 불러오지 못했습니다. 앱 업데이트를 확인해 주세요.");
+ return window.SARCHTransferV156.pdfFromJson(original);
 }
 function sharingFile(original){
  if(typeof navigator.share!=="function"||typeof navigator.canShare!=="function")return null;
  const transfer=transferableFile(original);
- try{
-  if(navigator.canShare({files:[transfer]})===true)return transfer;
- }catch(err){console.warn("S:ARCH file capability check:",err)}
+ try{if(navigator.canShare({files:[transfer]})===true)return transfer}
+ catch(err){console.warn("S:ARCH PDF share capability:",err)}
  return null;
 }
 function shareErrorText(err){
@@ -76,19 +74,19 @@ async function shareProject(btn){
    if(!original)return;
    if(!(original instanceof File)||!original.size)throw Error("프로젝트 파일을 생성하지 못했습니다.");
   }
-  // Chromium Android rejects the .json extension even when canShare appears
-  // permissive; use only a valid .txt transport for the system share sheet.
-  if(/Android/i.test(navigator.userAgent||"")&&original.size>=CHROME_ANDROID_MAX_SHARE_BYTES){
+  // Chrome Android limits direct Web Share to 50 MiB including the PDF envelope.
+  if(/Android/i.test(navigator.userAgent||"")&&original.size>=CHROME_ANDROID_MAX_SHARE_BYTES-4096){
    preparedShare=null;
    downloadFile(original);saveTime();noteUpdate();
-   show("현장 파일이 50MB 이상이어서 Android 기본 공유가 제한될 수 있습니다. JSON 다운로드를 요청했습니다. 내 파일 앱에서 Quick Share를 사용해 주세요.");
+   show("현장 파일이 50MB에 근접해 직접 공유할 수 없습니다. JSON 파일을 저장했으니 내 파일 앱에서 Quick Share로 전송해 주세요.");
    return;
   }
   const transfer=previous&&previous.transfer||sharingFile(original);
   const nativeReady=!!transfer;
   if(!nativeReady){
-   preparedShare=null;downloadFile(original);saveTime();noteUpdate();
-   show("이 기기는 파일 공유를 지원하지 않아 JSON 다운로드를 요청했습니다. 저장된 파일을 Quick Share로 전송해 주세요.");
+   preparedShare=null;
+   downloadFile(transfer||transferableFile(original));saveTime();noteUpdate();
+   show("기기 공유 메뉴가 지원되지 않아 PDF 전송 파일을 저장했습니다. 내 파일 앱에서 파일을 선택하고 Quick Share로 보내세요.");
    return;
   }
   if(navigator.userActivation && !navigator.userActivation.isActive){
@@ -103,7 +101,7 @@ async function shareProject(btn){
    // instead of the intended file-target chooser.
    await navigator.share({files:[transfer]});
    preparedShare=null;saveTime();noteUpdate();
-   show("공유 파일을 전달했습니다. 받는 기기에서는 파일을 S:ARCH로 공유하거나 프로젝트 불러오기로 새 현장에 추가하세요.");
+   show("PDF 프로젝트 파일 공유를 요청했습니다. 받은 기기의 다운로드 폴더에서 파일을 확인하고 S:ARCH의 받은 현장 추가로 불러오세요.");
   }catch(err){
    if(err&&err.name==="AbortError"){
     preparedShare=null;
@@ -114,16 +112,15 @@ async function shareProject(btn){
    // Some Android browsers reject a valid file when the user activation expires.
    // Keep the already-created file and allow one fresh user gesture to retry.
    if(!(previous&&previous.retried)){
-    // Retry only the verified .txt MIME/extension pair: .json cannot be
-    // passed directly to Chromium's Web Share file API.
+    // Retry only the verified PDF file. Keep it ready for a fresh user gesture.
     preparedShare={original,transfer,retried:true};
     needsSecondClick=true;
     show("공유 메뉴 열기 실패("+shareErrorText(err)+"). 파일 준비는 완료되었습니다. '다시 눌러 공유'로 한 번 더 시도해 주세요.");
     return;
    }
    preparedShare=null;
-   downloadFile(original);saveTime();noteUpdate();
-   show("기기 공유를 실행할 수 없습니다("+shareErrorText(err)+"). JSON 다운로드를 요청했습니다. 갤럭시탭의 내 파일 앱에서 JSON 선택 → Quick Share로 보낼 수 있습니다.");
+   downloadFile(transfer);saveTime();noteUpdate();
+   show("기기 공유 오류("+shareErrorText(err)+"). PDF 파일을 저장했습니다. 내 파일 → 다운로드 → 해당 PDF → Quick Share로 보내세요.");
 
   }
  }catch(err){
@@ -141,7 +138,7 @@ function installShare(){
  const btn=document.createElement("button");
  btn.type="button";btn.id="sarchShare142";btn.className="sarch-share-button";
  btn.textContent="↗ 프로젝트 공유";
- btn.title="현장 데이터를 .sarch.txt 파일로 Quick Share 등에 전송합니다. 수신 후 해당 파일을 S:ARCH로 공유하면 새 현장으로 추가할 수 있습니다.";
+ btn.title="프로젝트 JSON을 PDF에 첨부한 공유 전용 파일로 전송합니다. 받는 갤럭시탭에서 받은 현장 추가로 이 PDF를 선택하세요.";
  btn.addEventListener("click",()=>shareProject(btn));
  original.insertAdjacentElement("afterend",btn);
  const section=original.closest("section,aside,.smetric-output")||original.parentElement?.parentElement;
@@ -160,7 +157,20 @@ function allowReceivedProjectFiles(){
  // older Quick Share .sarch.txt files alongside current .json backups in the file picker.
  const selector=moduleKey==="drawing"?"#file":moduleKey==="tilt"?"#restore":"#import";
  const input=pick(selector);
- if(input&&input.type==="file")input.accept=".json,.txt,application/json,text/plain";
+ if(input&&input.type==="file"){
+  input.accept=".json,.txt,.pdf,application/json,text/plain,application/pdf";
+  // Intercept PDFs before the original JSON file input handler executes.
+  input.addEventListener("change",async event=>{
+   const chosen=input.files?.[0];
+   if(!chosen||!window.SARCHTransferV156?.isCarrier(chosen))return;
+   event.stopImmediatePropagation();event.preventDefault();
+   try{
+    const json=await window.SARCHTransferV156.jsonFromPdf(chosen);
+    const dt=new DataTransfer();dt.items.add(json);input.files=dt.files;
+    input.dispatchEvent(new Event("change",{bubbles:true}));
+   }catch(err){console.warn("S:ARCH PDF import:",err);input.value="";show("받은 PDF 현장 파일을 열지 못했습니다: "+(err?.message||"파일 확인 필요"))}
+  },true);
+ }
 }
 /* v152: An installed S:ARCH PWA can be selected as an Android share target.
    The root service worker only stages the file; original per-module importer
@@ -184,7 +194,9 @@ async function openReceivedProject(){
   if(!blob.size||blob.size>300*1024*1024)throw Error("파일 크기를 확인해 주세요");
   const rawName=decodeURIComponent(response.headers.get("X-SARCH-Filename")||"받은현장.json");
   const filename=/\.json$/i.test(rawName)?rawName:rawName.replace(/\.(?:sarch\.txt|txt)$/i,"")+".json";
-  const project=new File([blob],filename,{type:"application/json"});
+  const project=/\.sarch\.pdf$/i.test(filename)?
+   await window.SARCHTransferV156.jsonFromPdf(new File([blob],filename,{type:"application/pdf"})):
+   new File([blob],filename,{type:"application/json"});
   if(typeof DataTransfer!=="function")throw Error("이 브라우저는 직접 불러오기를 지원하지 않습니다");
   const dt=new DataTransfer();dt.items.add(project);
   input.files=dt.files;
