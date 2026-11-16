@@ -139,6 +139,60 @@ async function check(mod,width,height){
     await page.locator("#smFieldTab").click();
     const returned=await page.locator("#smFieldGroup").isVisible();
     report(id,"survey tool tab switches",opened&&returned);
+    if(width===1280){
+      const photoFirst=await page.evaluate(()=>{
+        const photos=document.getElementById("frontPhotoWorkspace")?.getBoundingClientRect();
+        const drawing=document.getElementById("board")?.getBoundingClientRect();
+        return !!photos&&!!drawing&&photos.top<drawing.top;
+      });
+      report(id,"front photos above drawing",photoFirst);
+      await page.evaluate(()=>{
+        window.__qaSurveyBeforeMerge=structuredClone(state);
+        const picture=document.createElement("canvas");picture.width=640;picture.height=400;
+        picture.getContext("2d").fillStyle="white";
+        picture.getContext("2d").fillRect(0,0,640,400);
+        state.pages=[{name:"QA 1층",image:picture.toDataURL("image/png")}];
+        state.activePage=0;
+        state.defects=[
+          {id:801,pageId:0,point:{x:70,y:80},types:["철근노출"],width:"",length:"",count:1,photos:[]},
+          {id:802,pageId:0,point:{x:210,y:180},types:["철근노출"],width:"",length:"",count:1,photos:[]},
+          {id:803,pageId:0,point:{x:450,y:260},types:["철근노출"],width:"",length:"",count:1,photos:[]}
+        ];
+        state.nextId=804;selected=null;loadImage(state.pages[0].image);refresh();
+      });
+      await page.waitForFunction(()=>typeof img!=="undefined"&&img?.width===640);
+      await page.locator("#smUtilityTab").click();
+      await page.locator("#sm163MergeToggle").click();
+      const picked=await page.evaluate(()=>{
+        currentDefects().forEach(d=>sm163Pick(d));
+        return sm163MergeMode&&sm163Chosen.size===3;
+      });
+      await page.locator("#sm163MergeToggle").click();
+      const grouped=await page.evaluate(()=>{
+        const ds=currentDefects();
+        return !sm163MergeMode&&new Set(ds.map(d=>d.mergeGroupId)).size===1&&
+          ds.every(d=>!!d.mergeGroupId)&&annotationRects.length===1;
+      });
+      report(id,"defect group selection and single label",picked&&grouped);
+      await page.evaluate(()=>{selected=currentDefects()[1].id;refresh();draw()});
+      await page.locator("#sm163MergeRemove").click();
+      const released=await page.evaluate(()=>{
+        const ds=currentDefects();
+        return !ds[1].mergeGroupId&&ds[0].mergeGroupId===ds[2].mergeGroupId&&
+          annotationRects.length===2;
+      });
+      report(id,"release only selected group member",released);
+      await page.evaluate(()=>{selected=currentDefects()[0].id;refresh();draw()});
+      await page.locator("#sm163MergeRemove").click();
+      const cleared=await page.evaluate(()=>currentDefects().every(d=>!d.mergeGroupId)&&annotationRects.length===3);
+      report(id,"singleton group automatically dissolves",cleared);
+      await page.evaluate(()=>{
+        state=window.__qaSurveyBeforeMerge;delete window.__qaSurveyBeforeMerge;
+        selected=null;sm163MergeMode=false;sm163Chosen.clear();
+        refreshPages();loadImage(state.pages[state.activePage]?.image||null);refresh();
+      });
+      await page.locator("#smFieldTab").click();
+    }
   }
   const verifyExists=await page.locator("#sarchVerify142").count()===1;
   report(id,"data protection preflight available",verifyExists);
