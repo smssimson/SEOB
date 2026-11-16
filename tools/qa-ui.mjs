@@ -146,10 +146,13 @@ async function check(mod,width,height){
         const inMapPanel=!!section&&section.parentElement===area;
         const afterDrawing=!!photo&&!!drawing&&photo.top>drawing.bottom;
         const sameColumn=!!photo&&!!drawing&&Math.abs(photo.left-drawing.left)<28&&photo.right<=drawing.right+28;
-        const followsHint=section?.previousElementSibling?.classList.contains("hint");
-        return {inMapPanel,afterDrawing,sameColumn,followsHint};
+        const fieldRow=document.getElementById("projectName")?.closest(".row");
+        const followsFields=!!fieldRow&&section.previousElementSibling===fieldRow;
+        const fieldsAfterMap=!!fieldRow&&fieldRow.getBoundingClientRect().top>drawing.bottom;
+        const photosAfterFields=!!fieldRow&&photo.top>fieldRow.getBoundingClientRect().bottom;
+        return {inMapPanel,afterDrawing,sameColumn,followsFields,fieldsAfterMap,photosAfterFields};
       });
-      report(id,"front photos directly under drawing in map column",
+      report(id,"drawing then site fields then front photos within left column",
         Object.values(photoUnderMap).every(Boolean),JSON.stringify(photoUnderMap));
       await page.evaluate(()=>{
         window.__qaSurveyBeforeMerge=structuredClone(state);

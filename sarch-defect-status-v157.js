@@ -26,7 +26,25 @@ function groups(state){
  known.forEach(ensure);
  ds.forEach(d=>{var p=pages[Number(d.pageId)]||{},key=building(d.location)||building(p.name)||building(site)||(known.length===1?known[0]:"현장");ensure(key).push({d:d,page:txt(p.name)||"도면",cause:estimate(d)})});
  if(!m.size)ensure("");
- return Array.from(m.entries()).sort((a,b)=>{var x=parseInt(a[0],10),y=parseInt(b[0],10);return isFinite(x)&&isFinite(y)?x-y:a[0].localeCompare(b[0],"ko")});
+ // Consolidate only on XLSX output. Never modify state.defects or the original records.
+ // The first defect in drawing order supplies the representative name, size and cause;
+ // individual underlying defects remain available for later release and separate exports.
+ function summarize(items){
+  var grouped=new Map(),emitted=new Set(),result=[];
+  function key(it){var id=txt(it.d&&it.d.mergeGroupId);return id?String(it.d.pageId??0)+"|"+id:""}
+  items.forEach((it,i)=>{var k=key(it);if(k){if(!grouped.has(k))grouped.set(k,[]);grouped.get(k).push(i)}});
+  items.forEach((it,i)=>{
+   var k=key(it),peers=k?grouped.get(k):null;
+   if(peers&&peers.length>1){
+    if(emitted.has(k))return;
+    emitted.add(k);
+    result.push({...it,numbers:peers.map(n=>n+1).join(","),groupMemberIds:peers.map(n=>items[n].d.id)});
+   }else result.push({...it,numbers:String(i+1),groupMemberIds:[it.d.id]});
+  });
+  return result;
+ }
+ return Array.from(m.entries()).map(e=>[e[0],summarize(e[1])])
+  .sort((a,b)=>{var x=parseInt(a[0],10),y=parseInt(b[0],10);return isFinite(x)&&isFinite(y)?x-y:a[0].localeCompare(b[0],"ko")});
 }
 function types(d){return Array.from(new Set((d.types||[]).filter(Boolean).map(v=>txt(v).replace(/^(구조체|비구조체)\s*/,"")))).join(", ")||"미지정"}
 function spec(d){var direct=txt(d.manualSpec);if(direct)return direct.replace(/×/g,"X").replace(/(\d)\s*x\s*(?=\d)/gi,"$1X").replace(/(\d)\s*ea\b/gi,"$1EA");var p=[d.width,d.length].map(txt).filter(Boolean),base=p.join("X"),n=Number(d.count);n=Number.isInteger(n)&&n>1?n:1;return base?(n>1?base+"X"+n+"EA":base):n+"EA"}
@@ -42,7 +60,7 @@ function sheetXml(state,key,items){
  row(3,header,2,30);
  if(!items.length)row(4,["-","-","-","등록된 결함 없음","-","-","-"],3,40);
  items.forEach((it,i)=>{var d=it.d,cause=it.cause;
-  row(i+4,[i+1,it.page,member(d),types(d),spec(d),cause,remedy(d)],3,Math.max(47,Math.min(92,36+Math.ceil(cause.length/34)*14)));
+  row(i+4,[it.numbers||String(i+1),it.page,member(d),types(d),spec(d),cause,remedy(d)],3,Math.max(47,Math.min(92,36+Math.ceil(cause.length/34)*14)));
  });
  var cols=[9,22,16,22,18,64,53].map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("");
  var end=Math.max(4,items.length+3);

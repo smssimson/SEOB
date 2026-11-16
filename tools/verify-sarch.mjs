@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===164,'version.json should report v164');
+ok(version.version===165,'version.json should report v165');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v164"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v165"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -88,6 +88,28 @@ ok(report.includes('SARCHDefectStatusV157')&&report.includes('workbook.xml'),'pe
 ok(report.includes('"손상원인추정","조치 필요사항"]')&&!report.includes('"손상원인추정","사진"'),'7-column report has no photo column');
 ok(report.includes('row(3,header,2,30)')&&!report.includes('row(3,["※ 손상원인추정')&&!report.includes('[일반적 추정]'),'header on row 3, no disclaimer/uncertainty suffix');
 ok(report.includes('row(i+4,[')&&report.includes('A1:G1')&&report.includes('A2:G2'),'data on row 4, merge spans 7 columns');
+const reportContext={};
+new Script(report,{filename:'sarch-defect-status-v157.js'}).runInNewContext({self:reportContext});
+const reportAPI=reportContext.SARCHDefectStatusV157;
+const sampleState={project:'QA 현장',pages:[{name:'1동 지상1층'}],defects:[
+ {id:11,pageId:0,types:['철근노출'],width:'',length:'',count:1,photos:['photo11']},
+ {id:12,pageId:0,mergeGroupId:'A',types:['균열'],width:'0.2',length:'300',count:1,photos:['photo12'],causeEstimate:'대표 원인'},
+ {id:13,pageId:0,mergeGroupId:'A',types:['부식'],width:'50',length:'50',count:1,photos:['photo13'],causeEstimate:'다른 원인'},
+ {id:14,pageId:0,types:['백태'],width:'100',length:'100',count:1,photos:['photo14']},
+ {id:15,pageId:0,mergeGroupId:'A',types:['균열'],width:'0.3',length:'200',count:1,photos:['photo15']},
+ {id:16,pageId:0,mergeGroupId:'B',types:['재료분리'],width:'',length:'',count:1,photos:['photo16']}
+]};
+const originalReportState=JSON.stringify(sampleState);
+const groupedRows=reportAPI.groups(sampleState)[0][1];
+ok(groupedRows.length===4,'merged defects collapse to one Excel row while standalone defects remain');
+ok(groupedRows.map(x=>x.numbers).join('|')==='1|2,3,5|4|6','merged row identifies all original defect numbers');
+ok(groupedRows[1].d.id===12&&groupedRows[1].cause==='대표 원인'&&groupedRows[1].groupMemberIds.length===3,'merged row uses first defect representative text and retains all member identifiers');
+const zipContents={};
+reportAPI.build({file:(path,content)=>zipContents[path]=content},sampleState);
+const sheetOutput=zipContents['xl/worksheets/sheet1.xml'];
+ok(sheetOutput.includes('>2,3,5</t>')&&sheetOutput.includes('대표 원인')&&!sheetOutput.includes('다른 원인'),'XLSX output shows one representative row for grouped defects');
+ok(sheetOutput.includes('A1:G1')&&sheetOutput.includes('조치 필요사항')&&!sheetOutput.includes('사진</t>'),'grouped XLSX retains seven-column layout');
+ok(JSON.stringify(sampleState)===originalReportState&&sampleState.defects.length===6&&sampleState.defects[2].photos[0]==='photo13','XLSX grouping never mutates existing defect records or photos');
 const surveyReport=read('survey/index.html');
 ok(surveyReport.includes('id="causeEstimate"')&&surveyReport.includes('결함 현황표 엑셀'),'cause editor and Excel output');
 ok(surveyReport.includes('id="sm156MarkerSizeWrap"')&&surveyReport.includes('hidden=!showDefectLabels'),'marker size slider visible only with labels ON');
@@ -115,7 +137,7 @@ ok(surveyV155.includes("const direct=String(d.manualSpec??'').trim()")&&surveyV1
 ok(surveyV155.includes("normalized.match(")&&surveyV155.includes("if(!m)return null"),'free-form manual dimension does not borrow stale measurements for area calculation');
 ok(report.includes('var direct=txt(d.manualSpec)')&&report.includes('n+"EA"'),'XLSX report displays 1EA only when dimensions are absent');
 ok(!surveyV155.includes('id="frontPhotoJump"')&&surveyV155.includes('grid-column:auto;order:0;scroll-margin-top'),'photo workspace no longer occupies a full-width top grid row');
-ok(surveyV155.indexOf('id="board"')<surveyV155.indexOf('id="frontPhotoWorkspace"')&&surveyV155.indexOf('id="frontPhotoWorkspace"')<surveyV155.indexOf('id="projectName"'),'photo workspace sits immediately after drawing hint inside left map panel');
+ok(surveyV155.indexOf('id="board"')<surveyV155.indexOf('id="projectName"')&&surveyV155.indexOf('id="projectName"')<surveyV155.indexOf('id="frontPhotoWorkspace"'),'site and drawing name fields come directly before front photo workspace in left panel');
 ok(surveyV155.includes('id="sm163MergeToggle"')&&surveyV155.includes('id="sm163MergeRemove"'),'visual group and per-defect release buttons');
 ok(surveyV155.includes('sm163Chosen.add(d.id)')&&surveyV155.includes('function sm163Finish()'),'multi-selection and second-click grouping');
 ok(surveyV155.includes('mismatchedType')&&surveyV155.includes('mismatchedSize')&&surveyV155.includes('if(!confirm('),'different kinds and sizes receive double confirmation');
@@ -133,9 +155,9 @@ const measuredFn=new Function('isCrackDefect','function measuredQty(d){'+measure
 ok(Math.abs(measuredFn({manualSpec:'300X300X2EA'})-0.18)<0.000001,'manual dimensions calculate quantity when unambiguous');
 ok(measuredFn({manualSpec:'2EA',width:300,length:300})===null,'EA-only manual input does not accidentally use stale preset dimensions');
 
-ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=161')&&rootSWCacheCheck(),'report cache version updated');
+ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=165')&&rootSWCacheCheck(),'grouped XLSX cache version updated');
 ok(read('survey/sw.js').includes("sarch-share-inbox-v1")&&read('survey/sw.js').includes("req.formData()"),'independently installed survey app stages received files safely');
-function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=161')}
+function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=165')}
 const rootManifest=JSON.parse(read('manifest.webmanifest'));
 ok(rootManifest.share_target?.action==='/SEOB/share-target','installed app accepts Android file shares');
 ok(rootManifest.share_target?.params?.files?.[0]?.accept?.includes('.json'),'JSON extension registered for share target');
@@ -146,7 +168,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v164'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v165'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -194,4 +216,4 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v164 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v165 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
