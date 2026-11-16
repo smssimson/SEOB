@@ -28,6 +28,7 @@ async function check(mod,width,height){
   await page.waitForSelector("body.sarch-v142",{timeout:10000});
   await page.waitForTimeout(950);
   report(id,"loaded",res.ok());
+  await page.screenshot({path:folder+"/"+id+"-initial.png",animations:"disabled"});
   const dom=await page.evaluate(()=>{
    const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}};
    const site=document.querySelector(".sarch-site-v135"),sel=site?.querySelector("select"),btn=site?.querySelector("button");
@@ -58,9 +59,12 @@ async function check(mod,width,height){
     const eraser=await page.locator("#modeErase").isVisible();
     await page.locator("#sarchDrawTab144-export").click();
     const output=await page.locator(".sm-drawing-output").isVisible()&&await page.locator("#sarchShare142").isVisible();
+    const compact=await page.locator(".sarch-draw-export-grid-v144>button").count()===7;
+    const cameraDocked=await page.locator("#sarchDrawTabs144 #sm52FixedCamera").count()===1;
+    const helpCollapsed=await page.locator(".sarch-draw-output-help-v144").evaluate(el=>el.open===false);
     await page.locator("#sarchDrawTab144-draw").click();
     const drawing=await page.locator("#modeFree").isVisible();
-    report(id,"drawing four tool categories",initCount===4&&labels.join("").includes("출력")&&structural&&eraser&&output&&drawing&&Object.values(counts).every(n=>n===1),JSON.stringify({labels,counts,structural,eraser,output,drawing}));
+    report(id,"drawing four tool categories",initCount===4&&labels.join("").includes("출력")&&structural&&eraser&&output&&compact&&cameraDocked&&helpCollapsed&&drawing&&Object.values(counts).every(n=>n===1),JSON.stringify({labels,counts,structural,eraser,output,compact,cameraDocked,helpCollapsed,drawing}));
   }
   if(mod==="survey"){
     await page.locator("#smUtilityTab").click();
