@@ -58,6 +58,20 @@ function init(){
  panes.edit.appendChild(advanced);
  // Preserve the real export/import buttons (and native share button) inside one tab.
  panes.export.appendChild(output);
+ // Consolidate original live export buttons into one quiet grid. No handlers are copied.
+ const actionGrid=document.createElement("div");actionGrid.className="sarch-draw-export-grid-v144";
+ for(const row of [...output.querySelectorAll(":scope > .row")]){
+  for(const child of [...row.children])if(child.matches("button,.sarch-share-button"))actionGrid.appendChild(child);
+  if(!row.children.length)row.remove();
+ }
+ output.insertBefore(actionGrid,output.firstChild);
+ const help=document.createElement("details");help.className="sarch-draw-output-help-v144";
+ const helpTitle=document.createElement("summary");helpTitle.textContent="저장·백업 안내";
+ help.appendChild(helpTitle);
+ for(const note of [...output.querySelectorAll(":scope > p")])help.appendChild(note);
+ output.appendChild(help);
+ const camera=root.querySelector("#sm52FixedCamera");
+ if(camera){camera.classList.add("sarch-draw-camera-v144");nav.appendChild(camera)}
  const legacy=document.createElement("details");legacy.className="sarch-draw-legacy-v144";
  const legacyLabel=document.createElement("summary");legacyLabel.textContent="추가 도구";
  legacy.appendChild(legacyLabel);legacy.append(oldTabs,oldDeck);
