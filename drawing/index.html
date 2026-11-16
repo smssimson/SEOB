@@ -393,7 +393,7 @@ async function loadJSON(e){
   if(smDrawSiteId)localStorage.setItem(DRAW_SITE_PREFIX+smDrawSiteId,
    JSON.stringify({version:7,sheets,activeSheetId:sheetId,...state()}));
   const id='drawing-import-'+Date.now()+'-'+Math.floor(Math.random()*1e6);
-  const rawName=(file.name||'불러온 현장').replace(/\.json$/i,'').replace(/[_-]프로젝트$/,'').trim();
+  const rawName=(obj.siteName||file.name||'불러온 현장').replace(/\.(?:sarch\.txt|json|txt)$/i,'').replace(/_도면작성_\d{8}_\d{6}$/i,'').replace(/[_-]프로젝트$/,'').trim();
   const entry={id,name:rawName||'불러온 현장',updated:Date.now()};
   localStorage.setItem(DRAW_SITE_PREFIX+id,JSON.stringify(candidate));
   try{
@@ -690,7 +690,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
 
 <link rel="stylesheet" href="../sarch-workspace-v142.css?v=143">
 <link rel="stylesheet" href="../sarch-drawing-tools-v144.css?v=149">
-<script defer src="../sarch-workspace-v142.js?v=143"></script>
+<script defer src="../sarch-workspace-v142.js?v=150"></script>
 <link rel="stylesheet" href="../sarch-shell-v145.css?v=147">
 <script defer src="../sarch-shell-v145.js?v=145"></script>
 <script defer src="../sarch-drawing-tools-v144.js?v=149"></script>
