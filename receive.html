@@ -28,7 +28,7 @@ small{display:block;margin-top:14px;color:#536e87;line-height:1.7}
 <div id="details" class="details" hidden></div>
 <div class="actions">
 <button id="pickBtn" type="button">받은 프로젝트 파일 선택</button>
-<input id="filePick" type="file" accept=".json,.txt,application/json,text/plain" hidden>
+<input id="filePick" type="file" accept=".json,.txt,.pdf,application/json,text/plain,application/pdf" hidden>
 <button id="importBtn" disabled>새 현장으로 추가</button>
 <button id="saveBtn" class="secondary" disabled>JSON 파일 저장</button>
 <button id="deleteBtn" class="secondary" disabled>수신 파일 삭제</button>
@@ -36,6 +36,7 @@ small{display:block;margin-top:14px;color:#536e87;line-height:1.7}
 </div>
 <small>안전 안내: 받은 파일은 기기 안의 임시 수신함에만 보관됩니다. 내용 확인 및 새 현장 추가를 승인하기 전에는 기존 작업을 변경하지 않습니다. 다른 형식의 파일은 자동으로 열지 않습니다.</small>
 </section></main>
+<script src="./sarch-transfer-v156.js?v=156"></script>
 <script>
 (function(){
 "use strict";
@@ -55,7 +56,7 @@ function classify(o){
 }
 async function run(){
  if(!valid()){
-  status("Quick Share로 받은 .json 또는 .sarch.txt 파일을 위의 '받은 프로젝트 파일 선택'에서 골라 주세요. 기존 현장은 그대로 유지됩니다.");
+  status("Quick Share로 받은 .sarch.pdf 전송 파일 또는 기존 .json 백업 파일을 선택해 주세요. 기존 현장은 그대로 유지됩니다.");
   return
  }
  if(!("caches" in window)){status("이 브라우저는 수신 파일 보관함을 지원하지 않습니다.");return}
@@ -63,13 +64,18 @@ async function run(){
   cache=await caches.open(CACHE);
   const response=await cache.match(new URL("./inbox/"+id,location.href));
   if(!response){status("수신된 파일을 찾지 못했습니다. S:ARCH를 다시 실행하거나 파일을 다시 공유해 주세요.");return}
-  const blob=await response.blob();
+  let blob=await response.blob();
   if(blob.size>300*1024*1024)throw Error("파일 크기가 300MB를 초과합니다.");
+  const receivedName=decodeURIComponent(response.headers.get("X-SARCH-Filename")||"받은현장.json");
+  let filename=receivedName;
+  if(/\.sarch\.pdf$/i.test(receivedName)){
+   if(!window.SARCHTransferV156)throw Error("PDF 전송 파일 기능을 불러오지 못했습니다.");
+   file=await window.SARCHTransferV156.jsonFromPdf(new File([blob],receivedName,{type:"application/pdf"}));
+   blob=file;filename=file.name;
+  }else file=new File([blob],filename,{type:"application/json"});
   const data=JSON.parse(await blob.text());
   type=classify(data);
   if(!type)throw Error("S:ARCH의 4개 프로젝트 형식과 일치하지 않습니다.");
-  const filename=decodeURIComponent(response.headers.get("X-SARCH-Filename")||"받은현장.json");
-  file=new File([blob],filename,{type:"application/json"});
   el("details").hidden=false;
   el("details").textContent="프로그램: "+type.title+"\n파일: "+filename+"\n포함 자료: "+type.unit+" "+type.count+"개\n용량: "+(blob.size/1024/1024).toFixed(2)+" MB";
   el("details").style.whiteSpace="pre-line";
@@ -84,15 +90,17 @@ el("filePick").addEventListener("change",async()=>{
  el("filePick").value="";
  el("pickBtn").disabled=true;
  try{
-  if(!/\.(?:json|txt)$/i.test(chosen.name))throw Error("JSON 프로젝트 파일(.json 또는 .sarch.txt)을 선택해 주세요.");
+  if(!/\.(?:json|txt|pdf)$/i.test(chosen.name))throw Error("S:ARCH 프로젝트(.sarch.pdf, .json, .sarch.txt)를 선택해 주세요.");
   if(!chosen.size||chosen.size>300*1024*1024)throw Error("파일 용량이 비어 있거나 300MB를 초과합니다.");
-  const obj=JSON.parse(await chosen.text());
+  const decoded=/\.sarch\.pdf$/i.test(chosen.name)?
+   await window.SARCHTransferV156.jsonFromPdf(chosen):chosen;
+  const obj=JSON.parse(await decoded.text());
   if(!classify(obj))throw Error("S:ARCH 프로젝트 파일 형식이 아닙니다.");
   if(!("caches" in window))throw Error("브라우저 수신 저장소를 사용할 수 없습니다.");
   const token=crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,"0")).join("");
-  const name=chosen.name.slice(0,160);
+  const name=decoded.name.slice(0,160);
   const inbox=await caches.open(CACHE);
-  await inbox.put(new URL("./inbox/"+token,location.href),new Response(chosen,{headers:{
+  await inbox.put(new URL("./inbox/"+token,location.href),new Response(decoded,{headers:{
    "Content-Type":"application/octet-stream",
    "X-SARCH-Filename":encodeURIComponent(name)
   }}));
