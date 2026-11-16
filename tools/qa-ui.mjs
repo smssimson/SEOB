@@ -105,6 +105,13 @@ async function check(mod,width,height){
     const buttonGrouped=await page.locator("#modeErase").evaluate(el=>el.parentElement?.classList.contains("sarch-eraser-unit-v148"));
     await page.locator("#modeSelect").click();
     const hiddenAfter=!(await page.locator("#sarchEraseOptions148").isVisible());
+    const eraserDebug=await page.evaluate(()=>{
+      const button=document.getElementById("modeErase"),el=document.getElementById("sarchEraseOptions148"),wrapper=document.querySelector(".sarch-eraser-unit-v148");
+      return {buttonParent:button?.parentElement?.className,buttonClasses:button?.className,
+        optionParent:el?.parentElement?.className,optionsHidden:el?.hidden,optionsChildren:[...el?.children||[]].map(x=>x.id||x.outerHTML.slice(0,100)),
+        wrapper:!!wrapper,wrapperChildren:[...wrapper?.children||[]].map(x=>x.id)};
+    });
+
     const output=await page.locator("#side > .sm-drawing-output").isVisible()&&await page.locator("#sarchShare142").isVisible();
     const compact=await page.locator("#side .sarch-draw-export-grid-v144>button").count()===7;
     const cameraDocked=await page.locator("#sarchDrawTabs144 #sm52FixedCamera").count()===1;
@@ -118,7 +125,7 @@ async function check(mod,width,height){
       eraserOptionsVisible&&buttonGrouped&&hiddenAfter&&output&&compact&&cameraDocked&&
       helpCollapsed&&noExtras&&noLegacy&&drawing&&Object.values(counts).every(n=>n===1),
       JSON.stringify({labels,counts,structural,eraser,initialHidden,eraserOptionsVisible,buttonGrouped,
-      hiddenAfter,output,compact,cameraDocked,helpCollapsed,noExtras,noLegacy,drawing}));
+      hiddenAfter,output,compact,cameraDocked,helpCollapsed,noExtras,noLegacy,drawing,eraserDebug}));
   }
   if(mod==="survey"){
     await page.locator("#smUtilityTab").click();
@@ -189,7 +196,7 @@ async function check(mod,width,height){
   if(width===390){
    let downloads=0;page.on("download",()=>downloads++);
    await page.evaluate(()=>Object.defineProperty(navigator,"share",{configurable:true,value:async()=>{throw new DOMException("Cancelled","AbortError")}}));
-   if(mod==="drawing")await page.locator("#sarchDrawTab144-export").click();
+
    await page.locator("#sarchShare142").click();
    await page.waitForTimeout(150);
    report(id,"share cancellation has no download",downloads===0&&await page.locator("#sarchShare142").isEnabled());
