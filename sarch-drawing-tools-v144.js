@@ -13,6 +13,22 @@ function init(){
  const side=document.getElementById("side");
  if(!root||content?.length!==2||!oldTabs||!oldDeck||!output||!side)return;
  const field=content[0],util=content[1];
+ // Remove the drawing-only "기타 도면 도구" row without deleting any
+ // original DOM control or event handler; keep hidden legacy actions hidden.
+ const floorMore=document.querySelector("#sarchFloor135 .sarch-floor-more-v135");
+ const floorRight=document.querySelector("#sarchFloor135 .sarch-floor-group-right-v135");
+ if(floorMore&&floorRight){
+  const extra=floorMore.querySelector(".sarch-floor-extras-v135");
+  if(extra){
+   while(extra.firstChild){
+    const node=extra.firstChild;
+    if(node.nodeType===1&&node.matches(".hint"))node.hidden=true;
+    floorRight.appendChild(node);
+   }
+  }
+  floorMore.remove();
+ }
+
  const needed=["modeFree","modePoints","modeSelect","modeErase"];
  if(needed.some(id=>!document.getElementById(id)))return;
 
