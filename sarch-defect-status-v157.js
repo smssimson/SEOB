@@ -32,29 +32,27 @@ function types(d){return Array.from(new Set((d.types||[]).filter(Boolean).map(v=
 function spec(d){var direct=txt(d.manualSpec);if(direct)return direct.replace(/×/g,"X").replace(/(\d)\s*x\s*(?=\d)/gi,"$1X").replace(/(\d)\s*ea\b/gi,"$1EA");var p=[d.width,d.length].map(txt).filter(Boolean),base=p.join("X"),n=Number(d.count);n=Number.isInteger(n)&&n>1?n:1;return base?(n>1?base+"X"+n+"EA":base):n+"EA"}
 function member(d){var match=txt(d.location).match(/기둥|벽체|보|슬래브|바닥|천장|계단|난간|창호|문|옥상|지붕|외벽|내벽/);return match?match[0]:"-"}
 function remedy(d){var t=(d.types||[]).join(" ");return /누수|백태/.test(t)?"수분 유입 원인 확인 및 방수·배수상태 점검 후 보수 검토":/균열/.test(t)?"진행 여부 주기적 관찰 및 필요 시 보수 검토":/철근노출|박락|파손/.test(t)?"손상 범위 확인 후 단면복구·재발방지 검토":"유지관리계획에 따른 주의관찰 및 보수 검토"}
-var header=["번호","층/도면","부재(부위)","결함 종류","결함 크기","손상원인추정","사진","조치 필요사항"];
+var header=["번호","층/도면","부재(부위)","결함 종류","결함 크기","손상원인추정","조치 필요사항"];
 function sheetXml(state,key,items){
- var rows=[],merge=["A1:H1","A2:H2","A3:H3"];
+ var rows=[],merge=["A1:G1","A2:G2"];
  function cell(value,r,i,style){return '<c r="'+String.fromCharCode(65+i)+r+'" s="'+style+'" t="inlineStr"><is><t xml:space="preserve">'+xml(value)+'</t></is></c>'}
  function row(n,values,style,height){rows.push('<row r="'+n+'" ht="'+height+'" customHeight="1">'+values.map((v,i)=>cell(v,n,i,style)).join("")+"</row>")}
  row(1,["결함 현황표"],1,42);
  row(2,[(txt(state.project)||"현장")+" | "+key+" | 조사 결함 "+items.length+"건"],2,30);
- row(3,["※ 손상원인추정은 결함 종류·기록에 따른 참고 초안입니다. 사진 AI 판독이 아니며 사진이 있는 경우 육안 검토 후 수정하세요."],4,33);
- row(4,header,2,30);
- if(!items.length)row(5,["-","-","-","등록된 결함 없음","-","-","-","-"],3,40);
- items.forEach((it,i)=>{var d=it.d,photos=Array.isArray(d.photos)?d.photos.length:0,cause=it.cause,manual=!!txt(d.causeEstimate);
-  if(!manual)cause+=photos?" [사진 검토 필요]":" [일반적 추정]";
-  row(i+5,[i+1,it.page,member(d),types(d),spec(d),cause,photos?photos+"장 · 미검토":"사진 없음",remedy(d)],3,Math.max(47,Math.min(92,36+Math.ceil(cause.length/34)*14)));
+ row(3,header,2,30);
+ if(!items.length)row(4,["-","-","-","등록된 결함 없음","-","-","-"],3,40);
+ items.forEach((it,i)=>{var d=it.d,cause=it.cause;
+  row(i+4,[i+1,it.page,member(d),types(d),spec(d),cause,remedy(d)],3,Math.max(47,Math.min(92,36+Math.ceil(cause.length/34)*14)));
  });
- var cols=[9,22,16,22,18,64,16,53].map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("");
- var end=Math.max(5,items.length+4);
+ var cols=[9,22,16,22,18,64,53].map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("");
+ var end=Math.max(4,items.length+3);
  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
- '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>'+
- '<dimension ref="A1:H'+end+'"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="4" topLeftCell="A5" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+
- '<sheetFormatPr defaultRowHeight="18"/><cols>'+cols+'</cols><sheetData>'+rows.join("")+'</sheetData>'+
- '<mergeCells count="3">'+merge.map(v=>'<mergeCell ref="'+v+'"/>').join("")+'</mergeCells>'+
- '<printOptions horizontalCentered="1"/><pageMargins left="0.3" right="0.3" top="0.5" bottom="0.5" header="0.2" footer="0.2"/>'+
- '<pageSetup orientation="landscape" paperSize="9" fitToWidth="1" fitToHeight="0"/></worksheet>';
+  '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>'+
+  '<dimension ref="A1:G'+end+'"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="3" topLeftCell="A4" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+
+  '<sheetFormatPr defaultRowHeight="18"/><cols>'+cols+'</cols><sheetData>'+rows.join("")+'</sheetData>'+
+  '<mergeCells count="2">'+merge.map(v=>'<mergeCell ref="'+v+'"/>').join("")+'</mergeCells>'+
+  '<printOptions horizontalCentered="1"/><pageMargins left="0.3" right="0.3" top="0.5" bottom="0.5" header="0.2" footer="0.2"/>'+
+  '<pageSetup orientation="landscape" paperSize="9" fitToWidth="1" fitToHeight="0"/></worksheet>';
 }
 var styleXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
 '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+

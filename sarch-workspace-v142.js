@@ -31,21 +31,20 @@ function downloadFile(file){
  a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
-/* v156: Real PDF carrier with embedded unmodified JSON.
-   Chromium Android permits application/pdf, unlike application/json/.zip.
-   This avoids Samsung Quick Share treating text/plain as clipboard text. */
+/* v161: Share the original JSON. If Web Share rejects it, save JSON for Quick Share
+   from Android My Files. Keep legacy PDF receiving capability only for imports. */
 let preparedShare=null;
 const INBOX_CACHE="sarch-share-inbox-v1";
 const CHROME_ANDROID_MAX_SHARE_BYTES=50*1024*1024;
 function transferableFile(original){
- if(!window.SARCHTransferV156)throw Error("프로젝트 전송 기능을 불러오지 못했습니다. 앱 업데이트를 확인해 주세요.");
- return window.SARCHTransferV156.pdfFromJson(original);
+ if(!(original instanceof File)||!/\.json$/i.test(original.name))throw Error("올바른 JSON 프로젝트 파일이 필요합니다.");
+ return original;
 }
 function sharingFile(original){
  if(typeof navigator.share!=="function"||typeof navigator.canShare!=="function")return null;
  const transfer=transferableFile(original);
  try{if(navigator.canShare({files:[transfer]})===true)return transfer}
- catch(err){console.warn("S:ARCH PDF share capability:",err)}
+ catch(err){console.warn("S:ARCH JSON sharing capability:",err)}
  return null;
 }
 function shareErrorText(err){
@@ -74,7 +73,7 @@ async function shareProject(btn){
    if(!original)return;
    if(!(original instanceof File)||!original.size)throw Error("프로젝트 파일을 생성하지 못했습니다.");
   }
-  // Chrome Android limits direct Web Share to 50 MiB including the PDF envelope.
+  // Chrome Android may limit large JSON file shares; preserve JSON fallback.
   if(/Android/i.test(navigator.userAgent||"")&&original.size>=CHROME_ANDROID_MAX_SHARE_BYTES-4096){
    preparedShare=null;
    downloadFile(original);saveTime();noteUpdate();
@@ -85,8 +84,8 @@ async function shareProject(btn){
   const nativeReady=!!transfer;
   if(!nativeReady){
    preparedShare=null;
-   downloadFile(transfer||transferableFile(original));saveTime();noteUpdate();
-   show("기기 공유 메뉴가 지원되지 않아 PDF 전송 파일을 저장했습니다. 내 파일 앱에서 파일을 선택하고 Quick Share로 보내세요.");
+   downloadFile(original);saveTime();noteUpdate();
+   show("브라우저가 JSON 공유를 지원하지 않습니다. 저장된 JSON 파일을 갤럭시 내 파일 → 다운로드 → Quick Share로 전송하세요.");
    return;
   }
   if(navigator.userActivation && !navigator.userActivation.isActive){
@@ -101,7 +100,7 @@ async function shareProject(btn){
    // instead of the intended file-target chooser.
    await navigator.share({files:[transfer]});
    preparedShare=null;saveTime();noteUpdate();
-   show("PDF 프로젝트 파일 공유를 요청했습니다. 받은 기기의 다운로드 폴더에서 파일을 확인하고 S:ARCH의 받은 현장 추가로 불러오세요.");
+   show("JSON 프로젝트 공유를 요청했습니다. 받은 기기에서 S:ARCH의 받은 현장 추가로 JSON 파일을 불러오세요.");
   }catch(err){
    if(err&&err.name==="AbortError"){
     preparedShare=null;
@@ -112,15 +111,15 @@ async function shareProject(btn){
    // Some Android browsers reject a valid file when the user activation expires.
    // Keep the already-created file and allow one fresh user gesture to retry.
    if(!(previous&&previous.retried)){
-    // Retry only the verified PDF file. Keep it ready for a fresh user gesture.
+    // Retry only the original JSON file with a fresh user gesture.
     preparedShare={original,transfer,retried:true};
     needsSecondClick=true;
     show("공유 메뉴 열기 실패("+shareErrorText(err)+"). 파일 준비는 완료되었습니다. '다시 눌러 공유'로 한 번 더 시도해 주세요.");
     return;
    }
    preparedShare=null;
-   downloadFile(transfer);saveTime();noteUpdate();
-   show("기기 공유 오류("+shareErrorText(err)+"). PDF 파일을 저장했습니다. 내 파일 → 다운로드 → 해당 PDF → Quick Share로 보내세요.");
+   downloadFile(original);saveTime();noteUpdate();
+   show("기기 공유 오류("+shareErrorText(err)+"). JSON 파일을 저장했습니다. 내 파일 → 다운로드 → 해당 JSON → Quick Share로 보내세요.");
 
   }
  }catch(err){
@@ -138,7 +137,7 @@ function installShare(){
  const btn=document.createElement("button");
  btn.type="button";btn.id="sarchShare142";btn.className="sarch-share-button";
  btn.textContent="↗ 프로젝트 공유";
- btn.title="프로젝트 JSON을 PDF에 첨부한 공유 전용 파일로 전송합니다. 받는 갤럭시탭에서 받은 현장 추가로 이 PDF를 선택하세요.";
+ btn.title="JSON 파일을 직접 공유합니다. 브라우저에서 불가능하면 JSON을 내려받아 내 파일에서 Quick Share로 전송하세요.";
  btn.addEventListener("click",()=>shareProject(btn));
  original.insertAdjacentElement("afterend",btn);
  const section=original.closest("section,aside,.smetric-output")||original.parentElement?.parentElement;
