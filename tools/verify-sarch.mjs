@@ -60,6 +60,7 @@ ok(layout.includes('sarch-floor-more-v135'),'unmatched floor controls remain acc
 const layoutCss=read('sarch-layout-v135.css');
 ok(layoutCss.includes('.sarch-floor-more-v135>.sarch-floor-extras-v135'),'extra floor tools must be visible when expanded');
 const home=read('index.html');
+ok(home.includes('href="./receive.html"')&&home.includes('받은 현장 추가'),'home links to direct received-site import');
 checkInline(home,'index.html');
 for(const m of moduleChecks)ok(home.includes('href="./'+m.dir+'/'),m.dir+' home link preserved');
 ok(!home.includes('sarch-auth-v140')&&!home.includes('sarchAccountButton'),'login is still disabled');
@@ -86,6 +87,8 @@ ok(rootManifest.share_target?.params?.files?.[0]?.accept?.includes('.json'),'JSO
 const received=read('receive.html');
 checkInline(received,'receive.html');
 ok(received.includes('새 현장으로 추가')&&received.includes('sarch_received'),'received file routed for confirmation');
+ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual received file picker available');
+ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
 ok(rootSW.includes('smetric-offline-v154'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
