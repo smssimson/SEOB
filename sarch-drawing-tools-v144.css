@@ -1,0 +1,88 @@
+/* S:ARCH v144: drawing workspace only; shared v143 palettes and data untouched. */
+body.sarch-drawing-v144 .sm43-tool-panel.sarch-top-tools-v135{
+ display:block!important;min-height:0!important;padding:11px 12px!important;
+}
+body.sarch-drawing-v144 #sarchDrawTabs144{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;
+ margin-bottom:9px!important;
+}
+body.sarch-drawing-v144 #sarchDrawTabs144 .sarch-draw-tab-v144{
+ min-height:39px!important;padding:9px 8px!important;
+ border:1px solid #42617e!important;border-radius:9px!important;
+ color:#bcd2e4!important;background:#1e354d!important;
+ font:700 12px/1.35 Dotum,"돋움",sans-serif!important;
+ text-align:center!important;white-space:normal!important;box-shadow:none!important;
+ cursor:pointer!important;
+}
+body.sarch-drawing-v144 #sarchDrawTabs144 .sarch-draw-tab-v144[aria-selected="true"]{
+ background:#287fbe!important;border-color:#79c2e9!important;color:white!important;
+}
+body.sarch-drawing-v144 #sarchDrawSurface144{
+ border:1px solid #35536f;border-radius:10px;background:#1d344d;
+ padding:10px 12px;min-height:47px;box-sizing:border-box;
+}
+body.sarch-drawing-v144 .sarch-draw-pane-v144[hidden]{display:none!important}
+body.sarch-drawing-v144 .sarch-draw-pane-v144:not([hidden]){
+ display:flex!important;align-items:center;align-content:flex-start;flex-wrap:wrap;gap:7px!important;
+}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 :is(button,select, input:not([type="hidden"])){
+ max-width:100%;min-height:37px;border-radius:8px;
+}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 .toolbar{
+ display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:7px!important;
+ width:auto!important;max-width:100%!important;margin:0!important;padding:0!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 .toolbar+.toolbar{
+ padding-left:10px!important;border-left:1px solid #405b73!important;
+}
+body.sarch-drawing-v144 .sarch-draw-more-v144,
+body.sarch-drawing-v144 .sarch-draw-legacy-v144{flex-basis:100%;min-width:0}
+body.sarch-drawing-v144 .sarch-draw-legacy-v144{margin-top:3px}
+body.sarch-drawing-v144 .sarch-draw-more-v144>summary,
+body.sarch-drawing-v144 .sarch-draw-legacy-v144>summary{
+ padding:7px 3px;color:#b5cde1;cursor:pointer;
+ font:12px/1.5 Dotum,"돋움",sans-serif;list-style-position:inside;
+}
+body.sarch-drawing-v144 .sarch-draw-more-content-v144{
+ display:flex!important;align-items:center;flex-wrap:wrap;gap:7px!important;
+ padding:8px 0 3px;border-top:1px solid #3d5874;
+}
+body.sarch-drawing-v144 .sarch-draw-legacy-v144 .sm43-tabs{display:flex!important}
+body.sarch-drawing-v144 .sarch-draw-legacy-v144 .sm43-deck{display:flex!important}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 .sm-drawing-output{
+ width:100%!important;margin:0!important;padding:0!important;
+ border:0!important;background:transparent!important;min-width:0!important;
+}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 .sm-drawing-output h3{
+ font:700 13px/1.4 Dotum,"돋움",sans-serif!important;margin:0 0 8px!important;color:#dcecf9!important;
+}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 .sm-drawing-output .row{
+ display:flex;flex-wrap:wrap;gap:7px;margin:7px 0!important;
+}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 .sm-drawing-output .row>button{
+ flex:1 1 170px!important;white-space:normal!important;min-height:40px!important;
+}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 .sm-drawing-output p{
+ margin:8px 0 2px!important;font:11px/1.6 Dotum,"돋움",sans-serif!important;color:#b6ccdd!important;
+}
+body.sarch-drawing-v144 #sarchDrawSurface144 .sarch-share-button{flex:1 1 170px}
+body.sarch-drawing-v144.sarch-light-142 #sarchDrawSurface144{
+ background:#edf4fa;border-color:#c9d9e8;
+}
+body.sarch-drawing-v144.sarch-light-142 #sarchDrawTabs144 .sarch-draw-tab-v144{
+ color:#41617e!important;background:#edf4fa!important;border-color:#c8d7e7!important;
+}
+body.sarch-drawing-v144.sarch-light-142 #sarchDrawTabs144 .sarch-draw-tab-v144[aria-selected="true"]{
+ color:white!important;background:#287fbe!important;border-color:#287fbe!important;
+}
+body.sarch-drawing-v144.sarch-light-142 .sarch-draw-pane-v144 .sm-drawing-output h3{color:#284761!important}
+@media(max-width:650px){
+ body.sarch-drawing-v144 #sarchDrawTabs144{gap:4px}
+ body.sarch-drawing-v144 #sarchDrawTabs144 .sarch-draw-tab-v144{min-height:44px!important;padding:8px 3px!important;font-size:11px!important}
+ body.sarch-drawing-v144 #sarchDrawSurface144{padding:8px!important}
+ body.sarch-drawing-v144 .sarch-draw-pane-v144 :is(button,select){min-height:42px!important}
+}
+@media print{
+ body.sarch-drawing-v144 .sm43-tool-panel{display:none!important}
+}
