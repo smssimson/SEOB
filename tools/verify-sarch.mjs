@@ -73,7 +73,7 @@ const style=read('sarch-workspace-v142.css');
 ok(style.includes('body.sarch-v142'),'styles are scoped to modern workspace');
 ok((style.match(/{/g)||[]).length===(style.match(/}/g)||[]).length,'CSS braces balance');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v146'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v147'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 scriptSyntax(rootSW,'seob-sw.js');
 
@@ -109,4 +109,4 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v146 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v147 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
