@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===161,'version.json should report v161');
+ok(version.version===162,'version.json should report v162');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v161"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v162"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -103,7 +103,10 @@ ok(surveyV155.includes('12*sm155MarkerFactor(d)')&&surveyV155.includes('Math.max
 ok(surveyV155.includes('state.defects.forEach(d=>{d.defectMarkerSize=pct})'),'global slider updates all site defects');
 ok(surveyV155.includes('target.defectMarkerSize=pct'),'selected slider modifies one defect');
 ok(surveyV155.includes('return size?(n>1?')&&surveyV155.includes('):`${n}EA`'),'default 1EA appears only when no dimensions are present');
-ok(surveyV155.includes('id="eaPreset" aria-label="개수 고정" disabled'),'EA is fixed readonly 1EA for new records');
+ok(surveyV155.includes('id="eaPreset" aria-label="개수 선택"')&&!surveyV155.includes('aria-label="개수 고정" disabled'),'EA dropdown is selectable with no disabled lock');
+ok(surveyV155.includes('Array.from({length:30}')&&surveyV155.includes("const countSelected=Number.isInteger(Number(d.count))"),'EA dropdown lists 1..30 and defaults to 1EA');
+ok(surveyV155.includes("eaSelect.onchange=()=>")&&surveyV155.includes("setCountEA(Number(eaSelect.value))"),'EA selection updates stored quantity immediately');
+ok(surveyV155.includes('id="eaCustom"')&&surveyV155.includes('eaCustom.oninput=()=>'),'EA dropdown also provides direct input like width/length');
 ok(!surveyV155.includes('id="manualSpec"'),'separate bottom manual-spec field removed');
 ok(['widthCustom','lengthCustom'].every(id=>surveyV155.includes('id="'+id+'"')),'width and length have in-place number input fields');
 ok(surveyV155.includes('<option value="__custom__">직접 입력</option>'),'dropdowns end with direct-entry option');
@@ -135,7 +138,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v161'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v162'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -183,4 +186,4 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v161 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v162 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
