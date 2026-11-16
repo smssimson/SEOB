@@ -3,7 +3,7 @@ body.sarch-drawing-v144 .sm43-tool-panel.sarch-top-tools-v135{
  display:block!important;min-height:0!important;padding:11px 12px!important;
 }
 body.sarch-drawing-v144 #sarchDrawTabs144{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) 70px;gap:6px;
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 70px;gap:6px;
  margin-bottom:9px!important;
 }
 body.sarch-drawing-v144 #sarchDrawTabs144 .sarch-draw-tab-v144{
@@ -125,8 +125,68 @@ body.sarch-drawing-v144 #sarchDrawTabs144 #sm52FixedCamera span:first-child{
 }
 body.sarch-drawing-v144.sarch-light-142 .sarch-draw-output-help-v144>summary{color:#49667d}
 @media(max-width:650px){
- body.sarch-drawing-v144 #sarchDrawTabs144{grid-template-columns:repeat(4,minmax(0,1fr)) 51px!important;gap:4px!important}
+ body.sarch-drawing-v144 #sarchDrawTabs144{grid-template-columns:repeat(3,minmax(0,1fr)) 51px!important;gap:4px!important}
  body.sarch-drawing-v144 #sarchDrawTabs144 #sm52FixedCamera{width:51px!important;max-width:51px!important;min-height:44px!important;height:44px!important;max-height:44px!important}
  body.sarch-drawing-v144 .sarch-draw-export-grid-v144{grid-template-columns:repeat(2,minmax(0,1fr))}
  body.sarch-drawing-v144 .sarch-draw-export-grid-v144>button{min-height:42px!important}
+}
+
+
+/* v148: no extra/legacy tool boxes. Keep the legacy handlers in hidden DOM. */
+body.sarch-drawing-v148 .sarch-draw-legacy-parked-v148{display:none!important}
+body.sarch-drawing-v148 #sarchEraseOptions148[hidden]{display:none!important}
+body.sarch-drawing-v148 #sarchEraseOptions148:not([hidden]){
+ display:inline-flex!important;flex:0 1 auto!important;align-items:center!important;
+ flex-wrap:wrap!important;gap:7px!important;margin:0!important;padding:4px 8px!important;
+ border:1px solid #4a6d8b!important;border-radius:8px!important;
+ background:#25415b!important;min-height:37px!important;
+}
+body.sarch-drawing-v148 #sarchEraseOptions148>label.eraserSize{
+ display:inline-flex!important;flex:0 0 auto!important;
+ align-items:center!important;gap:7px!important;width:auto!important;
+ margin:0!important;padding:0!important;
+ font:700 12px/1.3 Dotum,"돋움",sans-serif!important;
+ color:#dceafa!important;white-space:nowrap!important;
+}
+body.sarch-drawing-v148 #sarchEraseOptions148 #eraseMode{
+ flex:0 1 auto!important;width:auto!important;min-width:120px!important;
+ max-width:220px!important;min-height:32px!important;margin:0!important;
+}
+body.sarch-drawing-v148 #sarchEraseOptions148 #eraseSize{
+ display:inline-block!important;flex:0 0 auto!important;
+ width:100px!important;min-width:75px!important;max-width:125px!important;
+ min-height:24px!important;margin:0!important;vertical-align:middle!important;
+ accent-color:#44a4e0;
+}
+body.sarch-drawing-v148 #side>.sm-drawing-output.sarch-draw-side-output-v148{
+ display:block!important;width:100%!important;margin:15px 0 0!important;
+ padding:13px 0 0!important;border:0!important;
+ border-top:1px solid #49637c!important;background:transparent!important;
+ box-sizing:border-box!important;overflow:visible!important;
+}
+body.sarch-drawing-v148 #side>.sm-drawing-output.sarch-draw-side-output-v148 h3{
+ display:block!important;margin:0 0 10px!important;color:inherit!important;
+ font:700 14px/1.5 Dotum,"돋움",sans-serif!important;
+}
+body.sarch-drawing-v148 #side .sarch-draw-export-grid-v144{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:7px!important;width:100%!important;margin:0!important;min-width:0!important;
+}
+body.sarch-drawing-v148 #side .sarch-draw-export-grid-v144>button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-width:0!important;min-height:39px!important;height:auto!important;
+ width:100%!important;margin:0!important;padding:8px 5px!important;
+ white-space:normal!important;overflow-wrap:anywhere!important;text-align:center!important;
+ font:700 11px/1.45 Dotum,"돋움",sans-serif!important;
+ border-radius:8px!important;
+}
+body.sarch-drawing-v148 #side .sarch-draw-output-help-v144{margin-top:8px!important}
+body.sarch-drawing-v148.sarch-light-142 #sarchEraseOptions148:not([hidden]){
+ background:#e5f0f9!important;border-color:#b5cada!important;
+}
+body.sarch-drawing-v148.sarch-light-142 #sarchEraseOptions148>label.eraserSize{color:#2d516e!important}
+@media(max-width:650px){
+ body.sarch-drawing-v148 #sarchEraseOptions148:not([hidden]){padding:6px!important}
+ body.sarch-drawing-v148 #sarchEraseOptions148 #eraseSize{width:84px!important}
+ body.sarch-drawing-v148 #side .sarch-draw-export-grid-v144>button{min-height:44px!important}
 }
