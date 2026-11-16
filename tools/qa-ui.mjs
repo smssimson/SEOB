@@ -28,6 +28,26 @@ async function check(mod,width,height){
   await page.waitForSelector("body.sarch-v142",{timeout:10000});
   await page.waitForTimeout(950);
   report(id,"loaded",res.ok());
+
+  await page.waitForSelector("body.sarch-shell-v145",{timeout:10000});
+  const cameraAligned=await page.evaluate(mod=>{
+    const cam=document.getElementById(mod==="survey"?"cameraBtn":"sm52FixedCamera");
+    const expected=mod==="drawing"?"sarchDrawTabs144":mod==="survey"?"":""; 
+    const host=mod==="drawing"?document.getElementById("sarchDrawTabs144"):
+      document.querySelector(mod==="survey"?".sm-survey-tools .sm-mode-tabs":".sm43-tool-panel .sm43-tabs");
+    return !!cam&&!!host&&cam.parentElement===host;
+  },mod);
+  report(id,"camera aligned with tool tabs",cameraAligned);
+  if(width===800){
+    const header=await page.evaluate(()=>{
+     const h=document.querySelector("header.smetric-app-header");
+     const r=h?.getBoundingClientRect();
+     const p=document.querySelector(".sarch-protect-toggle")?.getBoundingClientRect();
+     return {h:Math.round(r?.height||0),width:Math.round(r?.width||0),protectTop:Math.round(p?.top||0),headerTop:Math.round(r?.top||0)};
+    });
+    report(id,"tablet header compact",header.h>0&&header.h<=74&&header.width<=800,JSON.stringify(header));
+  }
+
   await page.screenshot({path:folder+"/"+id+"-initial.png",animations:"disabled"});
   const dom=await page.evaluate(()=>{
    const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}};
