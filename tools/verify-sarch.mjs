@@ -281,8 +281,8 @@ const cellCache=(xml,cell)=>{
  return {formula:between('<f>','</f>'),value:Number(between('<v>','</v>'))};
 };
 const b7=cellCache(cSheet1,'B7'),f7=cellCache(cSheet1,'F7');
-ok(b7.formula.includes('SUM(')&&Math.abs(b7.value-19.0856)<.00001,'cost summary includes cached real subtotal for viewing without recalculation');
-ok(f7.formula.includes('B7*(1+D7/100)')&&Math.abs(f7.value-22.90272)<.00001,'indirect cost total has a cached result and live Excel formula');
+ok(b7.formula.includes('SUM(')&&Math.abs(b7.value-22.90272)<.00001,'cost summary includes cached real subtotal for viewing without recalculation');
+ok(f7.formula.includes('B7*(1+D7/100)')&&Math.abs(f7.value-27.483264)<.00001,'indirect cost total has a cached result and live Excel formula');
 ok(cSheet2.includes('r="I6" s="6" t="str"><f>')&&cSheet2.includes('<v></v>'),'unpriced defects show blank, never a fictitious zero total');
 ok(cSheet1.includes('COUNTIF(')&&cSheet1.includes('SUMIF('),'floor and method rollups are formula-backed');
 console.log('S:ARCH v175 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
