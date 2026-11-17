@@ -228,8 +228,10 @@ async function check(mod,width,height){
       JSON.stringify({pointCreated,noValue,marked,off}));
     // A previously unavailable point becomes visible when newly marked, even
     // if the measurement-value toggle was previously OFF in local preferences.
-    await page.locator("#tiltUnavailable").click(); // release unavailable
-    await page.locator("#tiltUnavailable").click(); // mark unavailable again
+    // The detail button sits in a scrollable panel. Invoke the same button's
+    // native click method so Playwright scrolling does not obscure it on retry.
+    await page.locator("#tiltUnavailable").evaluate(el=>el.click()); // release unavailable
+    await page.locator("#tiltUnavailable").evaluate(el=>el.click()); // mark unavailable again
     const enabledAfterMark=(await page.locator("#smTiltValueToggle").innerText()).includes("ON");
     const yellowAfterMark=await yellowPixels();
     report(id,"unavailable marking auto-enables measurement labels when previously OFF",
