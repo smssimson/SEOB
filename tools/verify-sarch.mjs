@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===171,'version.json should report v171');
+ok(version.version===172,'version.json should report v172');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v171"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v172"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -173,7 +173,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v171'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v172'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -248,4 +248,22 @@ ok(read('survey/index.html').includes("'표면처리':'표면처리공법'")&&re
 ok(read('survey/index.html').includes('LABOR_2026.concreteRepair')&&read('survey/index.html').includes('LABOR_2026.concreteFinish'),'2026 concrete labor baselines are auto-filled when applicable');
 ok(read('survey/index.html').includes('사용자 수정 단가')&&read('survey/index.html').includes("d.repair.rate=Math.max(0"),'cost rates remain user editable');
 ok(read('survey/index.html').includes('사진 AI 분석 미연결'),'registered photographs are never represented as AI-inspected');
-console.log('S:ARCH v171 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+const costXlsx=read('sarch-repair-xlsx-v172.js');
+scriptSyntax(costXlsx,'sarch-repair-xlsx-v172.js');
+const costRoot={};
+new Script(costXlsx).runInNewContext({self:costRoot});
+const costCells={};
+const costData={site:'QA 현장',overhead:20,rows:[
+ {page:'지상1층',number:1,group:'구조체',type:'철근노출',method:'단면복구공법',qty:0.24,rate:95.428,priority:1,photoCount:1,source:'2026 노무비'},
+ {page:'지상2층',number:2,group:'비구조체',type:'마감재 열화',method:'마감재 보수·재시공공법',qty:0.15,rate:null,priority:3,photoCount:0,source:'단가 미확인'}]};
+const costSnapshot=JSON.stringify(costData);
+const costInfo=costRoot.SARCHRepairXLSXV172.build({file:(path,value)=>costCells[path]=value},costData);
+ok(costInfo.count===2&&costInfo.priced===1,'XLSX summary counts only entries with verified quantity and price');
+ok(costCells['xl/workbook.xml'].includes('개략공사비_요약')&&costCells['xl/workbook.xml'].includes('층별_결함별'),'two named worksheets are generated');
+ok(costCells['xl/worksheets/sheet2.xml'].includes('F5*H5')&&costCells['xl/worksheets/sheet2.xml'].includes('철근노출'),'formula-based costs and per-defect rows appear in detail sheet');
+ok(costCells['xl/worksheets/sheet1.xml'].includes('SUMIF')&&costCells['xl/worksheets/sheet1.xml'].includes('COUNTIF'),'summary aggregates floors and methods by formulas');
+ok(costCells['xl/styles.xml'].includes('FF12304B')&&costCells['xl/styles.xml'].includes('FFFFF2DB'),'XLSX uses branded navy and editable-rate highlights');
+ok(JSON.stringify(costData)===costSnapshot,'XLSX generation never mutates source defect data');
+ok(read('survey/index.html').includes('SARCHRepairXLSXV172.download')&&read('survey/index.html').includes('엑셀(XLSX) 다운로드'),'survey repair export is genuine XLSX rather than CSV');
+ok(read('survey/sw.js').includes('sarch-repair-xlsx-v172.js?v=172')&&read('seob-sw.js').includes('sarch-repair-xlsx-v172.js?v=172'),'new XLSX generator included in both offline caches');
+console.log('S:ARCH v172 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
