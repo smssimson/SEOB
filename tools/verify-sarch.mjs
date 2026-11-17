@@ -275,8 +275,10 @@ ok(read('survey/index.html').includes("document.addEventListener('pointerdown',e
 ok(read('survey/index.html').includes('sm174FmtQty(qty)'),'small quantities remain visible without rounding to 0.0');
 const cSheet1=costCells['xl/worksheets/sheet1.xml'],cSheet2=costCells['xl/worksheets/sheet2.xml'];
 const cellCache=(xml,cell)=>{
- const cellXml=xml.match(new RegExp('<c r="'+cell+'"[^>]*>([\\s\\S]*?)<\\/c>'))?.[1]||'';
- return {formula:cellXml.match(/<f>([\\s\\S]*?)<\\/f>/)?.[1]||'',value:Number(cellXml.match(/<v>([^<]*)<\\/v>/)?.[1])};
+ const pos=xml.indexOf('<c r="'+cell+'"');
+ const text=pos<0?'':xml.slice(pos,xml.indexOf('</c>',pos)+4);
+ const between=(a,b)=>text.includes(a)?text.split(a)[1].split(b)[0]:'';
+ return {formula:between('<f>','</f>'),value:Number(between('<v>','</v>'))};
 };
 const b7=cellCache(cSheet1,'B7'),f7=cellCache(cSheet1,'F7');
 ok(b7.formula.includes('SUM(')&&Math.abs(b7.value-19.0856)<.00001,'cost summary includes cached real subtotal for viewing without recalculation');
