@@ -202,6 +202,31 @@ async function check(mod,width,height){
       await page.locator("#smFieldTab").click();
     }
   }
+  if(mod==="tilt"&&width===1280){
+    const tiltc=page.locator("#canvas");
+    await tiltc.scrollIntoViewIfNeeded();
+    const rect=await tiltc.boundingBox();
+    await page.locator("#arrowMode").click();
+    await tiltc.scrollIntoViewIfNeeded();
+    const box=await tiltc.boundingBox();
+    await page.mouse.move(box.x+box.width*.3,box.y+box.height*.35);
+    await page.mouse.down();
+    await page.mouse.move(box.x+box.width*.42,box.y+box.height*.42,{steps:6});
+    await page.mouse.up();
+    const pointCreated=await page.locator("#items .item").count()>0;
+    if((await page.locator("#smTiltValueToggle").innerText()).includes("OFF"))await page.locator("#smTiltValueToggle").click();
+    const yellowPixels=()=>page.evaluate(()=>{
+      const cv=document.querySelector("#canvas"),ctx=cv.getContext("2d"),image=ctx.getImageData(0,0,cv.width,cv.height).data;
+      let n=0;for(let i=0;i<image.length;i+=4)if(image[i]===255&&image[i+1]===219&&image[i+2]===0)n++;return n;
+    });
+    const noValue=await yellowPixels();
+    if(pointCreated)await page.locator("#tiltUnavailable").click();
+    const marked=await yellowPixels();
+    await page.locator("#smTiltValueToggle").click();
+    const off=await yellowPixels();
+    report(id,"unavailable survey yellow label respects measurement display toggle",pointCreated&&noValue===0&&marked>200&&off===0,
+      JSON.stringify({pointCreated,noValue,marked,off}));
+  }
   const verifyExists=await page.locator("#sarchVerify142").count()===1;
   report(id,"data protection preflight available",verifyExists);
   if(verifyExists){

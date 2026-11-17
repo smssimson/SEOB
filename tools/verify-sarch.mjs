@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===165,'version.json should report v165');
+ok(version.version===166,'version.json should report v166');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v165"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v166"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -168,7 +168,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v165'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v166'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -180,6 +180,23 @@ const tiltHTML=read('tilt/index.html');
 ok(tiltHTML.includes('sites:[...state.sites,...incoming]'),'tilt receive must append imported sites');
 ok(!tiltHTML.includes('현재 기울기 현장 데이터를 백업 파일로 교체할까요?'),'tilt import must never prompt to overwrite existing sites');
 ok(tiltHTML.includes('if(mode==="share")'),'tilt share limited to active site');
+const tiltValueRectCode=tiltHTML.match(/function smTiltValueRect\\(p\\)\\{[\\s\\S]*?\\n\\}/)?.[0];
+const tiltDrawValueCode=tiltHTML.match(/function smTiltDrawValue\\(p,i\\)\\{[\\s\\S]*?\\n\\}/)?.[0];
+ok(!!tiltValueRectCode&&!!tiltDrawValueCode,'tilt value box functions exist for unavailable label test');
+const mockSheet=()=>({smValueDefaultScale:1}), mockCanvas={width:1200,height:780};
+const computeTilt=point=>point.distance?{delta:4.2,height:2600}:null;
+const rectForTilt=new Function('sheet','canvas','smTiltCalculatedValues',tiltValueRectCode+';return smTiltValueRect')(mockSheet,mockCanvas,computeTilt);
+const unavailablePoint={id:'QA',x:100,y:100,tx:200,ty:200,unavailable:true};
+const unavailableRect=rectForTilt(unavailablePoint);
+ok(!!unavailableRect&&unavailableRect.unavailable===true&&unavailableRect.lines.join('|')==='조사불가','unavailable point gets a visible value-box rectangle labeled 조사불가 even without measurements');
+ok(rectForTilt({...unavailablePoint,unavailable:false})===null,'normal point with no measurements remains unlabeled');
+const measuredRect=rectForTilt({...unavailablePoint,unavailable:false,distance:'1800'});
+ok(!!measuredRect&&measuredRect.lines.length===2&&measuredRect.lines[0].startsWith('δ : ')&&measuredRect.lines[1].startsWith('H : '),'valid measurement display still shows displacement and height');
+const painted=[],mockCtx={fillStyle:'',textAlign:'',save(){},restore(){},fillRect(...args){painted.push(['rect',this.fillStyle,...args])},fillText(...args){painted.push(['text',this.textAlign,...args])},strokeRect(){}};
+const paintTilt=new Function('smTiltValueRect','ctx','selected','window',tiltDrawValueCode+';return smTiltDrawValue')(rectForTilt,mockCtx,null,{smArchCleanExport:true});
+paintTilt(unavailablePoint,0);
+ok(painted.some(a=>a[0]==='rect'&&a[1]==='#ffdb00')&&painted.some(a=>a[0]==='text'&&a[1]==='center'&&a[2]==='조사불가'),'unavailable label is centered inside the same yellow canvas box');
+ok(tiltHTML.includes("if(window.smTiltValueVisible!==false)sh.points.forEach((p,i)=>smTiltDrawValue(p,i))"),'value toggle applies equally to normal measurements and unavailable points');
 const drawHTML=read('drawing/index.html');
 onlyOnce(drawHTML,'href="../sarch-drawing-tools-v144.css?v=149"','drawing v144 stylesheet');
 onlyOnce(drawHTML,'src="../sarch-drawing-tools-v144.js?v=149"','drawing v144 controller');
@@ -216,4 +233,4 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v165 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v166 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
