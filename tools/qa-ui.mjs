@@ -177,6 +177,42 @@ async function check(mod,width,height){
         state.nextId=804;selected=null;loadImage(state.pages[0].image);refresh();
       });
       await page.waitForFunction(()=>typeof img!=="undefined"&&img?.width===640);
+      await page.evaluate(()=>{
+        window.__qaRegionRestore={defects:structuredClone(state.defects),nextId:state.nextId};
+        document.getElementById("autoCamera").checked=false;
+      });
+      await page.locator("#sm170RectBtn").click();
+      const firstOn=await page.evaluate(()=>mode==="region"&&document.getElementById("sm170RectBtn").classList.contains("active"));
+      await page.locator("#sm170RectBtn").click();
+      const secondOff=await page.evaluate(()=>mode==="pin"&&!document.getElementById("sm170RectBtn").classList.contains("active"));
+      await page.locator("#sm170RectBtn").click();
+      await page.locator("#smUtilityTab").click();
+      const tabCancel=await page.evaluate(()=>mode==="pin");
+      await page.locator("#smFieldTab").click();
+      await page.locator("#sm170RectBtn").click();
+      await page.locator("#canvas").scrollIntoViewIfNeeded();
+      const box=await page.locator("#canvas").boundingBox();
+      const coords=await page.evaluate(()=>({
+        a:screen({x:290,y:110}),b:screen({x:385,y:165})
+      }));
+      await page.mouse.move(box.x+coords.a.x,box.y+coords.a.y);
+      await page.mouse.down();
+      await page.mouse.move(box.x+coords.b.x,box.y+coords.b.y,{steps:7});
+      await page.mouse.up();
+      const dragCheck=await page.evaluate(()=>({
+        mode,
+        regionCount:currentDefects().filter(d=>Array.isArray(d.regions)&&d.regions.length).length,
+        total:currentDefects().length,
+        selectedRegion:!!state.defects.find(d=>d.id===selected)?.regions?.length
+      }));
+      report(id,"region tool toggle, outside cancel, and drag auto-exit",
+        firstOn&&secondOff&&tabCancel&&dragCheck.mode==="pin"&&dragCheck.regionCount===1&&dragCheck.total===4&&dragCheck.selectedRegion,
+        JSON.stringify({firstOn,secondOff,tabCancel,...dragCheck}));
+      await page.evaluate(()=>{
+        const orig=window.__qaRegionRestore;
+        state.defects=orig.defects;state.nextId=orig.nextId;delete window.__qaRegionRestore;
+        selected=null;sm170RegionPicks.clear();sm170Preview=null;setMode("pin");persist();refresh();draw();
+      });
       await page.locator("#smUtilityTab").click();
       await page.locator("#sm163MergeToggle").click();
       const picked=await page.evaluate(()=>{
