@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===168,'version.json should report v168');
+ok(version.version===169,'version.json should report v169');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v168"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v169"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -88,6 +88,7 @@ ok(report.includes('SARCHDefectStatusV157')&&report.includes('workbook.xml'),'pe
 ok(report.includes('"손상원인추정","조치 필요사항"]')&&!report.includes('"손상원인추정","사진"'),'7-column report has no photo column');
 ok(report.includes('row(3,header,2,30)')&&!report.includes('row(3,["※ 손상원인추정')&&!report.includes('[일반적 추정]'),'header on row 3, no disclaimer/uncertainty suffix');
 ok(report.includes('row(i+4,[')&&report.includes('A1:G1')&&report.includes('A2:G2'),'data on row 4, merge spans 7 columns');
+ok(surveyReport.includes("ctx.strokeStyle=annotationColor(d)")&&surveyReport.includes("g.strokeStyle=annotationColor(d)"),'structural and nonstructural crack color matches defect category on canvas and PNG');
 const reportContext={};
 new Script(report,{filename:'sarch-defect-status-v157.js'}).runInNewContext({self:reportContext});
 const reportAPI=reportContext.SARCHDefectStatusV157;
@@ -101,13 +102,13 @@ const sampleState={project:'QA 현장',pages:[{name:'1동 지상1층'}],defects:
 ]};
 const originalReportState=JSON.stringify(sampleState);
 const groupedRows=reportAPI.groups(sampleState)[0][1];
-ok(groupedRows.length===4,'merged defects collapse to one Excel row while standalone defects remain');
-ok(groupedRows.map(x=>x.numbers).join('|')==='1|2,3,5|4|6','merged row identifies all original defect numbers');
-ok(groupedRows[1].d.id===12&&groupedRows[1].cause==='대표 원인'&&groupedRows[1].groupMemberIds.length===3,'merged row uses first defect representative text and retains all member identifiers');
+ok(groupedRows.length===6,'six original defects remain separate XLSX rows regardless of visual grouping');
+ok(groupedRows.map(x=>x.d.id).join('|')==='11|12|13|14|15|16','XLSX preserves original defect order and numbers');
+ok(groupedRows[1].d.id===12&&groupedRows[2].d.id===13&&groupedRows[2].cause==='다른 원인','XLSX retains every defect description separately');
 const zipContents={};
 reportAPI.build({file:(path,content)=>zipContents[path]=content},sampleState);
 const sheetOutput=zipContents['xl/worksheets/sheet1.xml'];
-ok(sheetOutput.includes('>2,3,5</t>')&&sheetOutput.includes('대표 원인')&&!sheetOutput.includes('다른 원인'),'XLSX output shows one representative row for grouped defects');
+ok(!sheetOutput.includes('>2,3,5</t>')&&sheetOutput.includes('대표 원인')&&sheetOutput.includes('다른 원인'),'XLSX shows six individual rows, not a joined number row');
 ok(sheetOutput.includes('A1:G1')&&sheetOutput.includes('조치 필요사항')&&!sheetOutput.includes('사진</t>'),'grouped XLSX retains seven-column layout');
 ok(JSON.stringify(sampleState)===originalReportState&&sampleState.defects.length===6&&sampleState.defects[2].photos[0]==='photo13','XLSX grouping never mutates existing defect records or photos');
 const surveyReport=read('survey/index.html');
@@ -155,9 +156,9 @@ const measuredFn=new Function('isCrackDefect','function measuredQty(d){'+measure
 ok(Math.abs(measuredFn({manualSpec:'300X300X2EA'})-0.18)<0.000001,'manual dimensions calculate quantity when unambiguous');
 ok(measuredFn({manualSpec:'2EA',width:300,length:300})===null,'EA-only manual input does not accidentally use stale preset dimensions');
 
-ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=165')&&rootSWCacheCheck(),'grouped XLSX cache version updated');
+ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=169')&&rootSWCacheCheck(),'per-defect XLSX cache version updated');
 ok(read('survey/sw.js').includes("sarch-share-inbox-v1")&&read('survey/sw.js').includes("req.formData()"),'independently installed survey app stages received files safely');
-function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=165')}
+function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=169')}
 const rootManifest=JSON.parse(read('manifest.webmanifest'));
 ok(rootManifest.share_target?.action==='/SEOB/share-target','installed app accepts Android file shares');
 ok(rootManifest.share_target?.params?.files?.[0]?.accept?.includes('.json'),'JSON extension registered for share target');
@@ -168,7 +169,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v168'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v169'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -239,4 +240,4 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v168 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v169 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
