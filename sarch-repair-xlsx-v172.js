@@ -6,7 +6,7 @@
  const num=v=>typeof v==='number'&&Number.isFinite(v);
  function c(row,col,value,style=3,formula=null){
   const ref=alpha(col)+row;
-  if(formula)return '<c r="'+ref+'" s="'+style+'"><f>'+esc(formula)+'</f>'+(num(value)?'<v>'+value+'</v>':'')+'</c>';
+  if(formula)return '<c r="'+ref+'" s="'+style+'"'+(num(value)?'':' t="str"')+'><f>'+esc(formula)+'</f><v>'+(num(value)?value:'')+'</v></c>';
   if(num(value))return '<c r="'+ref+'" s="'+style+'"><v>'+value+'</v></c>';
   if(value===null||value===undefined||value==='')return '<c r="'+ref+'" s="'+style+'"/>';
   return '<c r="'+ref+'" s="'+style+'" t="inlineStr"><is><t xml:space="preserve">'+esc(value)+'</t></is></c>';
@@ -54,7 +54,7 @@
   const site=String(payload.site||'현장'),overhead=Number(payload.overhead)||0;
   const input=Array.isArray(payload.rows)?payload.rows:[];
   const entries=input.map(it=>({...it,page:String(it.page||'도면'),qty:num(it.qty)?it.qty:null,rate:num(it.rate)?it.rate:null,priority:Number(it.priority)||3}));
-  entries.sort((a,b)=>a.page.localeCompare(b.page,'ko',{numeric:true})-(0)||a.number-b.number);
+  entries.sort((a,b)=>a.page.localeCompare(b.page,'ko',{numeric:true})||Number(a.number)-Number(b.number));
   const detailRows=[
    row(1,[['보수물량 및 개략공사비 · 층별/결함별',1]],42),
    row(2,[[site+' | 2026년 하반기 노무비 참고 · 금액단위 천원',2]],29),
@@ -73,13 +73,17 @@
   });
   const end=Math.max(5,entries.length+4);
   zip.file('xl/worksheets/sheet2.xml',layout(detailRows,widths,end,['A1:L1','A2:L2','A3:L3'],4,'A4:L'+end));
-  const floors=[...new Set(entries.map(x=>x.page))],groups=[...new Set(entries.map(x=>String(x.method||'-')))];
+  const floors=[...new Set(entries.map(x=>x.page))],groups=[...new Set(entries.map(x=>String(x.method||'-')))]; 
+  const verified=entries.filter(x=>num(x.qty)&&num(x.rate));
+  const sumCost=list=>list.reduce((total,x)=>total+x.qty*x.rate,0);
+  const subTotal=sumCost(verified);
+
   const sumRows=[
    row(1,[['보수물량 · 개략공사비 요약',1]],45),
    row(2,[[site+' | S:ARCH 현장조사 · 2026.9.1 적용 노무비 참고',2]],30),
    row(3,[['자동 산정값은 완성공사비가 아닙니다. 미산정 항목은 합계에서 제외되며 사용자가 단가를 조정할 수 있습니다.',7]],29),
    row(5,[['전체 결함',2],[entries.length,5],['산정 가능',2],[entries.filter(x=>num(x.qty)&&num(x.rate)).length,5],['단가/수량 확인',2],[entries.filter(x=>!num(x.qty)||!num(x.rate)).length,5]],27),
-   row(7,[['참고 소계(천원)',2],[null,5, "SUM('층별_결함별'!I5:I"+end+")"],['제경비 가정(%)',2],[overhead,5],['참고합계(천원)',2],[null,5,'B7*(1+D7/100)']],28),
+   row(7,[['참고 소계(천원)',2],[subTotal,5, "SUM('층별_결함별'!I5:I"+end+")"],['제경비 가정(%)',2],[overhead,5],['참고합계(천원)',2],[subTotal*(1+overhead/100),5,'B7*(1+D7/100)']],28),
    row(9,[['층/도면별 참고금액',2]],29),
    row(10,['층/도면','결함수','보수물량(㎡)','참고 소계(천원)','제경비 포함 참고액(천원)'].map(v=>[v,2]),31)
   ];
@@ -91,14 +95,20 @@
    const range="'층별_결함별'!$A$5:$A$"+end;
    const count='COUNTIF('+range+','+criteria+')',qty='SUMIF('+range+','+criteria+",'층별_결함별'!$F$5:$F$"+end+')';
    const cost='SUMIF('+range+','+criteria+",'층별_결함별'!$I$5:$I$"+end+')';
-   sumRows.push(row(n,[[floor,3],[null,3,count],[null,5,qty],[null,5,cost],[null,5,'D'+n+'*(1+$D$7/100)']],27));n++;
+   const members=entries.filter(x=>x.page===floor);
+   const countValue=members.length;
+   const qtyValue=members.reduce((total,x)=>total+(num(x.qty)?x.qty:0),0);
+   const costValue=sumCost(members.filter(x=>num(x.qty)&&num(x.rate)));
+   sumRows.push(row(n,[[floor,3],[countValue,3,count],[qtyValue,5,qty],[costValue,5,cost],[costValue*(1+overhead/100),5,'D'+n+'*(1+$D$7/100)']],27));n++;
   }
   n+=2;
   sumRows.push(row(n,[['공법별 참고금액',2]],29));n++;
   sumRows.push(row(n,['적용공법','결함수','참고 소계(천원)'].map(v=>[v,2]),28));n++;
   for(const method of groups){
    const range="'층별_결함별'!$E$5:$E$"+end,term='"'+method.replace(/"/g,'""')+'"';
-   sumRows.push(row(n,[[method,3],[null,3,'COUNTIF('+range+','+term+')'],[null,5,'SUMIF('+range+','+term+",'층별_결함별'!$I$5:$I$"+end+')']],27));n++;
+   const matches=entries.filter(x=>String(x.method||'-')===method);
+   const methodCost=sumCost(matches.filter(x=>num(x.qty)&&num(x.rate)));
+   sumRows.push(row(n,[[method,3],[matches.length,3,'COUNTIF('+range+','+term+')'],[methodCost,5,'SUMIF('+range+','+term+",'층별_결함별'!$I$5:$I$"+end+')']],27));n++;
   }
   n+=2;
   sumRows.push(row(n,[['기준 출처(노무비)',2],['https://www.cak.or.kr/lay1/bbs/S1T41C42/A/14/list.do',3]],36));n++;

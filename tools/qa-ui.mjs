@@ -228,11 +228,19 @@ async function check(mod,width,height){
         const workbook=await opened.file('xl/workbook.xml').async('string');
         const detail=await opened.file('xl/worksheets/sheet2.xml').async('string');
         const styles=await opened.file('xl/styles.xml').async('string');
+        const sum=await opened.file('xl/worksheets/sheet1.xml').async('string');
+        const parser=new DOMParser(),summaryXml=parser.parseFromString(sum,'text/xml'),detailXml=parser.parseFromString(detail,'text/xml');
+        const parseOkay=!summaryXml.querySelector('parsererror')&&!detailXml.querySelector('parsererror');
+        const cell=(doc,ref)=>Array.from(doc.getElementsByTagName('c')).find(c=>c.getAttribute('r')===ref);
+        const subTotal=Number(cell(summaryXml,'B7')?.getElementsByTagName('v')[0]?.textContent);
+        const full=Number(cell(summaryXml,'F7')?.getElementsByTagName('v')[0]?.textContent);
+        const blank=cell(detailXml,'I6')?.getAttribute('t')==='str';
         return {count:summary.count,priced:summary.priced,twoSheets:workbook.includes('개략공사비_요약')&&workbook.includes('층별_결함별'),
-          hasFormula:detail.includes('F5*H5'),navy:styles.includes('FF12304B'),bytes:bytes.length};
+          hasFormula:detail.includes('F5*H5'),navy:styles.includes('FF12304B'),bytes:bytes.length,
+          parseOkay,subTotal,full,blank};
       });
       report(id,"branded two-sheet XLSX zips and reopens in installed JSZip",
-        costWorkbook.count===2&&costWorkbook.priced===1&&costWorkbook.twoSheets&&costWorkbook.hasFormula&&costWorkbook.navy&&costWorkbook.bytes>3000,
+        costWorkbook.count===2&&costWorkbook.priced===1&&costWorkbook.twoSheets&&costWorkbook.hasFormula&&costWorkbook.navy&&costWorkbook.bytes>3000&&costWorkbook.parseOkay&&Math.abs(costWorkbook.subTotal-19.0856)<.001&&Math.abs(costWorkbook.full-24.81128)<.001&&costWorkbook.blank,
         JSON.stringify(costWorkbook));
       await page.evaluate(()=>{
         state=window.__qaSurveyBeforeMerge;delete window.__qaSurveyBeforeMerge;
