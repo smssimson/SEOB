@@ -270,7 +270,7 @@ let smTiltTouches=new Map(),smTiltZoom=1,smTiltPinch=0;
 function smTiltTouchDown(e){if(e.pointerType!=='touch'||document.getElementById('smFingerDraw').checked)return false;smTiltTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});try{canvas.setPointerCapture(e.pointerId)}catch(_){}if(smTiltTouches.size===2){const v=[...smTiltTouches.values()];smTiltPinch=Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y)}return true}
 function smTiltTouchMove(e){if(!smTiltTouches.has(e.pointerId))return false;const old=smTiltTouches.get(e.pointerId),now={x:e.clientX,y:e.clientY};smTiltTouches.set(e.pointerId,now);const wrap=$('canvasWrap');if(smTiltTouches.size===2){const v=[...smTiltTouches.values()],d=Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y);if(smTiltPinch>8&&d>8){const oldZoom=smTiltZoom;smTiltZoom=Math.max(.5,Math.min(3,smTiltZoom*d/smTiltPinch));canvas.style.width=Math.round(1200*smTiltZoom)+'px';canvas.style.height=Math.round(780*smTiltZoom)+'px';const centerX=(v[0].x+v[1].x)/2-wrap.getBoundingClientRect().left;const centerY=(v[0].y+v[1].y)/2-wrap.getBoundingClientRect().top;wrap.scrollLeft=(wrap.scrollLeft+centerX)*smTiltZoom/oldZoom-centerX;wrap.scrollTop=(wrap.scrollTop+centerY)*smTiltZoom/oldZoom-centerY;}smTiltPinch=d}else{wrap.scrollLeft+=old.x-now.x;wrap.scrollTop+=old.y-now.y}return true}
 function smTiltTouchEnd(e){if(!smTiltTouches.has(e.pointerId))return false;smTiltTouches.delete(e.pointerId);smTiltPinch=0;return true}
-document.addEventListener('pointerdown',e=>{if(!selected)return;const t=e.target;if(t.closest('#canvasWrap,#items,#detail,#smValueSizeLabel'))return;if(t.closest('button,.smarch-value-group,.sm43-tool-panel')){selected=null;renderList();syncSmValueSize();render();}},true);
+document.addEventListener('pointerdown',e=>{if(!selected)return;const t=e.target;if(t.closest('#canvasWrap,#items,#detail,#smValueSizeLabel,#smTiltValueToggle'))return;if(t.closest('button,.smarch-value-group,.sm43-tool-panel')){selected=null;renderList();syncSmValueSize();render();}},true);
 canvas.addEventListener('pointerdown',e=>{if(smTiltTouchDown(e))return;const p=pos(e);if(e.pointerType==='mouse'&&e.button!==0)return;if(mode==='select'||pointHit(p)){const hit=mode==='select'?buildingHit(p):null;if(hit){const r=buildingRect();buildingDrag={type:hit,start:p,x:r.x,y:r.y,w:r.w};canvas.setPointerCapture(e.pointerId);return}const hitPoint=pointHit(p);
 if(hitPoint){selected=hitPoint.id;const pt=sheet().points.find(x=>x.id===selected);
 smTiltSnapshot();pointDrag={id:selected,type:hitPoint.type,start:p,x:pt.x,y:pt.y,tx:pt.tx,ty:pt.ty,blueOffset:Number(pt.blueOffset)||0,blueLength:Number(pt.blueLength)||0};
@@ -554,7 +554,7 @@ const t=$('theme');t.value=localStorage.getItem('smetric-shared-theme-v14')||'da
  ['pointerup','pointercancel','pointerleave','change'].forEach(t=>sel.addEventListener(t,()=>clearTimeout(timer)));
 })();
 sm85Init();})();
-</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=167',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script>
+</script><script id="sm-offline-registration-v40">if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=168',{scope:'./'}).catch(e=>console.warn('SMETRIC offline:',e)));</script>
 <script id="smetric-v43-unified-script">
 (function(){
 "use strict";
@@ -734,7 +734,7 @@ panel.appendChild(sm52Camera);
  const deck=panel.querySelector('.sm43-deck');if(deck)panel.insertBefore(camera,deck.nextSibling);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
-})();</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=167',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
+})();</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=168',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
 #smetric-v66-update{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(16px);z-index:2147483646;max-width:min(90vw,370px);padding:9px 14px;border-radius:11px;background:rgba(24,47,63,.91);color:#e9fff5;box-shadow:0 6px 24px rgba(0,0,0,.16);font:500 12px/1.5 system-ui,sans-serif;text-align:center;pointer-events:none;opacity:0;transition:opacity .3s,transform .3s}
 #smetric-v66-update.visible{opacity:1;transform:translateX(-50%) translateY(0)}
 </style><script id="smetric-v66-auto-update">(function(){'use strict';
@@ -743,7 +743,7 @@ const BASE='/SEOB/';let shown=false;let running=false;
 function toast(message){if(shown)return;shown=true;let el=document.getElementById('smetric-v66-update');if(!el){el=document.createElement('div');el.id='smetric-v66-update';el.setAttribute('role','status');el.setAttribute('aria-live','polite');document.body.appendChild(el)}el.textContent=message;requestAnimationFrame(()=>el.classList.add('visible'));setTimeout(()=>{el.classList.remove('visible');setTimeout(()=>el.remove(),350)},4500)}
 function status(worker){return new Promise(resolve=>{if(!worker)return resolve(null);const ch=new MessageChannel();let timer=setTimeout(()=>resolve(null),4500);ch.port1.onmessage=e=>{clearTimeout(timer);resolve(e.data)};try{worker.postMessage({type:'SMETRIC_OFFLINE_STATUS'},[ch.port2])}catch(e){clearTimeout(timer);resolve(null)}})}
 async function run(){if(running||!navigator.onLine)return;running=true;try{
- const reg=await navigator.serviceWorker.register(BASE+'seob-sw.js?v=167',{scope:BASE,updateViaCache:'none'});
+ const reg=await navigator.serviceWorker.register(BASE+'seob-sw.js?v=168',{scope:BASE,updateViaCache:'none'});
  await reg.update();
  // New worker may be installing; only report success after it has activated and cached all files.
  let worker=reg.active;if(reg.installing){await new Promise(resolve=>{const w=reg.installing;const timeout=setTimeout(resolve,18000);w.addEventListener('statechange',()=>{if(w.state==='activated'||w.state==='redundant'){clearTimeout(timeout);resolve()}})});worker=reg.active}
