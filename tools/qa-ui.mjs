@@ -194,6 +194,38 @@ async function check(mod,width,height){
       await page.locator("#sm163MergeRemove").click();
       const cleared=await page.evaluate(()=>currentDefects().every(d=>!d.mergeGroupId)&&annotationRects.length===3);
       report(id,"singleton group automatically dissolves",cleared);
+      const regionFeature=await page.evaluate(()=>{
+        const ds=currentDefects(),before=JSON.stringify(ds.map(d=>({id:d.id,photos:d.photos,types:d.types})));
+        ds[0].regions=[{x:20,y:20,w:120,h:60}];
+        ds[1].regions=[{x:90,y:45,w:65,h:120}];
+        sm170RegionPicks.add(ds[0].id);sm170RegionPicks.add(ds[1].id);
+        sm170CompleteRegionJoin();
+        const joined=ds[0].regionGroupId&&ds[0].regionGroupId===ds[1].regionGroupId&&ds[0].mergeGroupId===ds[1].mergeGroupId;
+        const after=JSON.stringify(ds.map(d=>({id:d.id,photos:d.photos,types:d.types})));
+        const segments=[];
+        const capture={save(){},restore(){},beginPath(){},moveTo(x,y){this.a=[x,y]},lineTo(x,y){segments.push([this.a,[x,y]])},stroke(){}};
+        sm173PaintRegionUnion(capture,[ds[0],ds[1]],p=>p);
+        return {joined,sourceIntact:before===after,segments:segments.length,oneLabel:annotationRects.length===2};
+      });
+      report(id,"joined rectangle regions draw L-shaped exterior without deleting source defects",
+        regionFeature.joined&&regionFeature.sourceIntact&&regionFeature.segments>=6&&regionFeature.oneLabel,
+        JSON.stringify(regionFeature));
+      const costWorkbook=await page.evaluate(async()=>{
+        const zip=new JSZip(),payload={site:'QA 현장',overhead:30,rows:[
+          {page:'지상1층',number:1,group:'구조체',type:'철근노출',method:'단면복구공법',qty:.2,rate:95.428,priority:1,source:'노무비 근거'},
+          {page:'지상2층',number:2,group:'비구조체',type:'마감재 열화',method:'마감재 보수공법',qty:.4,rate:null,priority:3,source:'단가 미확인'}
+        ]};
+        const summary=window.SARCHRepairXLSXV172.build(zip,payload);
+        const bytes=await zip.generateAsync({type:'uint8array'}),opened=await JSZip.loadAsync(bytes);
+        const workbook=await opened.file('xl/workbook.xml').async('string');
+        const detail=await opened.file('xl/worksheets/sheet2.xml').async('string');
+        const styles=await opened.file('xl/styles.xml').async('string');
+        return {count:summary.count,priced:summary.priced,twoSheets:workbook.includes('개략공사비_요약')&&workbook.includes('층별_결함별'),
+          hasFormula:detail.includes('F5*H5'),navy:styles.includes('FF12304B'),bytes:bytes.length};
+      });
+      report(id,"branded two-sheet XLSX zips and reopens in installed JSZip",
+        costWorkbook.count===2&&costWorkbook.priced===1&&costWorkbook.twoSheets&&costWorkbook.hasFormula&&costWorkbook.navy&&costWorkbook.bytes>3000,
+        JSON.stringify(costWorkbook));
       await page.evaluate(()=>{
         state=window.__qaSurveyBeforeMerge;delete window.__qaSurveyBeforeMerge;
         selected=null;sm163MergeMode=false;sm163Chosen.clear();

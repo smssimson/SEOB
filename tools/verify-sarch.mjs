@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===172,'version.json should report v172');
+ok(version.version===173,'version.json should report v173');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v172"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v173"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -173,7 +173,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v172'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v173'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -266,4 +266,6 @@ ok(costCells['xl/styles.xml'].includes('FF12304B')&&costCells['xl/styles.xml'].i
 ok(JSON.stringify(costData)===costSnapshot,'XLSX generation never mutates source defect data');
 ok(read('survey/index.html').includes('SARCHRepairXLSXV172.download')&&read('survey/index.html').includes('엑셀(XLSX) 다운로드'),'survey repair export is genuine XLSX rather than CSV');
 ok(read('survey/sw.js').includes('sarch-repair-xlsx-v172.js?v=172')&&read('seob-sw.js').includes('sarch-repair-xlsx-v172.js?v=172'),'new XLSX generator included in both offline caches');
-console.log('S:ARCH v172 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+ok(read('survey/index.html').includes('function sm173PaintRegionUnion(')&&read('survey/index.html').includes('sm173PaintDefectRegion(ctx'),'joined rectangles produce a single exterior polyline on screen and PNG');
+ok(read('survey/index.html').includes('delete d.regionGroupId;'),'individual release clears region grouping as well as label grouping');
+console.log('S:ARCH v173 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
