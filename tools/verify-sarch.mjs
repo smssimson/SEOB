@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===169,'version.json should report v169');
+ok(version.version===170,'version.json should report v170');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v169"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v170"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -89,6 +89,10 @@ ok(report.includes('"손상원인추정","조치 필요사항"]')&&!report.inclu
 ok(report.includes('row(3,header,2,30)')&&!report.includes('row(3,["※ 손상원인추정')&&!report.includes('[일반적 추정]'),'header on row 3, no disclaimer/uncertainty suffix');
 ok(report.includes('row(i+4,[')&&report.includes('A1:G1')&&report.includes('A2:G2'),'data on row 4, merge spans 7 columns');
 ok(surveyReport.includes("ctx.strokeStyle=annotationColor(d)")&&surveyReport.includes("g.strokeStyle=annotationColor(d)"),'structural and nonstructural crack color matches defect category on canvas and PNG');
+ok(surveyReport.includes('id="sm170RectBtn"')&&surveyReport.includes('id="sm170JoinBtn"'),'region drawing and joining buttons exist');
+ok(surveyReport.includes("kind:'region'")&&surveyReport.includes("sm170Rect(drag.start,end)"),'drag creates persisted damage rectangle');
+ok(surveyReport.includes("kind:'joint'")&&surveyReport.includes('d.linkJointOffset='),'two-segment annotation connector supports draggable saved joint');
+ok(surveyReport.includes('regionGroupId=gid')&&surveyReport.includes('mergeGroupId=gid'),'joined rectangles share one visual label but retain individual defect data');
 const reportContext={};
 new Script(report,{filename:'sarch-defect-status-v157.js'}).runInNewContext({self:reportContext});
 const reportAPI=reportContext.SARCHDefectStatusV157;
@@ -169,7 +173,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v169'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v170'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -240,4 +244,4 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 }
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
-console.log('S:ARCH v169 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v170 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
