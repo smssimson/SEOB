@@ -88,11 +88,11 @@ ok(report.includes('SARCHDefectStatusV157')&&report.includes('workbook.xml'),'pe
 ok(report.includes('"손상원인추정","조치 필요사항"]')&&!report.includes('"손상원인추정","사진"'),'7-column report has no photo column');
 ok(report.includes('row(3,header,2,30)')&&!report.includes('row(3,["※ 손상원인추정')&&!report.includes('[일반적 추정]'),'header on row 3, no disclaimer/uncertainty suffix');
 ok(report.includes('row(i+4,[')&&report.includes('A1:G1')&&report.includes('A2:G2'),'data on row 4, merge spans 7 columns');
-ok(surveyReport.includes("ctx.strokeStyle=annotationColor(d)")&&surveyReport.includes("g.strokeStyle=annotationColor(d)"),'structural and nonstructural crack color matches defect category on canvas and PNG');
-ok(surveyReport.includes('id="sm170RectBtn"')&&surveyReport.includes('id="sm170JoinBtn"'),'region drawing and joining buttons exist');
-ok(surveyReport.includes("kind:'region'")&&surveyReport.includes("sm170Rect(drag.start,end)"),'drag creates persisted damage rectangle');
-ok(surveyReport.includes("kind:'joint'")&&surveyReport.includes('d.linkJointOffset='),'two-segment annotation connector supports draggable saved joint');
-ok(surveyReport.includes('regionGroupId=gid')&&surveyReport.includes('mergeGroupId=gid'),'joined rectangles share one visual label but retain individual defect data');
+ok(read("survey/index.html").includes("ctx.strokeStyle=annotationColor(d)")&&read("survey/index.html").includes("g.strokeStyle=annotationColor(d)"),'structural and nonstructural crack color matches defect category on canvas and PNG');
+ok(read("survey/index.html").includes('id="sm170RectBtn"')&&read("survey/index.html").includes('id="sm170JoinBtn"'),'region drawing and joining buttons exist');
+ok(read("survey/index.html").includes("kind:'region'")&&read("survey/index.html").includes("sm170Rect(drag.start,end)"),'drag creates persisted damage rectangle');
+ok(read("survey/index.html").includes("kind:'joint'")&&read("survey/index.html").includes('d.linkJointOffset='),'two-segment annotation connector supports draggable saved joint');
+ok(read("survey/index.html").includes('regionGroupId=gid')&&read("survey/index.html").includes('mergeGroupId=gid'),'joined rectangles share one visual label but retain individual defect data');
 const reportContext={};
 new Script(report,{filename:'sarch-defect-status-v157.js'}).runInNewContext({self:reportContext});
 const reportAPI=reportContext.SARCHDefectStatusV157;
