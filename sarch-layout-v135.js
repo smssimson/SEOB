@@ -88,15 +88,26 @@ function restructureFloor(floor,site,header){
  for(const child of Array.from(floor.childNodes))extra.appendChild(child);
  // Keep unmatched original controls accessible instead of hiding them forever.
  // The original nodes (and their event handlers) are retained without cloning.
- const extrasHaveControls=!!extra.querySelector('button,select,input:not([type="hidden"]),textarea');
- if(extrasHaveControls){
+ // Hidden rename buttons stay in the DOM but must not create a redundant tool row.
+ const activeExtra=Array.from(extra.querySelectorAll('button,select,input:not([type="hidden"]),textarea'))
+  .filter(el=>!el.hidden&&el.getAttribute('aria-hidden')!=='true'&&
+    !el.classList.contains('hidden')&&!el.classList.contains('sm-hidden-control')&&
+    !el.closest('[hidden],.hidden'));
+ const compactModule=!!document.getElementById('pinBtn')||!!document.getElementById('ckSH');
+ if(compactModule){
+  for(const child of Array.from(extra.children)){
+   if(activeExtra.some(el=>el===child||child.contains(el)))right.appendChild(child);
+  }
+  extra.hidden=true;extra.style.setProperty('display','none','important');
+  floor.append(left,right,extra);
+ }else if(activeExtra.length){
   const details=document.createElement('details');
   details.className='sarch-floor-more-v135';
   const summary=document.createElement('summary');
   summary.textContent='기타 도면 도구';
-  details.append(summary,extra);
-  floor.append(left,right,details);
+  details.append(summary,extra);floor.append(left,right,details);
  }else{
+  extra.hidden=true;extra.style.setProperty('display','none','important');
   floor.append(left,right,extra);
  }
  if(add)add.textContent='＋ 새 도면';

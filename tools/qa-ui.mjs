@@ -75,6 +75,14 @@ async function check(mod,width,height){
    };
   });
   report(id,"core workspace",!!dom.site&&!!dom.floor&&!!dom.tools,JSON.stringify({site:dom.site?.h,floor:dom.floor?.h,tools:dom.tools?.h}));
+  if(mod==="survey"||mod==="schmidt"){
+   const floorExtras=await page.evaluate(mod=>{
+    const box=document.querySelector("#sarchFloor135"),hidden=document.getElementById(mod==="survey"?"renamePage":"rename");
+    return {extra:box?.querySelectorAll(".sarch-floor-more-v135").length||0,
+      preserved:!!hidden&&box.contains(hidden),headerText:!!box?.textContent.includes("기타 도면 도구")};
+   },mod);
+   report(id,"no redundant floor details, hidden rename kept",floorExtras.extra===0&&floorExtras.preserved&&!floorExtras.headerText,JSON.stringify(floorExtras));
+  }
   report(id,"project export/share",dom.share&&dom.bridge&&dom.tabs>=2,JSON.stringify({share:dom.share,bridge:dom.bridge,tabs:dom.tabs}));
   const datedName=await page.evaluate(()=>{
     const f=window.SARCHProjectBridge?.();

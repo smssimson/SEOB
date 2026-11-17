@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===173,'version.json should report v173');
+ok(version.version===174,'version.json should report v174');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v173"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v174"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -173,7 +173,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v173'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v174'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -268,4 +268,9 @@ ok(read('survey/index.html').includes('SARCHRepairXLSXV172.download')&&read('sur
 ok(read('survey/sw.js').includes('sarch-repair-xlsx-v172.js?v=172')&&read('seob-sw.js').includes('sarch-repair-xlsx-v172.js?v=172'),'new XLSX generator included in both offline caches');
 ok(read('survey/index.html').includes('function sm173PaintRegionUnion(')&&read('survey/index.html').includes('sm173PaintDefectRegion(ctx'),'joined rectangles produce a single exterior polyline on screen and PNG');
 ok(read('survey/index.html').includes('delete d.regionGroupId;'),'individual release clears region grouping as well as label grouping');
-console.log('S:ARCH v173 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+ok(layout.includes('const activeExtra=Array.from')&&layout.includes('const compactModule=')&&layout.includes("extra.style.setProperty('display','none','important')"),'hidden rename controls never trigger redundant floor details');
+ok(read('survey/index.html').includes("if(mode==='region'){sm170Preview=null;setMode('pin');draw();return}"),'region button supports second-click exit');
+ok(read('survey/index.html').includes("drag=null;setMode('pin');draw();return}if(drag.kind==='joint'"),'region mode stops after drawing');
+ok(read('survey/index.html').includes("document.addEventListener('pointerdown',e=>{")&&read('survey/index.html').includes("sm170Preview=null;sm170RegionPicks.clear();setMode('pin');draw()"),'outside taps stop region mode');
+ok(read('survey/index.html').includes('sm174FmtQty(qty)'),'small quantities remain visible without rounding to 0.0');
+console.log('S:ARCH v174 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
