@@ -226,6 +226,16 @@ async function check(mod,width,height){
     const off=await yellowPixels();
     report(id,"unavailable survey yellow label respects measurement display toggle",pointCreated&&noValue===0&&marked>200&&off===0,
       JSON.stringify({pointCreated,noValue,marked,off}));
+    // A previously unavailable point becomes visible when newly marked, even
+    // if the measurement-value toggle was previously OFF in local preferences.
+    await page.locator("#tiltUnavailable").click(); // release unavailable
+    await page.locator("#tiltUnavailable").click(); // mark unavailable again
+    const enabledAfterMark=(await page.locator("#smTiltValueToggle").innerText()).includes("ON");
+    const yellowAfterMark=await yellowPixels();
+    report(id,"unavailable marking auto-enables measurement labels when previously OFF",
+      enabledAfterMark&&yellowAfterMark>200,JSON.stringify({enabledAfterMark,yellowAfterMark}));
+    // Building-name panel previously painted above and concealed the yellow labels.
+    // Confirm the value boxes are drawn afterward with their original coordinates.
   }
   const verifyExists=await page.locator("#sarchVerify142").count()===1;
   report(id,"data protection preflight available",verifyExists);
