@@ -220,24 +220,22 @@ async function check(mod,width,height){
       let n=0;for(let i=0;i<image.length;i+=4)if(image[i]===255&&image[i+1]===219&&image[i+2]===0)n++;return n;
     });
     const noValue=await yellowPixels();
+    // Turn labels OFF *before* marking a fresh point as unavailable. This checks
+    // the actual user path and avoids selection toggles from double-clicking.
+    await page.locator("#smTiltValueToggle").click();
+    const beforeMark=(await page.locator("#smTiltValueToggle").innerText()).includes("OFF");
     if(pointCreated)await page.locator("#tiltUnavailable").click();
     const marked=await yellowPixels();
+    const enabledAfterMark=(await page.locator("#smTiltValueToggle").innerText()).includes("ON");
     await page.locator("#smTiltValueToggle").click();
     const off=await yellowPixels();
-    report(id,"unavailable survey yellow label respects measurement display toggle",pointCreated&&noValue===0&&marked>200&&off===0,
+    report(id,"unavailable survey yellow label respects measurement display toggle",
+      pointCreated&&noValue===0&&marked>200&&off===0,
       JSON.stringify({pointCreated,noValue,marked,off}));
-    // A previously unavailable point becomes visible when newly marked, even
-    // if the measurement-value toggle was previously OFF in local preferences.
-    // The detail button sits in a scrollable panel. Invoke the same button's
-    // native click method so Playwright scrolling does not obscure it on retry.
-    await page.locator("#tiltUnavailable").evaluate(el=>el.click()); // release unavailable
-    await page.locator("#tiltUnavailable").evaluate(el=>el.click()); // mark unavailable again
-    const enabledAfterMark=(await page.locator("#smTiltValueToggle").innerText()).includes("ON");
-    const yellowAfterMark=await yellowPixels();
-    report(id,"unavailable marking auto-enables measurement labels when previously OFF",
-      enabledAfterMark&&yellowAfterMark>200,JSON.stringify({enabledAfterMark,yellowAfterMark}));
-    // Building-name panel previously painted above and concealed the yellow labels.
-    // Confirm the value boxes are drawn afterward with their original coordinates.
+    report(id,"marking unavailable auto-enables previously OFF measurement labels",
+      beforeMark&&enabledAfterMark&&marked>200,
+      JSON.stringify({beforeMark,enabledAfterMark,marked}));
+    // Building-name panel is painted first; value boxes are painted above it.
   }
   const verifyExists=await page.locator("#sarchVerify142").count()===1;
   report(id,"data protection preflight available",verifyExists);
