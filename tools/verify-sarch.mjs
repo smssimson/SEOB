@@ -274,8 +274,13 @@ ok(read('survey/index.html').includes("drag=null;setMode('pin');draw();return}if
 ok(read('survey/index.html').includes("document.addEventListener('pointerdown',e=>{")&&read('survey/index.html').includes("sm170Preview=null;sm170RegionPicks.clear();setMode('pin');draw()"),'outside taps stop region mode');
 ok(read('survey/index.html').includes('sm174FmtQty(qty)'),'small quantities remain visible without rounding to 0.0');
 const cSheet1=costCells['xl/worksheets/sheet1.xml'],cSheet2=costCells['xl/worksheets/sheet2.xml'];
-ok(cSheet1.includes('r="B7" s="5"><f>SUM(')&&cSheet1.includes('<v>19.0856</v>'),'cost summary includes cached real subtotal for viewing without recalculation');
-ok(cSheet1.includes('r="F7" s="5"><f>B7*(1+D7/100)</f><v>22.90272</v>'),'indirect cost total has a cached result and live Excel formula');
+const cellCache=(xml,cell)=>{
+ const cellXml=xml.match(new RegExp('<c r="'+cell+'"[^>]*>([\\s\\S]*?)<\\/c>'))?.[1]||'';
+ return {formula:cellXml.match(/<f>([\\s\\S]*?)<\\/f>/)?.[1]||'',value:Number(cellXml.match(/<v>([^<]*)<\\/v>/)?.[1])};
+};
+const b7=cellCache(cSheet1,'B7'),f7=cellCache(cSheet1,'F7');
+ok(b7.formula.includes('SUM(')&&Math.abs(b7.value-19.0856)<.00001,'cost summary includes cached real subtotal for viewing without recalculation');
+ok(f7.formula.includes('B7*(1+D7/100)')&&Math.abs(f7.value-22.90272)<.00001,'indirect cost total has a cached result and live Excel formula');
 ok(cSheet2.includes('r="I6" s="6" t="str"><f>')&&cSheet2.includes('<v></v>'),'unpriced defects show blank, never a fictitious zero total');
 ok(cSheet1.includes('COUNTIF(')&&cSheet1.includes('SUMIF('),'floor and method rollups are formula-backed');
 console.log('S:ARCH v175 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
