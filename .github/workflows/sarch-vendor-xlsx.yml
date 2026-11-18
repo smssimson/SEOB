@@ -1,0 +1,44 @@
+name: SARCH vendor validated XLSX writer
+on:
+  push:
+    paths:
+      - '.github/workflows/sarch-vendor-xlsx.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor-exceljs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Copy pinned ExcelJS library to offline PWA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p survey/vendor /tmp/sarch-exceljs
+          cd /tmp/sarch-exceljs
+          npm pack --silent exceljs@4.4.0 > package-name.txt
+          tar -xzf "$(cat package-name.txt)" package/dist/exceljs.min.js package/LICENSE.md
+          cp package/dist/exceljs.min.js "$GITHUB_WORKSPACE/survey/vendor/exceljs.min.js"
+          cp package/LICENSE.md "$GITHUB_WORKSPACE/survey/vendor/exceljs.LICENSE.md"
+          node --check "$GITHUB_WORKSPACE/survey/vendor/exceljs.min.js"
+          wc -c "$GITHUB_WORKSPACE/survey/vendor/exceljs.min.js"
+      - name: Commit pinned and licensed offline XLSX writer
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add survey/vendor/exceljs.min.js survey/vendor/exceljs.LICENSE.md
+          if ! git diff --cached --quiet; then
+            git commit -m "vendor(survey): ExcelJS v4.4.0 for schema-compliant offline XLSX exports"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
