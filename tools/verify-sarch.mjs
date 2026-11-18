@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===175,'version.json should report v175');
+ok(version.version===176,'version.json should report v176');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v175"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v176"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -160,9 +160,9 @@ const measuredFn=new Function('isCrackDefect','function measuredQty(d){'+measure
 ok(Math.abs(measuredFn({manualSpec:'300X300X2EA'})-0.18)<0.000001,'manual dimensions calculate quantity when unambiguous');
 ok(measuredFn({manualSpec:'2EA',width:300,length:300})===null,'EA-only manual input does not accidentally use stale preset dimensions');
 
-ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=169')&&rootSWCacheCheck(),'per-defect XLSX cache version updated');
+ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=176')&&rootSWCacheCheck(),'photo-ordered defect XLSX cache updated');
 ok(read('survey/sw.js').includes("sarch-share-inbox-v1")&&read('survey/sw.js').includes("req.formData()"),'independently installed survey app stages received files safely');
-function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=169')}
+function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=176')}
 const rootManifest=JSON.parse(read('manifest.webmanifest'));
 ok(rootManifest.share_target?.action==='/SEOB/share-target','installed app accepts Android file shares');
 ok(rootManifest.share_target?.params?.files?.[0]?.accept?.includes('.json'),'JSON extension registered for share target');
@@ -173,7 +173,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v175'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v176'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -285,4 +285,22 @@ ok(b7.formula.includes('SUM(')&&Math.abs(b7.value-22.90272)<.00001,'cost summary
 ok(f7.formula.includes('B7*(1+D7/100)')&&Math.abs(f7.value-27.483264)<.00001,'indirect cost total has a cached result and live Excel formula');
 ok(cSheet2.includes('r="I6" s="6" t="str"><f>')&&cSheet2.includes('<v></v>'),'unpriced defects show blank, never a fictitious zero total');
 ok(cSheet1.includes('COUNTIF(')&&cSheet1.includes('SUMIF('),'floor and method rollups are formula-backed');
-console.log('S:ARCH v175 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+const photoOrderState={project:'테스트',pages:[{name:'외부'},{name:'지상2층'}],defects:[
+ {id:20,pageId:1,types:['구조체 균열'],location:'복도 벽체',photos:['photo-4']},
+ {id:11,pageId:0,types:['비구조체 손상'],location:'정면 벽체',photos:[]},
+ {id:12,pageId:0,types:['비구조체 균열'],location:'정면 벽체',photos:['photo-1','photo-2']},
+ {id:13,pageId:0,types:['비구조체 균열'],location:'외부 측면 기둥',photos:['photo-3']},
+ {id:21,pageId:1,types:['박락'],location:'벽체',photos:[]}
+]};
+const sourceSnapshot=JSON.stringify(photoOrderState);
+const photoRows=reportAPI.groups(photoOrderState)[0][1];
+ok(photoRows.map(x=>x.d.id).join(',')==='12,12,13,20,11,21','XLSX rows match HWPX photo sequence, then append defects without photos');
+ok(photoRows.slice(0,4).map(x=>x.number).join(',')==='1,2,3,4','photo-based Excel numbering exactly matches HWPX across pages and multi-photo defects');
+ok(photoRows[4].number.startsWith('미촬영')&&photoRows[5].number.startsWith('미촬영'),'defects without photos remain in Excel but never displace photo numbers');
+const otherXml={};reportAPI.build({file:(k,c)=>otherXml[k]=c},photoOrderState);
+const otherSheet=otherXml['xl/worksheets/sheet1.xml'];
+ok(otherSheet.includes('외부 정면')&&otherSheet.includes('외부 측면')&&otherSheet.includes('지상2층 복도'),'detailed location retains front/side/floor and selected member is kept in the next column');
+ok(!otherSheet.includes('외부 외부')&&otherSheet.includes('벽체')&&otherSheet.includes('기둥'),'location and member split without duplicate exterior prefix');
+ok(JSON.stringify(photoOrderState)===sourceSnapshot,'photo-aligned defect register does not reorder or alter original source records');
+ok(read('survey/index.html').includes("let defects=sm69OrderedDefects().map((d,i)=>")&&read('survey/index.html').includes("const defects=sm69OrderedDefects().map((d,i)=>"),'printed and HWPX photo albums share the same page-first ordering');
+console.log('S:ARCH v176 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');

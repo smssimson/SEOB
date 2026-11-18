@@ -19,19 +19,50 @@ function estimate(d){
  if(/변형|처짐|변위|침하/.test(s))return "장기하중·지반조건 변화 또는 국부 응력집중 등의 영향 가능성";
  return "경과년수에 따른 재료 노후화 및 환경 영향 가능성";
 }
+/* v176: the HWPX album numbers each PHOTO, in active page order then original
+   defect order. The XLSX register mirrors that sequence without changing state. */
 function groups(state){
  var pages=Array.isArray(state.pages)?state.pages:[],ds=Array.isArray(state.defects)?state.defects:[],m=new Map(),site=txt(state.project)||"현장";
  var known=pages.map(p=>building(p&&p.name)).filter(Boolean);
  function ensure(name){name=name||known[0]||building(site)||"현장";if(!m.has(name))m.set(name,[]);return m.get(name)}
  known.forEach(ensure);
- ds.forEach(d=>{var p=pages[Number(d.pageId)]||{},key=building(d.location)||building(p.name)||building(site)||(known.length===1?known[0]:"현장");ensure(key).push({d:d,page:txt(p.name)||"도면",cause:estimate(d)})});
+ var ordered=pages.flatMap((p,i)=>ds.filter(d=>Number(d.pageId)===i));
+ // Keep malformed/orphaned historical records in the report, not in the album.
+ var seen=new Set(ordered);
+ var orphan=ds.filter(d=>!seen.has(d));
+ var photoNo=0,unshotNo=0;
+ ordered.concat(orphan).forEach(d=>{
+  var p=pages[Number(d.pageId)]||{},key=building(d.location)||building(p.name)||building(site)||(known.length===1?known[0]:"현장");
+  var page=txt(p.name)||"도면",group=ensure(key),photos=Array.isArray(d.photos)?d.photos:[];
+  if(photos.length){
+   // A defect with 2 photos gets two rows, to align Photo 8 / Row 8 exactly.
+   photos.forEach((_,i)=>group.push({d:d,page:page,cause:estimate(d),number:++photoNo,photoIndex:i,hasPhoto:true}));
+  }else{
+   var local=ordered.filter(x=>Number(x.pageId)===Number(d.pageId)).findIndex(x=>x===d)+1;
+   group.push({d:d,page:page,cause:estimate(d),number:"미촬영 "+(local>0?local+"번":++unshotNo+"건"),hasPhoto:false});
+  }
+ });
  if(!m.size)ensure("");
- // Grouping applies to labels on drawings only; XLSX retains independent records.
- return Array.from(m.entries()).sort((a,b)=>{var x=parseInt(a[0],10),y=parseInt(b[0],10);return isFinite(x)&&isFinite(y)?x-y:a[0].localeCompare(b[0],"ko")});
+ // HWPX contains all photographed items first; unphotographed defects are
+ // still included, at the end of each building sheet, without consuming a photo number.
+ return Array.from(m.entries()).map(([key,items])=>[key,
+  items.filter(x=>x.hasPhoto).sort((a,b)=>a.number-b.number).concat(items.filter(x=>!x.hasPhoto))])
+  .sort((a,b)=>{var x=parseInt(a[0],10),y=parseInt(b[0],10);return isFinite(x)&&isFinite(y)?x-y:a[0].localeCompare(b[0],"ko")});
+}
+function member(d){var match=txt(d.location).match(/기둥|벽체|보|슬래브|바닥|천장|계단|난간|창호|문|옥상|지붕|외벽|내벽/);return match?match[0]:"-"}
+function areaLabel(d,page){
+ var loc=txt(d.location),part=member(d);
+ if(part!=="-")loc=loc.replace(new RegExp("(?:\\s|^)"+part+"$"),"").trim();
+ page=txt(page)||"도면";
+ if(!loc||loc===page)return page;
+ if(loc===page||loc.startsWith(page+" "))return loc;
+ // Avoid duplicate text such as '외부 외부 정면' or '지상1층 지상1층 복도'.
+ var core=loc.replace(/^(외부|내부|지하\\d+층|지상\\d+층)\\s*/,(_,prefix)=>page===prefix?"":prefix+" ");
+ if(core!==loc&&page===loc.split(/\\s+/)[0])loc=core.trim();
+ return [page,loc].filter(Boolean).join(" ");
 }
 function types(d){return Array.from(new Set((d.types||[]).filter(Boolean).map(v=>txt(v).replace(/^(구조체|비구조체)\s*/,"")))).join(", ")||"미지정"}
 function spec(d){var direct=txt(d.manualSpec);if(direct)return direct.replace(/×/g,"X").replace(/(\d)\s*x\s*(?=\d)/gi,"$1X").replace(/(\d)\s*ea\b/gi,"$1EA");var p=[d.width,d.length].map(txt).filter(Boolean),base=p.join("X"),n=Number(d.count);n=Number.isInteger(n)&&n>1?n:1;return base?(n>1?base+"X"+n+"EA":base):n+"EA"}
-function member(d){var match=txt(d.location).match(/기둥|벽체|보|슬래브|바닥|천장|계단|난간|창호|문|옥상|지붕|외벽|내벽/);return match?match[0]:"-"}
 function remedy(d){var t=(d.types||[]).join(" ");return /누수|백태/.test(t)?"수분 유입 원인 확인 및 방수·배수상태 점검 후 보수 검토":/균열/.test(t)?"진행 여부 주기적 관찰 및 필요 시 보수 검토":/철근노출|박락|파손/.test(t)?"손상 범위 확인 후 단면복구·재발방지 검토":"유지관리계획에 따른 주의관찰 및 보수 검토"}
 var header=["번호","층/도면","부재(부위)","결함 종류","결함 크기","손상원인추정","조치 필요사항"];
 function sheetXml(state,key,items){
@@ -39,11 +70,11 @@ function sheetXml(state,key,items){
  function cell(value,r,i,style){return '<c r="'+String.fromCharCode(65+i)+r+'" s="'+style+'" t="inlineStr"><is><t xml:space="preserve">'+xml(value)+'</t></is></c>'}
  function row(n,values,style,height){rows.push('<row r="'+n+'" ht="'+height+'" customHeight="1">'+values.map((v,i)=>cell(v,n,i,style)).join("")+"</row>")}
  row(1,["결함 현황표"],1,42);
- row(2,[(txt(state.project)||"현장")+" | "+key+" | 조사 결함 "+items.length+"건"],2,30);
+ row(2,[(txt(state.project)||"현장")+" | "+key+" | 결함 "+new Set(items.map(it=>it.d)).size+"건 · 사진 "+items.filter(it=>it.hasPhoto).length+"장 · 미촬영 "+items.filter(it=>!it.hasPhoto).length+"건"],2,30);
  row(3,header,2,30);
  if(!items.length)row(4,["-","-","-","등록된 결함 없음","-","-","-"],3,40);
  items.forEach((it,i)=>{var d=it.d,cause=it.cause;
-  row(i+4,[i+1,it.page,member(d),types(d),spec(d),cause,remedy(d)],3,Math.max(47,Math.min(92,36+Math.ceil(cause.length/34)*14)));
+  row(i+4,[it.number,areaLabel(d,it.page),member(d),types(d),spec(d),cause,remedy(d)],3,Math.max(47,Math.min(92,36+Math.ceil(cause.length/34)*14)));
  });
  var cols=[9,22,16,22,18,64,53].map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("");
  var end=Math.max(4,items.length+3);

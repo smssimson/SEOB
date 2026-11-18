@@ -1108,7 +1108,7 @@ function albumCard(src,number,caption){return `<div class="photoCard"><div class
 function albumPage(title,cards,first=false){return `<section class="albumPage"><h2>${escapeHtml(title)}</h2><div class="photoGrid">${cards.join('')}</div></section>`}
 $('albumPrint').onclick=()=>{
  normalizeState();let outside=ALBUM_OUT.map((x,i)=>albumSlot('outside',i)),inside=ALBUM_IN.map((x,i)=>albumSlot('inside',i));
- let defects=state.defects.map((d,i)=>({d,order:i,page:state.pages[d.pageId]?.name||''})).filter(x=>(x.d.photos||[]).length).sort((a,b)=>albumFloor(a.page)-albumFloor(b.page)||a.order-b.order);
+ let defects=sm69OrderedDefects().map((d,i)=>({d,order:i,page:state.pages[d.pageId]?.name||''})).filter(x=>(x.d.photos||[]).length);
  let cards=[],n=0;for(const {d,page} of defects){for(const src of d.photos){n++;let desc=[page,d.location||'',(d.types||[]).map(albumTypeName).join(' 및 '),albumSpec(d)].filter(Boolean).join(' ');cards.push(albumCard(src,n,desc))}}
  let pages=[`<section class="albumPage"><h2>시설물의 위치도</h2><div class="mapBlank"></div></section>`,albumPage('시설물의 전경사진',outside.map((v,i)=>albumCard(v.image,i+1,v.label))),albumPage('시설물의 부위별 사진',inside.map((v,i)=>albumCard(v.image,i+1,v.label)))];
  for(let i=0;i<cards.length;i+=6)pages.push(albumPage('외관조사 사진첩',cards.slice(i,i+6)));
@@ -1337,7 +1337,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script defer src="../sarch-quick-nav-v139.js?v=139"></script>
 
 <link rel="stylesheet" href="../sarch-workspace-v142.css?v=143">
-<script defer src="../sarch-defect-status-v157.js?v=169"></script><script defer src="../sarch-repair-xlsx-v172.js?v=175"></script>
+<script defer src="../sarch-defect-status-v157.js?v=176"></script><script defer src="../sarch-repair-xlsx-v172.js?v=175"></script>
 <script defer src="../sarch-transfer-v156.js?v=156"></script>
 <script defer src="../sarch-workspace-v142.js?v=161"></script>
 <link rel="stylesheet" href="../sarch-shell-v145.css?v=147">
