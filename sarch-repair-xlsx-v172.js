@@ -1,12 +1,20 @@
 /* S:ARCH v172: two-sheet, styled offline XLSX for repair quantities and indicative costs.
    Verified labor and user-entered material/other direct costs are combined only when supplied. No external requests or photo AI inference. */
 (function(root){'use strict';
- const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+ // XML 1.0 forbids C0 controls (except tab/LF/CR), lone UTF-16 surrogates
+ // and U+FFFE/U+FFFF. Raw user data previously flowed directly to sheet2.xml.
+ const xmlSafe=v=>Array.from(String(v??'')).filter(ch=>{
+  const cp=ch.codePointAt(0);
+  return cp===9||cp===10||cp===13||(cp>=32&&cp<=0xD7FF)||(cp>=0xE000&&cp<=0xFFFD)||(cp>=0x10000&&cp<=0x10FFFF);
+ }).join('');
+ const esc=v=>xmlSafe(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
  const alpha=i=>String.fromCharCode(65+i);
  const num=v=>typeof v==='number'&&Number.isFinite(v);
  function c(row,col,value,style=3,formula=null){
   const ref=alpha(col)+row;
-  if(formula)return '<c r="'+ref+'" s="'+style+'"'+(num(value)?'':' t="str"')+'><f>'+esc(formula)+'</f><v>'+(num(value)?value:'')+'</v></c>';
+  // Excel can reject formula cells carrying an empty <v></v> cached result.
+  // For unknown results, omit the cache so Excel recalculates the formula.
+  if(formula)return '<c r="'+ref+'" s="'+style+'"><f>'+esc(formula)+'</f>'+(num(value)?'<v>'+value+'</v>':'')+'</c>';
   if(num(value))return '<c r="'+ref+'" s="'+style+'"><v>'+value+'</v></c>';
   if(value===null||value===undefined||value==='')return '<c r="'+ref+'" s="'+style+'"/>';
   return '<c r="'+ref+'" s="'+style+'" t="inlineStr"><is><t xml:space="preserve">'+esc(value)+'</t></is></c>';
@@ -125,8 +133,21 @@
  }
  async function download(payload){
   if(typeof root.JSZip!=='function')throw Error('엑셀 파일을 만드는 JSZip을 불러오지 못했습니다.');
-  const zip=new root.JSZip(),info=build(zip,payload),blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
-  const name=String(payload.site||'현장').replace(/[\\/:*?"<>|]/g,'_')+'_보수물량_개략공사비.xlsx';
+  const zip=new root.JSZip(),info=build(zip,payload);
+  // Fail closed: do not let a malformed workbook be downloaded and silently
+  // repaired by Excel (which otherwise can discard the complete detail sheet).
+  if(typeof DOMParser==='function'){
+   const parser=new DOMParser();
+   for(const name of ['[Content_Types].xml','xl/workbook.xml','xl/styles.xml',
+    'xl/worksheets/sheet1.xml','xl/worksheets/sheet2.xml']){
+    const source=await zip.file(name)?.async('string');
+    if(!source)throw Error('엑셀 구성 파일이 없습니다: '+name);
+    const doc=parser.parseFromString(source,'application/xml');
+    if(doc.getElementsByTagName('parsererror').length)throw Error('잘못된 엑셀 XML: '+name);
+   }
+  }
+  const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+  const name=xmlSafe(String(payload.site||'현장')).replace(/[\\/:*?"<>|]/g,'_')+'_보수물량_개략공사비.xlsx';
   const link=document.createElement('a'),url=URL.createObjectURL(blob);link.href=url;link.download=name;document.body.appendChild(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),15000);
   return info;
