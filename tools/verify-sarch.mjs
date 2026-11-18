@@ -110,13 +110,46 @@ const originalReportState=JSON.stringify(sampleState);
 const groupedRows=reportAPI.groups(sampleState)[0][1];
 ok(groupedRows.length===6,'six original defects remain separate XLSX rows regardless of visual grouping');
 ok(groupedRows.map(x=>x.d.id).join('|')==='11|12|13|14|15|16','XLSX preserves original defect order and numbers');
-ok(groupedRows[1].d.id===12&&groupedRows[2].d.id===13&&groupedRows[2].cause==='다른 원인','XLSX retains every defect description separately');
+ok(groupedRows[1].d.id===12&&groupedRows[2].d.id===13&&groupedRows[2].reportDefect===groupedRows[1].d&&groupedRows[2].cause==='대표 원인','XLSX repeats the first group member description while keeping individual source ids');
 const zipContents={};
 reportAPI.build({file:(path,content)=>zipContents[path]=content},sampleState);
 const sheetOutput=zipContents['xl/worksheets/sheet1.xml'];
-ok(!sheetOutput.includes('>2,3,5</t>')&&sheetOutput.includes('대표 원인')&&sheetOutput.includes('다른 원인'),'XLSX shows six individual rows, not a joined number row');
+ok(!sheetOutput.includes('>2,3,5</t>')&&sheetOutput.includes('대표 원인')&&!sheetOutput.includes('다른 원인'),'XLSX shows individual photo-numbered rows but only leader cause/description');
 ok(sheetOutput.includes('A1:I1')&&sheetOutput.includes('A2:I2')&&sheetOutput.includes('조치 필요사항')&&!sheetOutput.includes('사진</t>'),'grouped XLSX has nine columns without photo column');
 ok(JSON.stringify(sampleState)===originalReportState&&sampleState.defects.length===6&&sampleState.defects[2].photos[0]==='photo13','XLSX grouping never mutates existing defect records or photos');
+const mergedExample=[
+ {id:29,pageId:0,mergeGroupId:'leak-group',location:'지상4층 천장',types:['비구조체 누수흔적'],width:800,length:3000,count:1,causeEstimate:'대표 누수 원인',photos:['p29']},
+ {id:30,pageId:0,mergeGroupId:'leak-group',location:'지상4층',types:['비구조체 누수흔적'],width:'',length:'',count:1,causeEstimate:'개별 30 원인',photos:['p30']},
+ {id:31,pageId:0,mergeGroupId:'leak-group',location:'지상4층 벽체',types:['비구조체 누수흔적'],width:500,length:600,count:2,causeEstimate:'개별 31 원인',photos:['p31']},
+ {id:32,pageId:0,mergeGroupId:'leak-group',location:'지상4층 기둥',types:['비구조체 누수흔적'],width:300,length:400,count:3,causeEstimate:'개별 32 원인',photos:['p32']}
+];
+const mergedState={project:'가톨릭관동대 정밀안전점검',pages:[{name:'지상4층'}],
+ defects:[...Array.from({length:28},(_,i)=>({id:i+1,pageId:0,types:['비구조체 균열'],location:'지상4층',width:0.1,length:200,count:1,photos:['p'+(i+1)]})),...mergedExample]};
+const mergedOriginal=JSON.stringify(mergedState);
+const mergedRows=reportAPI.groups(mergedState)[0][1];
+ok(mergedRows.slice(-4).map(x=>x.number).join('|')==='29|30|31|32','merged defect numbering 29-32 stays separate and photo-ordered');
+ok(mergedRows.slice(-4).every(x=>x.reportDefect===mergedExample[0]&&x.cause==='대표 누수 원인'),'grouped defect rows share first record including cause');
+const mergedZip={};reportAPI.build({file:(k,v)=>mergedZip[k]=v},mergedState);
+const mergedXml=mergedZip['xl/worksheets/sheet1.xml'];
+function mergedCell(column,number){
+ const found=mergedXml.match(new RegExp('<c r="'+column+number+'"[^>]*><is><t[^>]*>([^<]*)</t>'));
+ return found?.[1]||'';
+}
+for(let nr=29;nr<=32;nr++){
+ const row=nr+3;
+ const actual=['B','C','D','E','F','G','H','I'].map(c=>mergedCell(c,row));
+ const leader=['지상4층','천장','누수흔적','0.8','3.0','-','대표 누수 원인','수분 유입 원인 확인 및 방수·배수상태 점검 후 보수 검토'];
+ ok(JSON.stringify(actual)===JSON.stringify(leader),'merged Excel '+nr+' shares all fields from first marker');
+}
+ok(JSON.stringify(mergedState)===mergedOriginal,'merged report does not change original individual locations, photos or sizes');
+// Same group identifier on a different floor must not inherit any leader from page 0.
+const crossFloor={project:'재사용 ID',pages:[{name:'지상4층'},{name:'지상5층'}],defects:[
+ {...mergedExample[0],photos:['a']},
+ {id:50,pageId:1,mergeGroupId:'leak-group',location:'지상5층 기둥',types:['철근노출'],width:300,length:600,photos:['b']}
+]};
+const secondPageRow=reportAPI.groups(crossFloor).flatMap(([name,rs])=>rs).find(x=>x.d.id===50);
+ok(secondPageRow.reportDefect.id===50,'merged report grouping never shares data across floors');
+
 const surveyReport=read('survey/index.html');
 ok(surveyReport.includes('id="causeEstimate"')&&surveyReport.includes('결함 현황표 엑셀'),'cause editor and Excel output');
 ok(surveyReport.includes('id="sm156MarkerSizeWrap"')&&surveyReport.includes('hidden=!showDefectLabels'),'marker size slider visible only with labels ON');
@@ -324,10 +357,22 @@ ok(read('survey/index.html').includes("let defects=sm69OrderedDefects().map((d,i
 const anchors=read('survey/index.html');
 ok(anchors.includes("const SM177_SIDES=['top','right','bottom','left']"),'connector ends have four fixed cardinal positions');
 ok(anchors.includes('function sm177TextAnchors(r)')&&anchors.includes('function sm177CircleAnchors(p,r)'),'text and circle positions use exact midpoints');
-ok(anchors.includes('link.d.linkCircleSide')&&anchors.includes('d.linkLabelSide'),'circle and label endpoints maintain independent saved side choices');
+ok(anchors.includes('link.d.linkCircleSide')&&anchors.includes('link.d.linkLabelSide'),'circle and label endpoints persist independently on each original defect');
 ok(anchors.includes("kind:'endpoint'")&&anchors.includes('sm180CancelHold(drag)')&&anchors.includes('sm177UpdateAnchor(drag,p);')&&anchors.includes('persist();drag=null;draw();return}'),'endpoint dragging snaps and saves selection and cancels hold safely');
 ok(anchors.includes('g!==ctx||selected!==source.id||sm163MergeMode'),'green edit nodes hidden when not selected or on exported PNG');
 ok(anchors.includes('sm177LineHit(p)')&&anchors.includes("e.key==='Escape'"),'connector line selection and escape-to-hide handles');
+// Build only the pure endpoint selection function to exercise separate member edits.
+const anchorFunction=anchors.slice(anchors.indexOf('function sm177UpdateAnchor(action,p){'),anchors.indexOf('function sm177LineHit(p){'));
+const connectorRecords=mergedExample.map(d=>({id:d.id,mergeGroupId:d.mergeGroupId}));
+const positions={left:{x:0,y:0},top:{x:100,y:100},right:{x:200,y:200},bottom:{x:300,y:300}};
+const connectorHandles=connectorRecords.flatMap(d=>Object.entries(positions).map(([side,p])=>({sourceId:d.id,target:'label',side,x:p.x,y:p.y})));
+let connectorDraws=0;
+const changeEndpoint=new Function('state','sm177Handles','draw',anchorFunction+'return sm177UpdateAnchor')(
+ {defects:connectorRecords},connectorHandles,()=>connectorDraws++);
+['left','left','bottom','right'].forEach((side,i)=>changeEndpoint(
+ {sourceId:connectorRecords[i].id,ownerId:connectorRecords[0].id,target:'label'},positions[side]));
+ok(connectorRecords.map(d=>d.linkLabelSide).join('|')==='left|left|bottom|right'&&connectorDraws===4,'grouped label connection side is independently saved per marker 29-32');
+
 const photoApp=read('survey/index.html');
 ok(photoApp.includes('id="frontInsideCount">0 / 12장')&&photoApp.includes('내부 최대 12장'),'internal front-photo slots expanded to 12');
 ok(photoApp.includes('const ALBUM_IN=[')&&photoApp.includes("'지하주차장 전경'")&&photoApp.includes('front-photo-grid'),'internal front-photo upload UI has six additional slots');
