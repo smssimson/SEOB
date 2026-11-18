@@ -1,4 +1,4 @@
-# rerun: v186 final nine-column XLSX plus 0.1mm picker browser checks
+# rerun: v187 independent grouped connectors and merged XLSX fields
 name: SARCH one-shot deployment diagnosis
 on:
   push:
