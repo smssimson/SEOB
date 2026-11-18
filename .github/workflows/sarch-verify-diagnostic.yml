@@ -1,4 +1,4 @@
-# rerun: v186 nine-column defect register XLSX and width preset checks
+# rerun: v186 final nine-column XLSX plus 0.1mm picker browser checks
 name: SARCH one-shot deployment diagnosis
 on:
   push:
