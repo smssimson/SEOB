@@ -148,6 +148,42 @@ async function check(mod,width,height){
     const returned=await page.locator("#smFieldGroup").isVisible();
     report(id,"survey tool tab switches",opened&&returned);
     if(width===1280){
+      const allRates=await page.evaluate(()=>{
+        const original=structuredClone(state),samples=[
+          {id:901,types:['구조체 누수흔적'],repair:{rate:'',materialRate:null,otherRate:null}},
+          {id:902,types:['구조체 균열'],width:.2,length:900,repair:{}},
+          {id:903,types:['비구조체 균열'],width:.2,length:300,repair:{rate:null,materialRate:'',otherRate:''}},
+          {id:904,types:['마감재 손상(박리·박락·들뜸·탈락)'],repair:{rate:95.428}},
+          {id:905,types:['철근노출'],repair:{rate:null,materialRate:'NaN',otherRate:'undefined'}},
+          {id:906,types:['구조체 박락'],repair:{}},
+          {id:907,types:[],repair:{}}
+        ].map(d=>({...d,pageId:0,point:{x:40,y:50},count:1,photos:[]}));
+        let result={};
+        try{
+          state.pages=[{name:'QA 가상 현장',image:''}];
+          state.defects=samples;state.nextId=908;
+          const before=JSON.stringify(state.defects);
+          renderRepair();
+          const keys=['rate','materialRate','otherRate'];
+          const rows=[...document.querySelectorAll('#repairCostRows tr')].map(tr=>{
+            const values=keys.map(k=>tr.querySelector('input[data-key="'+k+'"]')?.value??'');
+            return {values,numeric:values.every(v=>v!==''&&Number.isFinite(Number(v))&&Number(v)>0)};
+          });
+          const xls=repairRows().map(({d,rule})=>{
+            const parts=sm180RateBreakdown(rule),q=sm182CostQty(d);
+            return {ready:parts.complete&&Number.isFinite(parts.unitRate)&&parts.unitRate>0&&Number.isFinite(q.qty)};
+          });
+          result={count:rows.length,allFilled:rows.every(r=>r.numeric),xlsxReady:xls.every(x=>x.ready),
+            preservesSaved:before===JSON.stringify(state.defects),
+            manualRatePreserved:rows[3]?.values[0]==='95.428',rates:rows.map(x=>x.values)};
+        }catch(err){result={error:String(err)}}finally{state=original;renderRepair()}
+        return result;
+      });
+      report(id,"all three indicative repair prices auto-populated for current and legacy defects",
+        allRates.count===7&&allRates.allFilled&&allRates.xlsxReady&&allRates.preservesSaved&&allRates.manualRatePreserved,
+        JSON.stringify(allRates).slice(0,850));
+    }
+    if(width===1280){
       const photoUnderMap=await page.evaluate(()=>{
         const section=document.getElementById("frontPhotoWorkspace"),board=document.getElementById("board");
         const area=board?.closest("section.panel"),photo=section?.getBoundingClientRect(),drawing=board?.getBoundingClientRect();
