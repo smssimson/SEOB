@@ -1,3 +1,4 @@
+# first-run: vendor pinned ExcelJS bundle after workflow registration
 name: SARCH vendor validated XLSX writer
 on:
   push:
