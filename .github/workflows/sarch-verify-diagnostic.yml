@@ -1,4 +1,4 @@
-# rerun: v191 damage-type summary totals and published writer
+# rerun: v192 field workflow and compact repair workbook
 name: SARCH one-shot deployment diagnosis
 on:
   push:
