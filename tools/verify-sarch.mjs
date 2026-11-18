@@ -249,7 +249,7 @@ ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
 ok(read('survey/index.html').includes("'표면처리':'표면처리공법'")&&read('survey/index.html').includes("'단면복구':'단면복구공법'"),'repair methods shown with full 공법 suffix');
 ok(read('survey/index.html').includes('laborCurrent.concreteRepair')&&read('survey/index.html').includes('laborCurrent.concreteFinish')&&read('survey/index.html').includes('sm183FallbackCost('),'current-year labor and offline fallback estimates apply to concrete repairs');
-ok(read('survey/index.html').includes('사용자 수정 단가')&&read('survey/index.html').includes("d.repair.rate=Math.max(0"),'cost rates remain user editable');
+ok(read('survey/index.html').includes('function setRepair(id,key,value)')&&read('survey/index.html').includes("d.repair.rate=Math.max(0")&&read('survey/index.html').includes('기존 입력단가 유지 + 미입력 항목 자동추정'),'cost rates remain user editable while blank components use indicative estimates');
 ok(read('survey/index.html').includes('사진 AI 분석 미연결'),'registered photographs are never represented as AI-inspected');
 const costXlsx=read('sarch-repair-xlsx-v172.js');
 scriptSyntax(costXlsx,'sarch-repair-xlsx-v172.js');
