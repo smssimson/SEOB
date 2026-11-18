@@ -1,4 +1,4 @@
-# rerun: v191 damage-type summary totals and published writer
+# rerun: v192 field workflow and compact repair workbook
 name: SARCH v190 XLSX writer binary roundtrip
 on:
   push:
@@ -54,8 +54,10 @@ jobs:
             }
             const expectedCost=payload.rows.reduce((a,x)=>a+x.qty*x.rate,0);
             const expectedQty=payload.rows.reduce((a,x)=>a+x.qty,0);
-            if(info.version!=='191'||sum.getCell('G9').value!=='결함별 참고금액'||names.length!==4||totals.count!==41||Math.abs(totals.qty-expectedQty)>1e-8||Math.abs(totals.cost-expectedCost)>1e-8||Math.abs(totals.full-expectedCost*1.6)>1e-8)problems.push('Damage summary aggregates mismatch');
-            const result={version:info.version,damageSummary:names,damageTotals:totals,createdAt:new Date().toISOString(),inputRows:41,detailRows:detail.actualRowCount,bytes:bytes.length,
+            if(info.version!=='192'||sum.getCell('G9').value!=='결함별 참고금액'||names.length!==4||totals.count!==41||Math.abs(totals.qty-expectedQty)>1e-8||Math.abs(totals.cost-expectedCost)>1e-8||Math.abs(totals.full-expectedCost*1.6)>1e-8)problems.push('Damage summary aggregates mismatch');
+            const compact=sum.getCell('A1').alignment.horizontal==='center'&&sum.getColumn(11).width<=24&&detail.getColumn(12).width===44;
+            if(!compact)problems.push('Compact widths or centered title missing');
+            const result={compact:compact,version:info.version,damageSummary:names,damageTotals:totals,createdAt:new Date().toISOString(),inputRows:41,detailRows:detail.actualRowCount,bytes:bytes.length,
               sheetNames:parsed.worksheets.map(x=>x.name),allIdsPreserved:ids.join(',')===Array.from({length:41},(_,i)=>i+1).join(','),
               valid:problems.length===0,problems};
             fs.writeFileSync('tools/sarch-v190-xlsx-status.json',JSON.stringify(result,null,2)+'\n');
