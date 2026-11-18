@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-11-18T06:13:36.086Z",
+  "createdAt": "2026-11-18T06:14:34.758Z",
   "inputRows": 41,
   "detailRows": 45,
   "bytes": 12896,
@@ -7,9 +7,7 @@
     "개략공사비_요약",
     "층별_결함별"
   ],
-  "record41": 40,
-  "valid": false,
-  "problems": [
-    "Record 41 missing"
-  ]
+  "allIdsPreserved": true,
+  "valid": true,
+  "problems": []
 }
