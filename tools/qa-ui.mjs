@@ -148,6 +148,41 @@ async function check(mod,width,height){
     const returned=await page.locator("#smFieldGroup").isVisible();
     report(id,"survey tool tab switches",opened&&returned);
     if(width===1280){
+      const nineColumnReport=await page.evaluate(async()=>{
+        const samples={project:'QA 임시 현장',pages:[{name:'지상1층'}],defects:[
+          {id:601,pageId:0,location:'정면 기둥',types:['콘크리트 손상(박리·박락·파손)'],width:100,length:200,count:1,photos:[]},
+          {id:602,pageId:0,location:'좌측면 벽체',types:['구조체 균열'],width:.1,length:1000,count:9,photos:[]},
+          {id:603,pageId:0,location:'좌측면 벽체',types:['마감재 손상','균열'],width:.2,length:4000,count:1,photos:[]},
+          {id:604,pageId:0,location:'배면 벽체',types:['마감재 손상'],width:1000,length:2000,count:1,photos:[]},
+          {id:605,pageId:0,location:'우측면 기둥',types:['철근노출'],width:100,length:300,count:1,countEAExplicit:true,photos:[]}
+        ]};
+        const original=JSON.stringify(samples);
+        try{
+          const zip=new JSZip(),api=window.SARCHDefectStatusV157;
+          api.build(zip,samples);
+          const binary=await zip.generateAsync({type:'uint8array',compression:'DEFLATE'});
+          const reopened=await JSZip.loadAsync(binary);
+          const xml=await reopened.file('xl/worksheets/sheet1.xml').async('string');
+          const doc=new DOMParser().parseFromString(xml,'application/xml');
+          const byAddress=ref=>{
+            const cell=[...doc.getElementsByTagName('c')].find(x=>x.getAttribute('r')===ref);
+            return cell?.getElementsByTagName('t')[0]?.textContent||'';
+          };
+          const expected=[['0.1','0.2','-'],['0.1','1.0','9'],['0.2','4.0','-'],['1.0','2.0','-'],['0.1','0.3','1']];
+          const actual=expected.map((_,i)=>['E','F','G'].map(c=>byAddress(c+(i+4))));
+          const preset=Array.from({length:20},(_,i)=>Number(((i+1)/10).toFixed(1)));
+          return {valid:!doc.querySelector('parsererror'),nineCols:xml.includes('A1:I1')&&xml.includes('A2:I2')&&
+            byAddress('E3')==='폭'&&byAddress('F3')==='길이'&&byAddress('G3')==='개수',
+            cellValues:JSON.stringify(actual)===JSON.stringify(expected),dataUnchanged:JSON.stringify(samples)===original,
+            byteLength:binary.length,actual,presetExpected:!preset.includes(.15)&&preset.includes(.1)&&preset.includes(.2)};
+        }catch(error){return {error:String(error)}}
+      });
+      report(id,"defect register exports width, length, optional EA in valid nine-column XLSX",
+        nineColumnReport.valid&&nineColumnReport.nineCols&&nineColumnReport.cellValues&&nineColumnReport.dataUnchanged&&
+        nineColumnReport.byteLength>2000&&nineColumnReport.presetExpected,
+        JSON.stringify(nineColumnReport).slice(0,800));
+    }
+    if(width===1280){
       const allRates=await page.evaluate(()=>{
         const original=structuredClone(state),samples=[
           {id:901,types:['구조체 누수흔적'],repair:{rate:'',materialRate:null,otherRate:null}},
