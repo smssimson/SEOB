@@ -320,4 +320,9 @@ ok(photoApp.includes("insidePages.push(albumPage('시설물의 부위별 사진 
 ok(photoApp.includes("const pics=originalAlbumPics")&&photoApp.includes("zip.file('BinData/'+key+'.jpg'"),'HWPX export preserves existing image ordering');
 ok(photoApp.includes('sm183Proxy(d,r,labor.rate)')&&photoApp.includes('function sm183FallbackCost('),'estimate inputs recover when external price module is absent');
 ok(read('survey/sw.js').includes('estimate-rates-v182.js?v=182')&&rootSW.includes('./survey/estimate-rates-v182.js?v=182'),'estimate engine cached by both service workers');
+const cost185=read('survey/index.html');
+ok(cost185.includes('function sm185CompleteCost(d,rule)')&&cost185.includes('rule:sm185CompleteCost(d,repairFor(d))'),'all cost rows pass through final indicative rate completion');
+ok(cost185.includes('미확인 단가 자동 추정')&&cost185.includes('placeholder="자동추정 단가"'),'indicative rate inputs visibly identify auto-filled prices');
+ok(!cost185.includes('res.materialRate=0;res.otherRate=0;'),'legacy manually entered labor must not silently zero material/equipment estimates');
+ok(cost185.includes('sm183FallbackCost(d,r,null)')&&cost185.includes('materialRate:round(material*materialMultiplier)'),'fallback estimates provide all three expense categories');
 console.log('S:ARCH v'+version.version+' OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
