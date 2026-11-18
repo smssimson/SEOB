@@ -482,6 +482,20 @@ async function check(mod,width,height){
           selected=d.id;refresh();draw();
           const select=document.getElementById('sm192LocationPreset');
           const presetOptions=[...select.options].map(o=>o.value);
+          const gridIds=['sm79Order','typeSelect','sm192LocationPreset','locationMember','widthPreset','lengthPreset','eaPreset'];
+          const grids=gridIds.every(id=>!!document.getElementById(id+'GridTrigger'));
+          const widthTrigger=document.getElementById('widthPresetGridTrigger'),widthMenu=document.getElementById('widthPresetGridMenu');
+          if(widthTrigger.closest('.sm193-select-wrap').hidden)document.getElementById('widthCustomBack').click();
+          sm193Fields.get('widthPreset').sync();
+          widthTrigger.click();
+          const manualGrid=!widthMenu.hidden&&widthMenu.querySelectorAll('button').length>5&&widthTrigger.getAttribute('aria-expanded')==='true';
+          widthMenu.querySelector('button').click();
+          const chainedGrid=!document.getElementById('sm192LengthMenu').hidden&&widthMenu.hidden;
+          document.getElementById('lengthPresetGridTrigger').click();
+          document.getElementById('eaPresetGridTrigger').click();
+          const eaMenu=document.getElementById('eaPresetGridMenu');
+          const countGrid=!eaMenu.hidden&&eaMenu.querySelectorAll('button').length===31;
+          sm193CloseMenus();
           select.value='복도';select.dispatchEvent(new Event('change',{bubbles:true}));
           const member=document.getElementById('locationMember');member.value='벽체';member.dispatchEvent(new Event('change',{bubbles:true}));
           const locationOkay=d.location==='복도 벽체';
@@ -499,12 +513,32 @@ async function check(mod,width,height){
           const png=await sm192PngBlob(canvas),signature=new Uint8Array(await png.slice(0,8).arrayBuffer());
           const zipped=new JSZip();zipped.file('01.png',png);zipped.file('02.png',png);const bytes=await zipped.generateAsync({type:'uint8array'});
           const restored=await JSZip.loadAsync(bytes);
-          return {locationOkay,presetOptions,autoOpen,lengthOkay,stable,png:signature.join(',')==='137,80,78,71,13,10,26,10',zipFiles:Object.keys(restored.files).length};
+          return {grids,manualGrid,chainedGrid,countGrid,locationOkay,presetOptions,autoOpen,lengthOkay,stable,png:signature.join(',')==='137,80,78,71,13,10,26,10',zipFiles:Object.keys(restored.files).length};
         }catch(error){return {error:String(error)}}finally{state=previous;zoom=originalZoom;pan=originalPan;selected=oldSelected;refresh();draw()}
       });
       report(id,"location presets, automatic length list, zoom-invariant labels and PNG bytes",
-        newSurveyFeatures.locationOkay&&newSurveyFeatures.presetOptions?.length===12&&newSurveyFeatures.autoOpen&&newSurveyFeatures.lengthOkay&&newSurveyFeatures.stable&&newSurveyFeatures.png&&newSurveyFeatures.zipFiles===2,
+        newSurveyFeatures.grids&&newSurveyFeatures.manualGrid&&newSurveyFeatures.chainedGrid&&newSurveyFeatures.countGrid&&newSurveyFeatures.locationOkay&&newSurveyFeatures.presetOptions?.length===12&&newSurveyFeatures.autoOpen&&newSurveyFeatures.lengthOkay&&newSurveyFeatures.stable&&newSurveyFeatures.png&&newSurveyFeatures.zipFiles===2,
         JSON.stringify(newSurveyFeatures).slice(0,600));
+      const captureWithoutDownload=await page.evaluate(async()=>{
+        const saved=structuredClone(state),oldSelected=selected,originalDownload=download;
+        let downloads=0;
+        try{
+          selected=currentDefects()[0].id;refresh();
+          const d=currentDefects()[0],before=(d.photos||[]).length;
+          const c=document.createElement('canvas');c.width=16;c.height=16;
+          c.getContext('2d').fillRect(0,0,16,16);
+          const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));
+          const file=new File([blob],'camera.png',{type:'image/png'});
+          const dt=new DataTransfer();dt.items.add(file);
+          const input=document.getElementById('photoFile');input.files=dt.files;
+          download=()=>{downloads++};
+          await input.onchange({target:input});
+          return {downloads,added:d.photos.length===before+1,original:sm192Originals.get(d)?.some(f=>f.size===file.size),manual:!document.getElementById('sm192OriginalPhoto').hidden};
+        }catch(error){return {error:String(error)}}finally{download=originalDownload;state=saved;selected=oldSelected;refresh();draw()}
+      });
+      report(id,"camera adds photo and retains manual original without automatic download",
+        captureWithoutDownload.downloads===0&&captureWithoutDownload.added&&captureWithoutDownload.original&&captureWithoutDownload.manual,
+        JSON.stringify(captureWithoutDownload));
       const canonicalExcel=await page.evaluate(async()=>{
         const unsafe=String.fromCharCode(0,2,11,31,0xD800);
         const payload={site:'춘천 엠백화점 - 수정'+unsafe,overhead:60,
