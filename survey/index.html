@@ -1057,6 +1057,44 @@ const sm174FmtQty=n=>{
  const v=Number(n);if(v===0)return '0';
  return v.toLocaleString('ko-KR',{minimumFractionDigits:0,maximumFractionDigits:v<.1?4:3});
 };
+/* v183 offline fallback: even if external cost engine is blocked, keep estimated entries populated. */
+function sm183FallbackCost(d,r,lab){
+ const yr=new Date().getFullYear(),half=new Date().getMonth()>=8?'H2':'H1';
+ const period=Math.max(0,(yr-2026)*2+(half==='H2'?1:0)-1);
+ const multiplier=Math.pow(1.015,period),materialMultiplier=Math.pow(1.03,Math.max(0,yr-2026));
+ const type=String((d.types||[])[0]||'');
+ const group=r.group||defectGroup(d);
+ const w={normal:172698*multiplier,special:228717*multiplier,plaster:279102*multiplier};
+ const surface=(w.special*3+w.normal)/81/1000,repair=(w.special*3+w.normal)/9/1000;
+ let labor=Number.isFinite(Number(lab))&&lab!==null&&lab!==undefined?Number(lab):null;
+ let material=24,other=12,similar='기본 보수';
+ if(/균열/.test(type)&&group==='구조체'&&!/망상/.test(type)){
+  const band=Number(d.treatmentWidth)>0?Number(d.treatmentWidth):Number(d.width)>0?Number(d.width):0.2;
+  const injection=Number(d.width)>=0.3,denom=band/1000;
+  if(labor===null)labor=(injection?(w.special*2+w.normal)/28/1000:w.plaster/110/1000)/denom;
+  material=(injection?3.5:1.5)/denom;other=(injection?2:1)/denom;
+  similar='균열 '+(injection?'주입':'표면처리')+' 시공폭 '+band+'mm 가정';
+ }else if(/망상균열/.test(type)){labor??=surface;material=14;other=5;similar='면적 표면처리'}
+ else if(/철근노출|철근부식|구조체 부식/.test(type)){labor??=repair;material=45;other=21;similar='철근방청·단면복구'}
+ else if(group==='구조체'&&/박리|박락|파손|재료분리/.test(type)){labor??=repair;material=37;other=18;similar='단면복구'}
+ else if(/누수|방수/.test(type)){labor??=surface*2.3;material=42;other=18;similar='누수보수·마감재 재시공'}
+ else if(/백태|백화/.test(type)){labor??=surface*.8;material=9;other=5;similar='세척·표면처리'}
+ else if(/줄눈/.test(type)){labor??=surface*1.2;material=12;other=6;similar='줄눈 실링'}
+ else if(group==='비구조체'){labor??=surface*1.4;material=23;other=8;similar='마감재 보수·재시공'}
+ else if(/변형|처짐|침하|변위/.test(type)){labor??=repair*.75;material=38;other=26;similar='응급 보수 가정(구조안전 검토 제외)'}
+ else labor??=surface*1.5;
+ const round=v=>Math.round(v*1000)/1000;
+ const y=period?yr+'년 '+half+' 공식 노임 미확인 → 2026년 하반기 노임 추정 이월':'2026년 하반기 노임 근거';
+ return {rate:round(labor),materialRate:round(material*materialMultiplier),otherRate:round(other*materialMultiplier),
+  automaticProxy:true,estimateStatus:period?'이월 추정':'유사 공법 추정',
+  source:'내장 대체 계산 / '+similar+' 유사공법 비공식 추정 / '+y+' / 노무비 외 재료·장비비는 조달청 공식 단가가 아닌 가정치 / 부가세·현장특성 별도'};
+}
+function sm183Proxy(d,r,labor){
+ try{const x=window.SARCHCostRates?.propose?.(d,r,labor);
+  if(x&&[x.rate,x.materialRate,x.otherRate].every(v=>Number.isFinite(Number(v))&&v!==null&&v!==''))return x;
+ }catch(e){console.warn('S:Arch cost source fallback:',e)}
+ return sm183FallbackCost(d,r,labor);
+}
 function ruleFor(d){
  const type=(d.types||[])[0]||'기타',r={...(REPAIR_RULES[type]||{method:'현장 확인 후 공법 지정',unit:'㎡',rate:null,priority:3,group:'미분류'})};
  const group=defectGroup(d);if(group!=='기타')r.group=group;
@@ -1067,7 +1105,7 @@ function ruleFor(d){
  const critical=/철근노출|철근부식|구조체 부식|박락|파손|재료분리|변형|처짐|침하|변위/.test(type);
  r.priority=r.group==='구조체'&&critical?1:r.group==='구조체'&&Number.isFinite(area)&&area>.5?2:r.group==='비구조체'&&Number.isFinite(area)&&area>2?2:r.priority;
  const labor=laborRateFor(d,r);
- const proxy=window.SARCHCostRates?.propose(d,r,labor.rate);
+ const proxy=sm183Proxy(d,r,labor.rate);
  r.rate=proxy?.rate??labor.rate;
  r.materialRate=proxy?.materialRate??null;
  r.otherRate=proxy?.otherRate??null;
@@ -1080,16 +1118,33 @@ function ruleFor(d){
  return r;
 }
 function repairFor(d){
- const base=ruleFor(d),saved=d.repair||{},res={...base,...saved,unit:'㎡'};
+ const base=ruleFor(d),saved=d.repair&&typeof d.repair==='object'?d.repair:{},res={...base,unit:'㎡'};
+ // Old saved forms used null / empty strings for fields that had never been priced.
+ // Never let those overwrite a fresh automatic estimate. A real number, including zero,
+ // remains an explicit user override.
+ for(const [key,value] of Object.entries(saved)){
+  if(['rate','materialRate','otherRate'].includes(key)){
+   if(value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))&&Number(value)>=0)res[key]=Number(value);
+  }else if(value!==null&&value!==undefined&&value!=='')res[key]=value;
+ }
  const isLeakTrace=(d.types||[]).some(t=>/누수흔적/.test(t));
  const stale=new Set(['원인 확인 후 지정','원인 확인 후 공법 지정','표면처리','표면처리공법']);
  if(isLeakTrace&&(!saved.method||stale.has(String(saved.method).trim())))res.method='누수 보수 후 마감재 재시공';
- if(saved.rate!==undefined&&saved.rate!==''&&saved.materialRate===undefined&&saved.otherRate===undefined){
-   // A legacy price may already be all-inclusive: never silently add new proxy material twice.
-   res.materialRate=null;res.otherRate=null;res.estimateStatus='기존 입력단가: 포함 범위 확인 필요';res.automaticProxy=false;
+ const hasLegacyLabor=saved.rate!==null&&saved.rate!==undefined&&saved.rate!==''&&Number.isFinite(Number(saved.rate));
+ const hasMaterials=saved.materialRate!==null&&saved.materialRate!==undefined&&saved.materialRate!=='';
+ const hasOther=saved.otherRate!==null&&saved.otherRate!==undefined&&saved.otherRate!=='';
+ if(hasLegacyLabor&&!hasMaterials&&!hasOther){
+  // Legacy manually entered unit cost might include all items, not just labor.
+  // Show explicit zero ADDITIONAL cost instead of blank fields or double counting.
+  res.materialRate=0;res.otherRate=0;
+  res.estimateStatus='기존 입력단가(노무/재료 내역 미구분)';
+  res.automaticProxy=false;
+  res.source='기존 입력 단가 '+saved.rate+' 천원/㎡ 유지. 추가 재료비·장비비를 중복 계상하지 않음(0원 표시는 실제 무료가 아닌 추가 계상액 0). 포함범위 재확인 필요 / '+base.source;
+ }else if(hasLegacyLabor){
+  res.source='사용자 수정 단가 / '+base.source;
+  res.automaticProxy=false;
  }
  res.method=sm171MethodName(res.method);
- if(saved.rate!==undefined&&saved.rate!=='')res.source='기존·사용자 직접 입력 단가(노무·재료 포함범위 확인 필요) / '+base.source;
  return res;
 }
 function safeAttr(v){return escapeHtml(String(v??''))}
@@ -1098,7 +1153,8 @@ function setRepair(id,key,value){let d=state.defects.find(x=>String(x.id)===Stri
 function setQty(id,value){let d=state.defects.find(x=>String(x.id)===String(id));if(!d)return;d.repairQty=value;d.qtyManual=true;d.repairQtyBasis='㎡';persist();renderRepair()}
 function sm182CostQty(d){
  const measured=effectiveQty(d);
- if(measured!==null&&Number.isFinite(measured)&&measured>=0)return {qty:measured,estimated:false,note:'실측/직접입력'};
+ if(measured!==null&&Number.isFinite(measured)&&measured>0)return {qty:measured,estimated:false,note:'실측/직접입력'};
+ if(measured===0&&d.qtyManual===true)return {qty:0,estimated:false,note:'사용자가 0㎡를 입력함: 공사비도 0으로 계산. 실제 보수량 확인 필요'};
  const count=Math.min(10000,Math.max(1,Number(d.count)||1));
  const type=(d.types||[]).join('/');
  if(/균열/.test(type)){
