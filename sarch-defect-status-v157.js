@@ -69,12 +69,12 @@ function dimensions(d){
  var width=txt(d.width),length=txt(d.length),count=Number(d.count);
  var explicitEA=d.countEAExplicit===true;
  function numericPart(part){
-  var m=txt(part).match(/^(\d+(?:\.\d+)?)(mm|m)?$/i);
+  var m=txt(part).match(/^((?:\d+(?:\.\d*)?|\.\d+))(mm|m)?$/i);
   if(!m)return null;
   var n=Number(m[1]);
   return Number.isFinite(n)&&n>=0?{value:n,unit:(m[2]||'mm').toLowerCase()}:null;
  }
- var rawSize=direct.match(/^(\d+(?:\.\d+)?(?:mm|m)?)X(\d+(?:\.\d+)?(?:mm|m)?)(?:X(\d+)EA)?$/i);
+ var rawSize=direct.match(/^((?:\d+(?:\.\d*)?|\.\d+)(?:mm|m)?)X((?:\d+(?:\.\d*)?|\.\d+)(?:mm|m)?)(?:X(\d+)EA)?$/i);
  var eaOnly=direct.match(/^(\d+)EA$/i);
  if(rawSize){width=rawSize[1];length=rawSize[2];if(rawSize[3]){count=Number(rawSize[3]);explicitEA=true}}
  else if(eaOnly){width='';length='';count=Number(eaOnly[1]);explicitEA=true}
