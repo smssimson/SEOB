@@ -472,6 +472,51 @@ async function check(mod,width,height){
       report(id,"joined rectangle regions draw L-shaped exterior without deleting source defects",
         regionFeature.joined&&regionFeature.sourceIntact&&regionFeature.segments>=6&&regionFeature.oneLabel,
         JSON.stringify(regionFeature));
+      const canonicalExcel=await page.evaluate(async()=>{
+        const unsafe=String.fromCharCode(0,2,11,31,0xD800);
+        const payload={site:'춘천 엠백화점 - 수정'+unsafe,overhead:60,
+          rows:Array.from({length:41},(_,i)=>({
+            page:['지상1층','지상2층','지상4층','지하1층'][i%4],
+            number:i+1,group:i%2?'비구조체':'구조체',
+            type:i%2?'누수흔적':'구조체 균열',
+            method:i%2?'누수 보수 후 마감재 재시공':'표면처리공법',
+            qty:.01+i/200,rate:i%7===0?null:84.387,
+            priority:i%3+1,photoCount:1,
+            source:('공식노임 + 가정 보수재비 · 특수문자 &<>'+unsafe).repeat(5)
+          }))};
+        const untouched=JSON.stringify(payload),result={};
+        try{
+          const api=window.SARCHRepairExcelJSV190;
+          const built=await api.build(payload);
+          const raw=await built.workbook.xlsx.writeBuffer();
+          const imported=new ExcelJS.Workbook();
+          await imported.xlsx.load(raw);
+          const detail=imported.getWorksheet('층별_결함별');
+          const summary=imported.getWorksheet('개략공사비_요약');
+          const zipped=await JSZip.loadAsync(raw),sheet=await zipped.file('xl/worksheets/sheet2.xml').async('string');
+          const xml=new DOMParser().parseFromString(sheet,'application/xml');
+          const numberCells=[detail.getRow(5).getCell(2).value,detail.getRow(45).getCell(2).value];
+          const c=detail.getRow(45).getCell(12).value;
+          Object.assign(result,{
+            sourceIntact:untouched===JSON.stringify(payload),
+            size:raw.byteLength||raw.length,
+            writer:api.version,
+            detailRows:detail.actualRowCount,
+            summaryRows:summary.actualRowCount,
+            numbers:numberCells,
+            lastSourceSanitized:typeof c==='string'&&!c.includes(unsafe),
+            xmlParsed:!xml.getElementsByTagName('parsererror').length,
+            detailRow45:!!xml.querySelector('row[r="45"]'),
+            zipBad:!(await zipped.file('xl/workbook.xml')?.async('string'))
+          });
+        }catch(error){result.error=String(error)}
+        return result;
+      });
+      report(id,"canonical ExcelJS workbook reopens 41 original rows with no missing detail sheet",
+        canonicalExcel.writer==='190'&&canonicalExcel.detailRows===45&&canonicalExcel.numbers?.join('|')==='1|41'&&
+        canonicalExcel.sourceIntact&&canonicalExcel.xmlParsed&&canonicalExcel.lastSourceSanitized&&
+        canonicalExcel.detailRow45&&!canonicalExcel.zipBad&&canonicalExcel.size>5000,
+        JSON.stringify(canonicalExcel).slice(0,750));
       const costWorkbook=await page.evaluate(async()=>{
         const zip=new JSZip(),payload={site:'QA 현장',overhead:30,rows:[
           {page:'지상1층',number:1,group:'구조체',type:'철근노출',method:'단면복구공법',qty:.2,rate:95.428,priority:1,source:'노무비 근거'},
