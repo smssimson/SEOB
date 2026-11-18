@@ -1,4 +1,4 @@
-# rerun: v185 after regression selector fix
+# rerun: v186 nine-column defect register XLSX and width preset checks
 name: SARCH one-shot deployment diagnosis
 on:
   push:
