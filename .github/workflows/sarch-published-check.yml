@@ -1,4 +1,4 @@
-# rerun: v186 published nine-column defect XLSX and crack width dropdown
+# rerun: v186 final strict 0.1mm picker and nine-column defect XLSX on public Pages
 name: SARCH published-site verification
 on:
   push:
@@ -39,7 +39,8 @@ jobs:
                       result['interior12Slots']=('id="frontInsideCount">0 / 12장' in html and 'albumInteriorExtra' in html)
                       result['automaticPriceFallback']=('function sm185CompleteCost' in html and '자동추정 단가' in html)
                       result['defectXlsx186']=('sarch-defect-status-v157.js?v=186' in html and 'countEAExplicit' in html)
-                  result['publishedCurrent']=result.get('publishedVersion')==186 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx186')
+                      result['strictTenthsPicker']=('crack?Array.from({length:20}' in html and "!(crack&&cfg.preset==='widthPreset')" in html)
+                  result['publishedCurrent']=result.get('publishedVersion')==186 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx186') and result.get('strictTenthsPicker')
                   if result['publishedCurrent']: break
               except Exception as error:
                   result['error']=str(error)
