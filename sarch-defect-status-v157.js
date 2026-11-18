@@ -19,8 +19,9 @@ function estimate(d){
  if(/변형|처짐|변위|침하/.test(s))return "장기하중·지반조건 변화 또는 국부 응력집중 등의 영향 가능성";
  return "경과년수에 따른 재료 노후화 및 환경 영향 가능성";
 }
-/* v176: the HWPX album numbers each PHOTO, in active page order then original
-   defect order. The XLSX register mirrors that sequence without changing state. */
+/* v187: HWPX/photo numbering continues to follow individual original records.
+   XLSX repeats the FIRST member's report data for visually merged defects,
+   without changing their individual photos, measurements or saved details. */
 function groups(state){
  var pages=Array.isArray(state.pages)?state.pages:[],ds=Array.isArray(state.defects)?state.defects:[],m=new Map(),site=txt(state.project)||"현장";
  var known=pages.map(p=>building(p&&p.name)).filter(Boolean);
@@ -30,16 +31,24 @@ function groups(state){
  // Keep malformed/orphaned historical records in the report, not in the album.
  var seen=new Set(ordered);
  var orphan=ds.filter(d=>!seen.has(d));
+ var all=ordered.concat(orphan),leadByGroup=new Map();
+ // The first defect in page order is the group leader, even when it has no photo.
+ // Distinct floors must never inherit each other's data if an old group id is reused.
+ function groupKey(d){return String(d.pageId)+"::"+String(d.mergeGroupId)}
+ all.forEach(d=>{
+  if(d.mergeGroupId&&!leadByGroup.has(groupKey(d)))leadByGroup.set(groupKey(d),d);
+ });
  var photoNo=0,unshotNo=0;
- ordered.concat(orphan).forEach(d=>{
-  var p=pages[Number(d.pageId)]||{},key=building(d.location)||building(p.name)||building(site)||(known.length===1?known[0]:"현장");
-  var page=txt(p.name)||"도면",group=ensure(key),photos=Array.isArray(d.photos)?d.photos:[];
+ all.forEach(d=>{
+  var representative=d.mergeGroupId?(leadByGroup.get(groupKey(d))||d):d;
+  var p=pages[Number(d.pageId)]||{},key=building(representative.location)||building(p.name)||building(site)||(known.length===1?known[0]:"현장");
+  var page=txt(p.name)||"도면",group=ensure(key),photos=Array.isArray(d.photos)?d.photos:[],cause=estimate(representative);
   if(photos.length){
-   // A defect with 2 photos gets two rows, to align Photo 8 / Row 8 exactly.
-   photos.forEach((_,i)=>group.push({d:d,page:page,cause:estimate(d),number:++photoNo,photoIndex:i,hasPhoto:true}));
+   // Every original photograph gets its own number/row; content uses group leader.
+   photos.forEach((_,i)=>group.push({d:d,reportDefect:representative,page:page,cause:cause,number:++photoNo,photoIndex:i,hasPhoto:true}));
   }else{
    var local=ordered.filter(x=>Number(x.pageId)===Number(d.pageId)).findIndex(x=>x===d)+1;
-   group.push({d:d,page:page,cause:estimate(d),number:"미촬영 "+(local>0?local+"번":++unshotNo+"건"),hasPhoto:false});
+   group.push({d:d,reportDefect:representative,page:page,cause:cause,number:"미촬영 "+(local>0?local+"번":++unshotNo+"건"),hasPhoto:false});
   }
  });
  if(!m.size)ensure("");
@@ -111,7 +120,7 @@ function sheetXml(state,key,items){
  row(2,[(txt(state.project)||"현장")+" | "+key+" | 결함 "+new Set(items.map(it=>it.d)).size+"건 · 사진 "+items.filter(it=>it.hasPhoto).length+"장 · 미촬영 "+items.filter(it=>!it.hasPhoto).length+"건 · 폭: 균열 mm / 기타 m · 길이: m"],2,30);
  row(3,header,2,30);
  if(!items.length)row(4,["-","-","-","등록된 결함 없음","-","-","-","-","-"],3,40);
- items.forEach((it,i)=>{var d=it.d,cause=it.cause;
+ items.forEach((it,i)=>{var d=it.reportDefect||it.d,cause=it.cause;
   var size=dimensions(d);
   row(i+4,[it.number,areaLabel(d,it.page),member(d),types(d),size.width,size.length,size.count,cause,remedy(d)],3,Math.max(47,Math.min(92,36+Math.ceil(cause.length/34)*14)));
  });
