@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===176,'version.json should report v176');
+ok(version.version===177,'version.json should report v177');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v176"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v177"),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -173,7 +173,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v176'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v177'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -303,4 +303,11 @@ ok(otherSheet.includes('외부 정면')&&otherSheet.includes('외부 측면')&&o
 ok(!otherSheet.includes('외부 외부')&&otherSheet.includes('벽체')&&otherSheet.includes('기둥'),'location and member split without duplicate exterior prefix');
 ok(JSON.stringify(photoOrderState)===sourceSnapshot,'photo-aligned defect register does not reorder or alter original source records');
 ok(read('survey/index.html').includes("let defects=sm69OrderedDefects().map((d,i)=>")&&read('survey/index.html').includes("const defects=sm69OrderedDefects().map((d,i)=>"),'printed and HWPX photo albums share the same page-first ordering');
-console.log('S:ARCH v176 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+const anchors=read('survey/index.html');
+ok(anchors.includes("const SM177_SIDES=['top','right','bottom','left']"),'connector ends have four fixed cardinal positions');
+ok(anchors.includes('function sm177TextAnchors(r)')&&anchors.includes('function sm177CircleAnchors(p,r)'),'text and circle positions use exact midpoints');
+ok(anchors.includes('link.d.linkCircleSide')&&anchors.includes('d.linkLabelSide'),'circle and label endpoints maintain independent saved side choices');
+ok(anchors.includes("kind:'endpoint'")&&anchors.includes("sm177UpdateAnchor(drag,p);persist();"),'endpoint dragging snaps and saves selection');
+ok(anchors.includes('g!==ctx||selected!==source.id||sm163MergeMode'),'green edit nodes hidden when not selected or on exported PNG');
+ok(anchors.includes('sm177LineHit(p)')&&anchors.includes("e.key==='Escape'"),'connector line selection and escape-to-hide handles');
+console.log('S:ARCH v177 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
