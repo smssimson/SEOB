@@ -1217,7 +1217,7 @@ $('repairCsv').onclick=async()=>{
     rate:rate!==null&&rate!==undefined&&rate!==''&&Number.isFinite(Number(rate))?Number(rate):null,
     priority:Number(r.priority)||3,source:r.source+' / '+note+' / '+status,photoCount:Array.isArray(d.photos)?d.photos.length:0};
   });
-  const result=await window.SARCHRepairXLSXV172.download({site:state.project,rows,overhead:Number($('overhead').value)||0});
+  const result=await window.SARCHRepairExcelJSV190.download({site:state.project,rows,overhead:Number($('overhead').value)||0});
   $('status').textContent='보수물량 XLSX · 결함 '+result.count+'건 · 금액 산정 '+result.priced+'건 다운로드';
  }catch(err){console.error('보수물량 XLSX:',err);alert('엑셀 출력 오류: '+err.message)}
  finally{button.disabled=false}
@@ -1592,7 +1592,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script defer src="../sarch-quick-nav-v139.js?v=139"></script>
 
 <link rel="stylesheet" href="../sarch-workspace-v142.css?v=143">
-<script defer src="../sarch-defect-status-v157.js?v=187"></script><script defer src="../sarch-repair-xlsx-v172.js?v=189"></script>
+<script defer src="../sarch-defect-status-v157.js?v=187"></script><script defer src="../sarch-repair-xlsx-v172.js?v=189"></script><script defer src="../sarch-repair-exceljs-v190.js?v=190"></script>
 <script defer src="../sarch-transfer-v156.js?v=156"></script>
 <script defer src="../sarch-workspace-v142.js?v=161"></script>
 <link rel="stylesheet" href="../sarch-shell-v145.css?v=147">
