@@ -1,4 +1,4 @@
-# rerun: v190 live canonical ExcelJS XLSX exports and offline vendor bundle
+# rerun: v191 damage-type summary totals and published writer
 name: SARCH published-site verification
 on:
   push:
@@ -39,19 +39,20 @@ jobs:
                       result['interior12Slots']=('id="frontInsideCount">0 / 12장' in html and 'albumInteriorExtra' in html)
                       result['automaticPriceFallback']=('function sm185CompleteCost' in html and '자동추정 단가' in html)
                       result['defectXlsx187']=('sarch-defect-status-v157.js?v=187' in html and 'countEAExplicit' in html)
-                      result['safeCostExportLinked']=('sarch-repair-exceljs-v190.js?v=190' in html and 'SARCHRepairExcelJSV190.download(' in html)
+                      result['safeCostExportLinked']=('sarch-repair-exceljs-v190.js?v=191' in html and 'SARCHRepairExcelJSV190.download(' in html)
                       result['independentMergedSides']=('SM177_SIDES.includes(link.d.linkLabelSide)' in html and "const source=state.defects.find(x=>x.id===action.sourceId)" in html)
                       result['strictTenthsPicker']=('crack?Array.from({length:20}' in html and "!(crack&&cfg.preset==='widthPreset')" in html)
-                  with urlopen(Request(pages+'sarch-repair-exceljs-v190.js?v=190',headers={'Cache-Control':'no-cache'}),timeout=15) as res:
+                  with urlopen(Request(pages+'sarch-repair-exceljs-v190.js?v=191',headers={'Cache-Control':'no-cache'}),timeout=15) as res:
                       xlsxjs=res.read().decode('utf-8')
                       result['costModuleHTTP']=res.status
                       result['costXmlSanitizer']=('const safeText=v=>Array.from(' in xlsxjs and 'await workbook.xlsx.writeBuffer()' in xlsxjs)
                       result['xlsxSchemaOrder']=('new ExcelJS.Workbook()' in xlsxjs and 'await verify.xlsx.load(bytes)' in xlsxjs and 'actualRowCount' in xlsxjs)
+                      result['damageSummary']=('결함별 참고금액' in xlsxjs and "const VERSION='191'" in xlsxjs)
                   with urlopen(Request(pages+'survey/vendor/exceljs.min.js?v=190',headers={'Cache-Control':'no-cache'}),timeout=15) as res:
                       result['vendorHTTP']=res.status
                       result['vendorSize']=len(res.read())
                       result['offlineWriterReady']=(result['vendorHTTP']==200 and result['vendorSize']>500000)
-                  result['publishedCurrent']=result.get('publishedVersion')==190 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx187') and result.get('independentMergedSides') and result.get('strictTenthsPicker') and result.get('safeCostExportLinked') and result.get('costXmlSanitizer') and result.get('xlsxSchemaOrder') and result.get('offlineWriterReady')
+                  result['publishedCurrent']=result.get('publishedVersion')==191 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx187') and result.get('independentMergedSides') and result.get('strictTenthsPicker') and result.get('safeCostExportLinked') and result.get('costXmlSanitizer') and result.get('xlsxSchemaOrder') and result.get('offlineWriterReady') and result.get('damageSummary')
                   if result['publishedCurrent']: break
               except Exception as error:
                   result['error']=str(error)
