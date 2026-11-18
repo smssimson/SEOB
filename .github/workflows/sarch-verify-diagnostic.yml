@@ -1,4 +1,4 @@
-# rerun: v187 independent grouped connectors and merged XLSX fields
+# rerun: v188 41-defect XLSX XML integrity stress test and corrected cash formula cells
 name: SARCH one-shot deployment diagnosis
 on:
   push:
