@@ -90,7 +90,7 @@ ok(report.includes('SARCHDefectStatusV157')&&report.includes('workbook.xml'),'pe
 ok(report.includes('"폭","길이","개수","손상원인추정","조치 필요사항"]')&&!report.includes('"손상원인추정","사진"'),'nine-column XLSX separates width, length and EA without a photo column');
 ok(report.includes('row(3,header,2,30)')&&!report.includes('row(3,["※ 손상원인추정')&&!report.includes('[일반적 추정]'),'header on row 3, no disclaimer/uncertainty suffix');
 ok(report.includes('row(i+4,[')&&report.includes('A1:I1')&&report.includes('A2:I2'),'data on row 4, title merges span nine columns');
-ok(read("survey/index.html").includes("ctx.strokeStyle=annotationColor(d)")&&read("survey/index.html").includes("g.strokeStyle=annotationColor(d)"),'structural and nonstructural crack color matches defect category on canvas and PNG');
+ok(read("survey/index.html").includes("sm192RenderMarks(ctx,currentDefects(),img,showDefectLabels)")&&read("survey/index.html").includes("g.strokeStyle=annotationColor(d)"),'structural and nonstructural crack color matches defect category on canvas and PNG');
 ok(read("survey/index.html").includes('id="sm170RectBtn"')&&read("survey/index.html").includes('id="sm170JoinBtn"'),'region drawing and joining buttons exist');
 ok(read("survey/index.html").includes("kind:'region'")&&read("survey/index.html").includes("sm170Rect(drag.start,end)"),'drag creates persisted damage rectangle');
 ok(read("survey/index.html").includes("kind:'joint'")&&read("survey/index.html").includes('d.linkJointOffset='),'two-segment annotation connector supports draggable saved joint');
@@ -327,7 +327,7 @@ ok(costCells['xl/styles.xml'].includes('FF12304B')&&costCells['xl/styles.xml'].i
 ok(JSON.stringify(costData)===costSnapshot,'XLSX generation never mutates source defect data');
 ok(read('survey/index.html').includes('SARCHRepairExcelJSV190.download')&&read('survey/index.html').includes('엑셀(XLSX) 다운로드'),'survey repair export uses canonical XLSX writer rather than CSV or old XML');
 ok(read('survey/sw.js').includes('sarch-repair-xlsx-v172.js?v=189')&&read('seob-sw.js').includes('sarch-repair-xlsx-v172.js?v=189'),'fixed XLSX generator included in both offline caches');
-ok(read('survey/index.html').includes('function sm173PaintRegionUnion(')&&read('survey/index.html').includes('sm173PaintDefectRegion(ctx'),'joined rectangles produce a single exterior polyline on screen and PNG');
+ok(read('survey/index.html').includes('function sm173PaintRegionUnion(')&&read('survey/index.html').includes('sm173PaintDefectRegion(g,d,ds,p=>p)'),'joined rectangles produce a single exterior polyline on screen and PNG');
 ok(read('survey/index.html').includes('delete d.regionGroupId;'),'individual release clears region grouping as well as label grouping');
 ok(layout.includes('const activeExtra=Array.from')&&layout.includes('const compactModule=')&&layout.includes("extra.style.setProperty('display','none','important')"),'hidden rename controls never trigger redundant floor details');
 ok(read('survey/index.html').includes("if(mode==='region'){sm170Preview=null;setMode('pin');draw();return}"),'region button supports second-click exit');
