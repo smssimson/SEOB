@@ -1,4 +1,4 @@
-# second-pass: include interior HWPX photo export browser check
+# rerun: v185 complete repair cost QA
 name: SARCH one-shot deployment diagnosis
 on:
   push:
