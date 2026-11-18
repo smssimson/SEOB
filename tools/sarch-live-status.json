@@ -1,11 +1,11 @@
 {
-  "checkedAtUTC": "2026-11-18T04:09:37.899956+00:00",
-  "gitCommit": "98e9b96296de340ff30b4635b9b1c938a1d1c408",
+  "checkedAtUTC": "2026-11-18T04:23:50.102855+00:00",
+  "gitCommit": "b58a3810ff2a9c9e69d01b32627718e3e8932486",
   "url": "https://smssimson.github.io/SEOB/",
   "publishedVersion": 184,
   "versionHTTP": 200,
   "surveyHTTP": 200,
   "interior12Slots": true,
-  "automaticPriceFallback": true,
-  "publishedCurrent": true
+  "automaticPriceFallback": false,
+  "publishedCurrent": false
 }
