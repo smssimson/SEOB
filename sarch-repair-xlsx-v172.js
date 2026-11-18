@@ -29,8 +29,10 @@
     '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
     '<dimension ref="A1:L'+last+'"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="'+freeze+'" topLeftCell="A'+(freeze+1)+'" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+
     '<sheetFormatPr defaultRowHeight="21"/><cols>'+columns+'</cols><sheetData>'+rows.join('')+'</sheetData>'+
-    '<mergeCells count="'+merge.length+'">'+merges+'</mergeCells>'+
+    // SpreadsheetML CT_Worksheet mandates autoFilter BEFORE mergeCells.
+    // Excel rejects sheet2.xml when these nodes are reversed, even though the XML parses.
     (filter?'<autoFilter ref="'+filter+'"/>':'')+
+    '<mergeCells count="'+merge.length+'">'+merges+'</mergeCells>'+
     '<pageMargins left="0.25" right="0.25" top="0.45" bottom="0.45" header="0.2" footer="0.2"/><pageSetup orientation="landscape" paperSize="9" fitToWidth="1" fitToHeight="0"/></worksheet>';
  }
  const styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
@@ -144,6 +146,31 @@
     if(!source)throw Error('엑셀 구성 파일이 없습니다: '+name);
     const doc=parser.parseFromString(source,'application/xml');
     if(doc.getElementsByTagName('parsererror').length)throw Error('잘못된 엑셀 XML: '+name);
+    // XML being well-formed alone is insufficient: enforce schema child sequence.
+    if(name.startsWith('xl/worksheets/')){
+     const direct=Array.from(doc.documentElement.children).map(el=>el.localName);
+     const schema=['sheetPr','dimension','sheetViews','sheetFormatPr','cols','sheetData',
+      'sheetCalcPr','sheetProtection','protectedRanges','scenarios','autoFilter',
+      'sortState','dataConsolidate','customSheetViews','mergeCells','phoneticPr',
+      'conditionalFormatting','dataValidations','hyperlinks','printOptions',
+      'pageMargins','pageSetup','headerFooter','rowBreaks','colBreaks','customProperties',
+      'cellWatches','ignoredErrors','smartTags','drawing','drawingHF','picture',
+      'oleObjects','controls','webPublishItems','tableParts','extLst'];
+     let order=-1;
+     for(const child of direct){
+      const ix=schema.indexOf(child);
+      if(ix<0||ix<order)throw Error('Excel 시트 구조 순서 오류: '+name+' / '+child);
+      order=ix;
+     }
+     if(name.endsWith('sheet2.xml')){
+      const rows=doc.getElementsByTagNameNS('*','row');
+      if(rows.length<5)throw Error('층별_결함별 시트의 행 데이터가 없습니다.');
+      const filter=doc.getElementsByTagNameNS('*','autoFilter')[0];
+      const merge=doc.getElementsByTagNameNS('*','mergeCells')[0];
+      if(filter&&merge&&! (direct.indexOf('autoFilter')<direct.indexOf('mergeCells')))
+       throw Error('Excel 시트 병합·필터 순서가 잘못되었습니다.');
+     }
+    }
    }
   }
   const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
