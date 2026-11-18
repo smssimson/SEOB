@@ -1,4 +1,4 @@
-# rerun: v193 grid selectors and quiet camera capture
+# rerun: v194 authorized album folder writes without browser downloads
 name: SARCH one-shot deployment diagnosis
 on:
   push:
