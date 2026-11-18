@@ -162,6 +162,49 @@ async function check(mod,width,height){
       });
       report(id,"drawing then site fields then front photos within left column",
         Object.values(photoUnderMap).every(Boolean),JSON.stringify(photoUnderMap));
+      const internalPhotos=await page.evaluate(async()=>{
+        const previous=structuredClone(state.albumPhotos||{outside:[],inside:[]});
+        const originalDownload=window.download,originalAlert=window.alert;
+        const alerts=[];
+        let result={slots:0,labelSaved:false,photoCounter:'',hwpVerified:false};
+        try{
+          const testCanvas=document.createElement('canvas');
+          testCanvas.width=30;testCanvas.height=20;
+          const g=testCanvas.getContext('2d');g.fillStyle='#8acde0';g.fillRect(0,0,30,20);
+          state.albumPhotos.inside[6]={label:'지상2층 QA 추가 내부 전경',image:testCanvas.toDataURL('image/jpeg',.8)};
+          renderFrontPhotoWorkspace();
+          result.slots=document.querySelectorAll('#frontInside .front-photo-card').length;
+          result.photoCounter=document.querySelector('#frontInsideCount')?.textContent||'';
+          result.labelSaved=albumSlot('inside',6).label==='지상2층 QA 추가 내부 전경';
+          let capture=null;
+          window.download=(blob,name)=>{capture={blob,name}};
+          window.alert=m=>alerts.push(String(m));
+          await exportAlbumHwpx();
+          if(capture){
+            const zip=await JSZip.loadAsync(capture.blob);
+            const section=await zip.file('Contents/section0.xml').async('string');
+            const manifest=await zip.file('Contents/content.hpf').async('string');
+            const xml=new DOMParser().parseFromString(section,'application/xml');
+            const hpf=new DOMParser().parseFromString(manifest,'application/xml');
+            result.hwpVerified=!!zip.file('BinData/albumInteriorExtra7.jpg')&&
+              section.includes('지상2층 QA 추가 내부 전경')&&
+              manifest.includes('albumInteriorExtra7')&&
+              !xml.querySelector('parsererror')&&!hpf.querySelector('parsererror');
+            result.hwpSize=capture.blob.size;
+          }
+          result.alerts=alerts;
+        }catch(err){result.error=String(err)}
+        finally{
+          state.albumPhotos=previous;
+          renderFrontPhotoWorkspace();
+          window.download=originalDownload;
+          window.alert=originalAlert;
+        }
+        return result;
+      });
+      report(id,"12 interior slots, seventh picture retained and extra HWPX page generated",
+        internalPhotos.slots===12&&internalPhotos.labelSaved&&internalPhotos.photoCounter.includes('/ 12장')&&internalPhotos.hwpVerified,
+        JSON.stringify(internalPhotos).slice(0,500));
       await page.evaluate(()=>{
         window.__qaSurveyBeforeMerge=structuredClone(state);
         const picture=document.createElement("canvas");picture.width=640;picture.height=400;
