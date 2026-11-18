@@ -1,0 +1,66 @@
+name: SARCH v190 XLSX writer binary roundtrip
+on:
+  push:
+    paths: [".github/workflows/sarch-v190-xlsx-check.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned workbook validator
+        run: npm install --no-save --ignore-scripts exceljs@4.4.0
+      - name: Run 41-row binary write and re-import
+        shell: bash
+        run: |
+          node <<'JS'
+          const fs=require('node:fs');
+          const ExcelJS=require('exceljs');
+          const root={ExcelJS};
+          new Function('window','self',fs.readFileSync('sarch-repair-exceljs-v190.js','utf8'))(root,root);
+          (async()=>{
+            const payload={site:'춘천 엠백화점 - 수정',overhead:60,rows:Array.from({length:41},(_,i)=>({
+              page:['지상1층','지상2층','지상4층','지하1층'][i%4],number:i+1,
+              group:i%2?'비구조체':'구조체',type:i%2?'누수흔적':'구조체 균열',
+              method:i%2?'누수 보수 후 마감재 재시공':'표면처리공법',
+              qty:(i+1)/1000,rate:84.387,priority:i%3+1,photoCount:1,
+              source:('가정 추정 및 노무비 '+String.fromCharCode(1)+'<&>').repeat(15)
+            }))};
+            const {workbook,info}=await root.SARCHRepairExcelJSV190.build(payload);
+            const bytes=await workbook.xlsx.writeBuffer(),parsed=new ExcelJS.Workbook();
+            await parsed.xlsx.load(bytes);
+            const detail=parsed.getWorksheet('층별_결함별');
+            const sum=parsed.getWorksheet('개략공사비_요약');
+            const problems=[];
+            if(info.count!==41||detail.actualRowCount!==45)problems.push('Detail rows missing');
+            if(!sum||!detail)problems.push('Worksheet missing');
+            if(detail.getRow(45).getCell(2).value!==41)problems.push('Record 41 missing');
+            if(detail.getRow(4).getCell(1).value!=='층/도면')problems.push('Header missing');
+            const result={createdAt:new Date().toISOString(),inputRows:41,detailRows:detail.actualRowCount,bytes:bytes.length,
+              sheetNames:parsed.worksheets.map(x=>x.name),record41:detail.getRow(45).getCell(2).value,
+              valid:problems.length===0,problems};
+            fs.writeFileSync('tools/sarch-v190-xlsx-status.json',JSON.stringify(result,null,2)+'\n');
+            console.log(result);
+            if(problems.length)process.exitCode=1;
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          JS
+      - name: Save result
+        if: always()
+        run: |
+          if test -f tools/sarch-v190-xlsx-status.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add tools/sarch-v190-xlsx-status.json
+            git commit -m "ci: 41-row ExcelJS XLSX roundtrip result [skip ci]" || true
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
