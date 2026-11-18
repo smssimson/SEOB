@@ -1,4 +1,4 @@
-# rerun: v190 after updating canonical XLSX route verification
+# rerun: v190 canonical ExcelJS regression with correct floor sort ID checks
 name: SARCH one-shot deployment diagnosis
 on:
   push:
