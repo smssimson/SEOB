@@ -328,7 +328,7 @@ ok(JSON.stringify(costData)===costSnapshot,'XLSX generation never mutates source
 ok(read('survey/index.html').includes('SARCHRepairExcelJSV190.download')&&read('survey/index.html').includes('엑셀(XLSX) 다운로드'),'survey repair export uses canonical XLSX writer rather than CSV or old XML');
 ok(read('survey/sw.js').includes('sarch-repair-xlsx-v172.js?v=189')&&read('seob-sw.js').includes('sarch-repair-xlsx-v172.js?v=189'),'fixed XLSX generator included in both offline caches');
 ok(read('survey/index.html').includes('function sm173PaintRegionUnion(')&&read('survey/index.html').includes('sm173PaintDefectRegion(g,d,ds,p=>p)'),'joined rectangles produce a single exterior polyline on screen and PNG');
-ok(read('survey/index.html').includes('delete d.regionGroupId;'),'individual release clears region grouping as well as label grouping');
+ok(read('survey/index.html').includes('for(const d of targets){delete d.mergeGroupId;delete d.regionGroupId}'),'selected releases clear region grouping as well as label grouping');
 ok(layout.includes('const activeExtra=Array.from')&&layout.includes('const compactModule=')&&layout.includes("extra.style.setProperty('display','none','important')"),'hidden rename controls never trigger redundant floor details');
 ok(read('survey/index.html').includes("if(mode==='region'){sm170Preview=null;setMode('pin');draw();return}"),'region button supports second-click exit');
 ok(read('survey/index.html').includes("drag=null;setMode('pin');draw();return}if(drag.kind==='endpoint'"),'region mode stops after drawing, before endpoint drag processing');
