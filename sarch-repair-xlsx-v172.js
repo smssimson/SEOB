@@ -164,7 +164,8 @@
      }
      if(name.endsWith('sheet2.xml')){
       const rows=doc.getElementsByTagNameNS('*','row');
-      if(rows.length<5)throw Error('층별_결함별 시트의 행 데이터가 없습니다.');
+      const expected=4+(Array.isArray(payload.rows)?payload.rows.length:0);
+      if(rows.length!==expected)throw Error('층별_결함별 시트 행 누락: '+rows.length+'/'+expected);
       const filter=doc.getElementsByTagNameNS('*','autoFilter')[0];
       const merge=doc.getElementsByTagNameNS('*','mergeCells')[0];
       if(filter&&merge&&! (direct.indexOf('autoFilter')<direct.indexOf('mergeCells')))
