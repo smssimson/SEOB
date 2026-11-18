@@ -1,4 +1,4 @@
-# rerun: v185 published site check
+# rerun: v186 published nine-column defect XLSX and crack width dropdown
 name: SARCH published-site verification
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
           import json, time, os
           pages='https://smssimson.github.io/SEOB/'
           result={'checkedAtUTC':datetime.now(timezone.utc).isoformat(),'gitCommit':os.environ.get('GITHUB_SHA'),'url':pages}
-          for i in range(5):
+          for i in range(14):
               try:
                   with urlopen(Request(pages+'version.json?sarch-check='+str(i),headers={'Cache-Control':'no-cache'}),timeout=15) as res:
                       raw=res.read()
@@ -38,7 +38,8 @@ jobs:
                       result['surveyHTTP']=res.status
                       result['interior12Slots']=('id="frontInsideCount">0 / 12장' in html and 'albumInteriorExtra' in html)
                       result['automaticPriceFallback']=('function sm185CompleteCost' in html and '자동추정 단가' in html)
-                  result['publishedCurrent']=result.get('publishedVersion')==185 and result.get('interior12Slots') and result.get('automaticPriceFallback')
+                      result['defectXlsx186']=('sarch-defect-status-v157.js?v=186' in html and 'countEAExplicit' in html)
+                  result['publishedCurrent']=result.get('publishedVersion')==186 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx186')
                   if result['publishedCurrent']: break
               except Exception as error:
                   result['error']=str(error)
