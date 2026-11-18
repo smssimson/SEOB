@@ -1,4 +1,4 @@
-# rerun: v192 after multi-release cleanup assertion
+# rerun: v193 grid selectors and quiet camera capture
 name: SARCH one-shot deployment diagnosis
 on:
   push:
