@@ -910,7 +910,7 @@ function fillPreset(id,vals,unit){let sel=$(id);if(!sel)return;sel.innerHTML='<o
    d[cfg.flag]=false;send(e.target.value);
   };
   input.oninput=()=>{const value=input.value;if(value!==''&&(!Number.isFinite(Number(value))||Number(value)<0))return;send(value)};
-  back.onclick=()=>{d[cfg.flag]=false;const value=input.value;if(value!==''&&![...sel.options].some(o=>o.value===value))sel.add(new Option(value+cfg.unit+' (직접입력)',value),sel.options[sel.options.length-1]);swap(false);sel.value=value||'';persist()};
+  back.onclick=()=>{d[cfg.flag]=false;const value=input.value;const listed=[...sel.options].some(o=>o.value===value);if(value!==''&&!listed&&!(crack&&cfg.preset==='widthPreset'))sel.add(new Option(value+cfg.unit+' (직접입력)',value),sel.options[sel.options.length-1]);swap(false);sel.value=listed||!(crack&&cfg.preset==='widthPreset')?value||'':'';persist()};
  }
  $('treatmentWidthWrap').style.display=crack?'block':'none';$('treatmentWidth').value=Number(d.treatmentWidth)>0?d.treatmentWidth:(d.width??'');$('treatmentWidth').oninput=e=>{d.treatmentWidth=e.target.value;d.qtyManual=false;d.repairQty='';persist();updateQtyUI();draw()};const sm71Members=['기둥','벽체','보','슬래브','바닥','천장','계단','난간','창호','문'];
 let sm71Raw=String(d.location||'').trim(),sm71Match=sm71Members.find(m=>sm71Raw===m||sm71Raw.endsWith(' '+m));
