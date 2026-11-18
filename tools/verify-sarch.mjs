@@ -325,7 +325,7 @@ ok(costCells['xl/worksheets/sheet2.xml'].includes('F5*H5')&&costCells['xl/worksh
 ok(costCells['xl/worksheets/sheet1.xml'].includes('SUMIF')&&costCells['xl/worksheets/sheet1.xml'].includes('COUNTIF'),'summary aggregates floors and methods by formulas');
 ok(costCells['xl/styles.xml'].includes('FF12304B')&&costCells['xl/styles.xml'].includes('FFFFF2DB'),'XLSX uses branded navy and editable-rate highlights');
 ok(JSON.stringify(costData)===costSnapshot,'XLSX generation never mutates source defect data');
-ok(read('survey/index.html').includes('SARCHRepairXLSXV172.download')&&read('survey/index.html').includes('엑셀(XLSX) 다운로드'),'survey repair export is genuine XLSX rather than CSV');
+ok(read('survey/index.html').includes('SARCHRepairExcelJSV190.download')&&read('survey/index.html').includes('엑셀(XLSX) 다운로드'),'survey repair export uses canonical XLSX writer rather than CSV or old XML');
 ok(read('survey/sw.js').includes('sarch-repair-xlsx-v172.js?v=189')&&read('seob-sw.js').includes('sarch-repair-xlsx-v172.js?v=189'),'fixed XLSX generator included in both offline caches');
 ok(read('survey/index.html').includes('function sm173PaintRegionUnion(')&&read('survey/index.html').includes('sm173PaintDefectRegion(ctx'),'joined rectangles produce a single exterior polyline on screen and PNG');
 ok(read('survey/index.html').includes('delete d.regionGroupId;'),'individual release clears region grouping as well as label grouping');
