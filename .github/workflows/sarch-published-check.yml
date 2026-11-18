@@ -1,3 +1,4 @@
+# rerun: v185 published site check
 name: SARCH published-site verification
 on:
   push:
@@ -36,8 +37,8 @@ jobs:
                       html=res.read().decode('utf-8')
                       result['surveyHTTP']=res.status
                       result['interior12Slots']=('id="frontInsideCount">0 / 12장' in html and 'albumInteriorExtra' in html)
-                      result['automaticPriceFallback']=('function sm183FallbackCost' in html)
-                  result['publishedCurrent']=result.get('publishedVersion')==184 and result.get('interior12Slots') and result.get('automaticPriceFallback')
+                      result['automaticPriceFallback']=('function sm185CompleteCost' in html and '자동추정 단가' in html)
+                  result['publishedCurrent']=result.get('publishedVersion')==185 and result.get('interior12Slots') and result.get('automaticPriceFallback')
                   if result['publishedCurrent']: break
               except Exception as error:
                   result['error']=str(error)
