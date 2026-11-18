@@ -1,8 +1,8 @@
 {
-  "checkedAtUTC": "2026-11-18T05:38:51.245295+00:00",
-  "gitCommit": "dc94a25568a5abed20aa8af68f1217fb72125122",
+  "checkedAtUTC": "2026-11-18T06:06:18.830491+00:00",
+  "gitCommit": "40b7f67d1b55ed313a2c776abebe26417343c330",
   "url": "https://smssimson.github.io/SEOB/",
-  "publishedVersion": 189,
+  "publishedVersion": 190,
   "versionHTTP": 200,
   "surveyHTTP": 200,
   "interior12Slots": true,
@@ -14,5 +14,9 @@
   "costModuleHTTP": 200,
   "costXmlSanitizer": true,
   "xlsxSchemaOrder": true,
+  "error": "HTTP Error 404: Not Found",
+  "vendorHTTP": 200,
+  "vendorSize": 947702,
+  "offlineWriterReady": true,
   "publishedCurrent": true
 }
