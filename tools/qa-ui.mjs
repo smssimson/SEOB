@@ -478,7 +478,7 @@ async function check(mod,width,height){
           rows:Array.from({length:41},(_,i)=>({
             page:['지상1층','지상2층','지상4층','지하1층'][i%4],
             number:i+1,group:i%2?'비구조체':'구조체',
-            type:i%2?'누수흔적':'구조체 균열',
+            type:['구조체 균열','비구조체 균열','구조체 누수흔적','비구조체 누수흔적','비구조체 표면손상·파손','구조체 균열/구조체 누수흔적'][i%6],
             method:i%2?'누수 보수 후 마감재 재시공':'표면처리공법',
             qty:.01+i/200,rate:i%7===0?null:84.387,
             priority:i%3+1,photoCount:1,
@@ -498,7 +498,20 @@ async function check(mod,width,height){
           const numberCells=Array.from({length:41},(_,i)=>detail.getRow(i+5).getCell(2).value).sort((a,b)=>a-b);
           const allNumbers=numberCells.join(',')===Array.from({length:41},(_,i)=>i+1).join(',');
           const c=detail.getRow(45).getCell(12).value;
+          const totals={count:0,qty:0,cost:0,full:0},names=[];
+          for(let r=11;summary.getCell('G'+r).value;r++){
+            names.push(summary.getCell('G'+r).value);
+            for(const [col,key] of [['H','count'],['I','qty'],['J','cost'],['K','full']])totals[key]+=summary.getCell(col+r).value.result;
+          }
+          const cost=payload.rows.reduce((sum,row)=>sum+(row.rate===null?0:row.qty*row.rate),0);
+          const quantity=payload.rows.reduce((sum,row)=>sum+row.qty,0);
+          const damageSummary=summary.getCell('G9').value==='결함별 참고금액'&&summary.getCell('K10').value==='제경비 포함 참고액(천원)'&&
+            names.length===4&&names.includes('균열')&&names.includes('누수흔적')&&names.includes('표면손상·파손')&&names.some(v=>v.includes(' / '))&&
+            totals.count===41&&Math.abs(totals.qty-quantity)<1e-8&&Math.abs(totals.cost-cost)<1e-8&&Math.abs(totals.full-cost*1.6)<1e-8&&
+            summary.getCell('H11').numFmt==='0'&&summary.getCell('H11').value.formula.includes('COUNTIF(')&&summary.getCell('J11').value.formula.includes('SUMIF(');
+
           Object.assign(result,{
+            damageSummary,damageNames:names,damageTotals:totals,
             sourceIntact:untouched===JSON.stringify(payload),
             size:raw.byteLength||raw.length,
             writer:api.version,
@@ -514,7 +527,7 @@ async function check(mod,width,height){
         return result;
       });
       report(id,"canonical ExcelJS workbook reopens 41 original rows with no missing detail sheet",
-        canonicalExcel.writer==='190'&&canonicalExcel.detailRows===45&&canonicalExcel.allNumbers&&
+        canonicalExcel.writer==='191'&&canonicalExcel.detailRows===45&&canonicalExcel.allNumbers&&canonicalExcel.damageSummary&&
         canonicalExcel.sourceIntact&&canonicalExcel.xmlParsed&&canonicalExcel.lastSourceSanitized&&
         canonicalExcel.detailRow45&&!canonicalExcel.zipBad&&canonicalExcel.size>5000,
         JSON.stringify(canonicalExcel).slice(0,750));
