@@ -102,6 +102,8 @@ def candidate_links(html: str, page_url: str, session: requests.Session):
             continue
         href = tag.get("href", "")
         m = re.search(r"article_seq[=,'\"\s(]+(\d{5,9})", href + " " + tag.get("onclick", ""))
+        if not m and re.search(r"view|detail|fnView|fn_view", href + " " + tag.get("onclick", ""), re.I):
+            m = re.search(r"(?<!\d)(\d{5,9})(?!\d)", href + " " + tag.get("onclick", ""))
         if m:
             view = urljoin(page_url, "view.do?article_seq=" + m.group(1))
         elif href.startswith("http") or href.startswith("view.do"):
@@ -124,6 +126,10 @@ def find_attachments(view_html: str, view_url: str):
             urls.append(urljoin(view_url, match.group(1)))
         elif re.search(r"\.(pdf|hwpx)(?:\?|$)", href, re.I) and ("보고서" in text or "붙임" in text):
             urls.append(urljoin(view_url, href))
+        elif ("첨부" in text or "보고서" in text or "붙임" in text) and re.search(r"download|fileDown|file_down", guess, re.I):
+            uuid = re.search(r"([a-f0-9]{8}-[a-f0-9-]{24,40}\.(?:pdf|hwpx))", guess, re.I)
+            if uuid:
+                urls.append(BASE_URL + "/download.do?uuid=" + uuid.group(1))
     return list(dict.fromkeys(urls))
 
 
