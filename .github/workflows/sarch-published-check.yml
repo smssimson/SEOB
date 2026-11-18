@@ -1,4 +1,4 @@
-# rerun: v193 grid selectors and quiet camera capture
+# rerun: v194 authorized album folder writes without browser downloads
 name: SARCH published-site verification
 on:
   push:
@@ -43,6 +43,7 @@ jobs:
                       result['independentMergedSides']=('SM177_SIDES.includes(link.d.linkLabelSide)' in html and "const source=state.defects.find(x=>x.id===action.sourceId)" in html)
                       result['fieldFeatures']=('sm192GroupBar' in html and 'sm192RenderMarks' in html and 'sm192AllPng' in html and 'sm192OpenLength' in html and 'sm192OriginalPhoto' in html)
                       result['gridSelectors']=('function sm193InstallFields()' in html and "sm193OpenMenu('lengthPreset',true)" in html)
+                      result['albumFolderWrite']=('function sm194WriteOriginals(files)' in html and 'window.showDirectoryPicker(' in html and 'await writer.write(f)' in html)
                       result['quietCapture']=('Camera capture does not trigger an automatic browser download' in html)
                       result['strictTenthsPicker']=('crack?Array.from({length:20}' in html and "!(crack&&cfg.preset==='widthPreset')" in html)
                   with urlopen(Request(pages+'sarch-repair-exceljs-v190.js?v=192',headers={'Cache-Control':'no-cache'}),timeout=15) as res:
@@ -55,7 +56,7 @@ jobs:
                       result['vendorHTTP']=res.status
                       result['vendorSize']=len(res.read())
                       result['offlineWriterReady']=(result['vendorHTTP']==200 and result['vendorSize']>500000)
-                  result['publishedCurrent']=result.get('publishedVersion')==193 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx187') and result.get('independentMergedSides') and result.get('strictTenthsPicker') and result.get('safeCostExportLinked') and result.get('costXmlSanitizer') and result.get('xlsxSchemaOrder') and result.get('offlineWriterReady') and result.get('damageSummary') and result.get('fieldFeatures') and result.get('gridSelectors') and result.get('quietCapture')
+                  result['publishedCurrent']=result.get('publishedVersion')==194 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx187') and result.get('independentMergedSides') and result.get('strictTenthsPicker') and result.get('safeCostExportLinked') and result.get('costXmlSanitizer') and result.get('xlsxSchemaOrder') and result.get('offlineWriterReady') and result.get('damageSummary') and result.get('fieldFeatures') and result.get('gridSelectors') and result.get('quietCapture') and result.get('albumFolderWrite')
                   if result['publishedCurrent']: break
               except Exception as error:
                   result['error']=str(error)
