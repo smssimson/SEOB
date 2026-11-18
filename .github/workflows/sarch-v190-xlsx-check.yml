@@ -1,4 +1,4 @@
-# rerun: validate original 41 ids independent of floor sorting
+# rerun: v191 damage-type summary totals and published writer
 name: SARCH v190 XLSX writer binary roundtrip
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
           (async()=>{
             const payload={site:'춘천 엠백화점 - 수정',overhead:60,rows:Array.from({length:41},(_,i)=>({
               page:['지상1층','지상2층','지상4층','지하1층'][i%4],number:i+1,
-              group:i%2?'비구조체':'구조체',type:i%2?'누수흔적':'구조체 균열',
+              group:i%2?'비구조체':'구조체',type:['구조체 균열','비구조체 균열','구조체 누수흔적','비구조체 누수흔적','비구조체 표면손상·파손','구조체 균열/구조체 누수흔적'][i%6],
               method:i%2?'누수 보수 후 마감재 재시공':'표면처리공법',
               qty:(i+1)/1000,rate:84.387,priority:i%3+1,photoCount:1,
               source:('가정 추정 및 노무비 '+String.fromCharCode(1)+'<&>').repeat(15)
@@ -47,7 +47,15 @@ jobs:
             const ids=Array.from({length:41},(_,i)=>detail.getRow(i+5).getCell(2).value).sort((a,b)=>a-b);
             if(ids.join(',')!==Array.from({length:41},(_,i)=>i+1).join(','))problems.push('Detail ids missing');
             if(detail.getRow(4).getCell(1).value!=='층/도면')problems.push('Header missing');
-            const result={createdAt:new Date().toISOString(),inputRows:41,detailRows:detail.actualRowCount,bytes:bytes.length,
+            const totals={count:0,qty:0,cost:0,full:0},names=[];
+            for(let row=11;sum.getCell('G'+row).value;row++){
+              names.push(sum.getCell('G'+row).value);
+              for(const [col,key] of [['H','count'],['I','qty'],['J','cost'],['K','full']])totals[key]+=sum.getCell(col+row).value.result;
+            }
+            const expectedCost=payload.rows.reduce((a,x)=>a+x.qty*x.rate,0);
+            const expectedQty=payload.rows.reduce((a,x)=>a+x.qty,0);
+            if(info.version!=='191'||sum.getCell('G9').value!=='결함별 참고금액'||names.length!==4||totals.count!==41||Math.abs(totals.qty-expectedQty)>1e-8||Math.abs(totals.cost-expectedCost)>1e-8||Math.abs(totals.full-expectedCost*1.6)>1e-8)problems.push('Damage summary aggregates mismatch');
+            const result={version:info.version,damageSummary:names,damageTotals:totals,createdAt:new Date().toISOString(),inputRows:41,detailRows:detail.actualRowCount,bytes:bytes.length,
               sheetNames:parsed.worksheets.map(x=>x.name),allIdsPreserved:ids.join(',')===Array.from({length:41},(_,i)=>i+1).join(','),
               valid:problems.length===0,problems};
             fs.writeFileSync('tools/sarch-v190-xlsx-status.json',JSON.stringify(result,null,2)+'\n');
