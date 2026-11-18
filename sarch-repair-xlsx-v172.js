@@ -1,5 +1,5 @@
 /* S:ARCH v172: two-sheet, styled offline XLSX for repair quantities and indicative costs.
-   Prices are labor-only unless user-edited. No external requests or image AI inference. */
+   Verified labor and user-entered material/other direct costs are combined only when supplied. No external requests or photo AI inference. */
 (function(root){'use strict';
  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
  const alpha=i=>String.fromCharCode(65+i);
@@ -57,8 +57,8 @@
   entries.sort((a,b)=>a.page.localeCompare(b.page,'ko',{numeric:true})||Number(a.number)-Number(b.number));
   const detailRows=[
    row(1,[['보수물량 및 개략공사비 · 층별/결함별',1]],42),
-   row(2,[[site+' | 2026년 하반기 노무비 참고 · 금액단위 천원',2]],29),
-   row(3,[['노무비 기준액만 자동 반영 · 보수재/장비/운반/부가세 별도 · 연한색 단가 셀은 사용자가 엑셀에서도 편집 가능',7]],28),
+   row(2,[[site+' | 2026년 하반기 노무비 + 사용자 입력 직접비 · 금액단위 천원',2]],29),
+   row(3,[['확인된 노무비 및 사용자 입력 보수재·기타 직접비의 합산 단가 · 미입력 비용은 제외 · 부가세 별도',7]],28),
    row(4,headers.map(v=>[v,2]),35)
   ];
   entries.forEach((x,i)=>{
@@ -80,8 +80,8 @@
 
   const sumRows=[
    row(1,[['보수물량 · 개략공사비 요약',1]],45),
-   row(2,[[site+' | S:ARCH 현장조사 · 2026.9.1 적용 노무비 참고',2]],30),
-   row(3,[['자동 산정값은 완성공사비가 아닙니다. 미산정 항목은 합계에서 제외되며 사용자가 단가를 조정할 수 있습니다.',7]],29),
+   row(2,[[site+' | S:ARCH 현장조사 · 2026.9.1 적용 노무비 및 사용자 직접비 참고',2]],30),
+   row(3,[['자동 노무비와 직접 입력비만 합산한 참고액입니다. 미입력 비용은 합계에 포함되지 않으며 완성공사비가 아닙니다.',7]],29),
    row(5,[['전체 결함',2],[entries.length,5],['산정 가능',2],[entries.filter(x=>num(x.qty)&&num(x.rate)).length,5],['단가/수량 확인',2],[entries.filter(x=>!num(x.qty)||!num(x.rate)).length,5]],27),
    row(7,[['참고 소계(천원)',2],[subTotal,5, "SUM('층별_결함별'!I5:I"+end+")"],['제경비 가정(%)',2],[overhead,5],['참고합계(천원)',2],[subTotal*(1+overhead/100),5,'B7*(1+D7/100)']],28),
    row(9,[['층/도면별 참고금액',2]],29),
