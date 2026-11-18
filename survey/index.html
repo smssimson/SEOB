@@ -459,7 +459,8 @@ $('sm155SizeAll').addEventListener('click',()=>{
 });
 
 
-/* v163: Visual-only grouping. Defect data, ids, measurements and photos stay intact. */
+/* v187: visual grouping keeps each defect's measurements/photos intact;
+   XLSX presents the first group member's description and dimensions for all numbers. */
 let sm163MergeMode=false,sm163Chosen=new Set();
 function sm163Groups(){
  const groups=new Map();
@@ -497,7 +498,7 @@ function sm163Finish(){
    const detail=[mismatchedType.length?'종류가 다른 번호: '+mismatchedType.join(', ')+'번':'',
     mismatchedSize.length?'크기가 다른 번호: '+mismatchedSize.join(', ')+'번':''].filter(Boolean).join('\\n');
    if(!confirm(first&&pageNumber(first)+'번을 기준으로 확인했습니다.\\n'+detail+'\\n계속 진행하시겠습니까?'))return;
-   if(!confirm('결함 종류 또는 크기가 다른 항목이 포함됩니다.\\n도면에는 대표 결함의 설명만 표시하며, 원본 결함 내용과 사진은 유지됩니다.\\n통합을 최종 확정하시겠습니까?'))return;
+   if(!confirm('결함 종류 또는 크기가 다른 항목이 포함됩니다.\\n도면과 결함 현황표에는 첫 번호의 설명·규격을 공통 표시하고, 원본 결함 내용과 사진은 유지됩니다.\\n통합을 최종 확정하시겠습니까?'))return;
   }
   snapshot();const id='merge-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
   choices.forEach(d=>{d.mergeGroupId=id});selected=first.id;persist();
@@ -653,10 +654,12 @@ function sm177UpdateAnchor(action,p){
  const possibilities=sm177Handles.filter(h=>h.sourceId===action.sourceId&&h.target===action.target);
  if(possibilities.length!==4)return;
  const near=possibilities.reduce((a,b)=>Math.hypot(b.x-p.x,b.y-p.y)<Math.hypot(a.x-p.x,a.y-p.y)?b:a);
- const owner=state.defects.find(x=>x.id===(action.target==='label'?action.ownerId:action.sourceId));
- if(!owner)return;
+ // Both endpoints belong to the originating defect, NOT the shared label owner.
+ // Group members may independently connect to left, right, bottom or top of one label.
+ const source=state.defects.find(x=>x.id===action.sourceId);
+ if(!source)return;
  const key=action.target==='label'?'linkLabelSide':'linkCircleSide';
- if(owner[key]!==near.side){owner[key]=near.side;draw()}
+ if(source[key]!==near.side){source[key]=near.side;draw()}
 }
 function sm177LineHit(p){
  if(!showDefectLabels)return null;
@@ -699,7 +702,7 @@ function drawLabel(g,p,d,bounds,fontSize,offsetFactor,occupied,markers,links=[])
   const circ=sm177CircleAnchors(q,radius),label=sm177TextAnchors({x,y:y-h/2,w:tw,h});
   const pair=sm177AnchorPair(circ,label,
    SM177_SIDES.includes(link.d.linkCircleSide)?link.d.linkCircleSide:null,
-   SM177_SIDES.includes(d.linkLabelSide)?d.linkLabelSide:null);
+   SM177_SIDES.includes(link.d.linkLabelSide)?link.d.linkLabelSide:null);
   if(!pair)continue;
   const at=circ[pair.circle],end=label[pair.label],dx=end.x-at.x,dy=end.y-at.y;
   if(Math.hypot(dx,dy)<4)continue;
