@@ -1,9 +1,9 @@
 {
-  "checkedAtUTC": "2026-11-18T08:20:27.908627+00:00",
-  "commit": "b62318d5300188868d54f65da946ec489c00adc7",
+  "checkedAtUTC": "2026-11-18T08:21:25.947672+00:00",
+  "commit": "70449c9b1b2f5ea00292b3e03bc6c9b941cdd6cc",
   "staticExitCode": 1,
   "browserExitCode": 99,
-  "staticLogTail": "file:///home/runner/work/SEOB/SEOB/tools/verify-sarch.mjs:14\nfunction ok(yes,msg){checks++;if(!yes)throw new Error('S:ARCH regression: '+msg)}\n                                            ^\n\nError: S:ARCH regression: structural and nonstructural crack color matches defect category on canvas and PNG\n    at ok (file:///home/runner/work/SEOB/SEOB/tools/verify-sarch.mjs:14:45)\n    at file:///home/runner/work/SEOB/SEOB/tools/verify-sarch.mjs:93:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n\nNode.js v22.23.4\n",
+  "staticLogTail": "file:///home/runner/work/SEOB/SEOB/tools/verify-sarch.mjs:14\nfunction ok(yes,msg){checks++;if(!yes)throw new Error('S:ARCH regression: '+msg)}\n                                            ^\n\nError: S:ARCH regression: individual release clears region grouping as well as label grouping\n    at ok (file:///home/runner/work/SEOB/SEOB/tools/verify-sarch.mjs:14:45)\n    at file:///home/runner/work/SEOB/SEOB/tools/verify-sarch.mjs:331:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n\nNode.js v22.23.4\n",
   "browserLogTail": "Static source integrity failed, browser QA not started.\n",
   "browserFailures": []
 }
