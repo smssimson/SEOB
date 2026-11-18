@@ -1,0 +1,53 @@
+name: SARCH published-site verification
+on:
+  push:
+    paths:
+      - '.github/workflows/sarch-published-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Check published GitHub Pages files (not local source)
+        run: |
+          python3 - <<'PY'
+          from urllib.request import urlopen, Request
+          from datetime import datetime,timezone
+          from pathlib import Path
+          import json, time, os
+          pages='https://smssimson.github.io/SEOB/'
+          result={'checkedAtUTC':datetime.now(timezone.utc).isoformat(),'gitCommit':os.environ.get('GITHUB_SHA'),'url':pages}
+          for i in range(5):
+              try:
+                  with urlopen(Request(pages+'version.json?sarch-check='+str(i),headers={'Cache-Control':'no-cache'}),timeout=15) as res:
+                      raw=res.read()
+                      result['publishedVersion']=json.loads(raw.decode('utf-8')).get('version')
+                      result['versionHTTP']=res.status
+                  with urlopen(Request(pages+'survey/index.html?sarch-check='+str(i),headers={'Cache-Control':'no-cache'}),timeout=15) as res:
+                      html=res.read().decode('utf-8')
+                      result['surveyHTTP']=res.status
+                      result['interior12Slots']=('id="frontInsideCount">0 / 12장' in html and 'albumInteriorExtra' in html)
+                      result['automaticPriceFallback']=('function sm183FallbackCost' in html)
+                  result['publishedCurrent']=result.get('publishedVersion')==184 and result.get('interior12Slots') and result.get('automaticPriceFallback')
+                  if result['publishedCurrent']: break
+              except Exception as error:
+                  result['error']=str(error)
+              time.sleep(8)
+          Path('tools/sarch-live-status.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(result)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tools/sarch-live-status.json
+          git commit -m 'ci: record published SARCH Pages verification [skip ci]'
+          git pull --rebase origin main
+          git push origin HEAD:main
