@@ -1,0 +1,88 @@
+name: SARCH one-shot deployment diagnosis
+on:
+  push:
+    paths:
+      - '.github/workflows/sarch-verify-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnosis:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run exact deployment regression and browser QA tests
+        shell: bash
+        run: |
+          set +e
+          node tools/verify-sarch.mjs > /tmp/sarch-static.log 2>&1
+          STATIC=$?
+          BROWSER=99
+          if [ "$STATIC" -eq 0 ]; then
+            npm install --no-save --ignore-scripts playwright@1.56.1 > /tmp/sarch-install.log 2>&1
+            INSTALL=$?
+            if [ "$INSTALL" -eq 0 ]; then
+              npx playwright install --with-deps chromium >> /tmp/sarch-install.log 2>&1
+              INSTALL=$?
+            fi
+            if [ "$INSTALL" -eq 0 ]; then
+              python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/sarch-http.log 2>&1 &
+              for i in $(seq 1 30); do
+                curl -fsS http://127.0.0.1:8765/version.json >/dev/null && break
+                sleep 1
+              done
+              node tools/qa-ui.mjs > /tmp/sarch-browser.log 2>&1
+              BROWSER=$?
+            else
+              printf 'Playwright install failed\n' > /tmp/sarch-browser.log
+              tail -30 /tmp/sarch-install.log >> /tmp/sarch-browser.log
+              BROWSER=98
+            fi
+          else
+            printf 'Static source integrity failed, browser QA not started.\n' > /tmp/sarch-browser.log
+          fi
+          export STATIC BROWSER
+          python3 - <<'PY'
+          import os, json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          def tail(name):
+              p=Path(name)
+              return p.read_text(encoding='utf-8',errors='replace')[-8000:] if p.exists() else ''
+          test=Path('test-results/browser/results.json')
+          failures=[]
+          if test.exists():
+              try:
+                  data=json.loads(test.read_text())
+                  failures=[{'name':str(x.get('name',x.get('test','')))[:160], 'details':str(x.get('details',x.get('detail','')))[:500]} for x in data.get('results',[]) if not x.get('ok',False)][:40]
+              except Exception as e:
+                  failures=[{'name':'results.json unreadable','details':str(e)}]
+          result={
+              'checkedAtUTC':datetime.now(timezone.utc).isoformat(),
+              'commit':os.environ.get('GITHUB_SHA'),
+              'staticExitCode':int(os.environ['STATIC']),
+              'browserExitCode':int(os.environ['BROWSER']),
+              'staticLogTail':tail('/tmp/sarch-static.log'),
+              'browserLogTail':tail('/tmp/sarch-browser.log'),
+              'browserFailures':failures
+          }
+          Path('tools/sarch-ci-status.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps({'staticExitCode':result['staticExitCode'],'browserExitCode':result['browserExitCode'],'failures':len(failures)}))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tools/sarch-ci-status.json
+          git commit -m 'ci: record one-shot SARCH test result [skip ci]'
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "Diagnosis complete: static=$STATIC browser=$BROWSER"
+          if [ "$STATIC" -ne 0 ] || [ "$BROWSER" -ne 0 ]; then exit 1; fi
