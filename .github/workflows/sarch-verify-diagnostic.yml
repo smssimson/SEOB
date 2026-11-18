@@ -1,4 +1,4 @@
-# rerun: v185 complete repair cost QA
+# rerun: v185 after regression selector fix
 name: SARCH one-shot deployment diagnosis
 on:
   push:
