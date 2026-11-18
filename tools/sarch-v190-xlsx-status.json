@@ -1,5 +1,6 @@
 {
-  "version": "191",
+  "compact": true,
+  "version": "192",
   "damageSummary": [
     "균열",
     "표면손상·파손",
@@ -12,10 +13,10 @@
     "cost": 72.657207,
     "full": 116.25153120000002
   },
-  "createdAt": "2026-11-18T06:27:28.111Z",
+  "createdAt": "2026-11-18T08:20:36.781Z",
   "inputRows": 41,
   "detailRows": 45,
-  "bytes": 13412,
+  "bytes": 13396,
   "sheetNames": [
     "개략공사비_요약",
     "층별_결함별"
