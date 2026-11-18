@@ -45,7 +45,7 @@ jobs:
                   with urlopen(Request(pages+'sarch-repair-xlsx-v172.js?v=188',headers={'Cache-Control':'no-cache'}),timeout=15) as res:
                       xlsxjs=res.read().decode('utf-8')
                       result['costModuleHTTP']=res.status
-                      result['costXmlSanitizer']=('const xmlSafe=v=>Array.from(String(v??\'\'))' in xlsxjs and 'parser.parseFromString' in xlsxjs)
+                      result['costXmlSanitizer']=('const xmlSafe=v=>Array.from(' in xlsxjs and 'parser.parseFromString' in xlsxjs)
                   result['publishedCurrent']=result.get('publishedVersion')==188 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx187') and result.get('independentMergedSides') and result.get('strictTenthsPicker') and result.get('safeCostExportLinked') and result.get('costXmlSanitizer')
                   if result['publishedCurrent']: break
               except Exception as error:
