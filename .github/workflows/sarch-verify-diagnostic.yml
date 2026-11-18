@@ -1,4 +1,4 @@
-# rerun: v192 field workflow and compact repair workbook
+# rerun: v192 after shared drawing coordinate regression assertions updated
 name: SARCH one-shot deployment diagnosis
 on:
   push:
