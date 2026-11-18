@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rateYear": 2026,
+  "half": "H2",
+  "effectiveFrom": "2026-09-01",
+  "checkedAt": "2026-11-18",
+  "publisher": "대한건설협회",
+  "sourceUrl": "https://www.cak.or.kr/lay1/bbs/S1T41C42/A/14/view.do?article_seq=160598",
+  "wagesKRWPerDay": {
+    "normal": 172698,
+    "special": 228717,
+    "plaster": 279102
+  },
+  "status": "published",
+  "notes": "공식 노임 3개 직종만 확인. 보수재비·장비비의 추정값은 공식 조달청 단가가 아니며 S:Arch 개략 산정용 가정값. 2027 이후 공식 자료 미수신 시 자동으로 추정치 전환."
+}
