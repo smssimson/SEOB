@@ -433,4 +433,10 @@ ok(survey193.includes("sm193OpenMenu('lengthPreset',true)")&&survey193.includes(
 const capture193=survey193.slice(survey193.indexOf('async function addPhotos(e)'),survey193.indexOf('const originals=sm192Originals.get(d)||[]'));
 ok(capture193.includes('d.photos.push(await compressed(data,1500))')&&!capture193.includes('download(f,f.name)'),'camera capture registers photo without automatic download');
 ok(survey193.includes('navigator.share({files:originals})')&&survey193.includes('for(const f of originals)download(f,f.name)'),'explicit user-triggered original save remains available');
+
+const survey194=read('survey/index.html');
+ok(survey194.includes("window.showDirectoryPicker({id:'sarch-album',mode:'readwrite',startIn:'pictures'})")&&survey194.includes("sm194FolderDB('put',folder)"),'album folder requires explicit selection and retains handle');
+const albumWriter194=survey194.slice(survey194.indexOf('async function sm194WriteOriginals(files)'),survey194.indexOf('// v193: Native select'));
+ok(albumWriter194.includes("folder.queryPermission({mode:'readwrite'})")&&albumWriter194.includes('handle.createWritable()')&&albumWriter194.includes('await writer.write(f)')&&!albumWriter194.includes('download('),'album writes original through authorized folder, not downloads');
+ok(survey194.includes('if(captured)await sm194WriteOriginals(captureOriginals)'),'direct album saving only for camera capture after app registration');
 console.log('S:ARCH v'+version.version+' OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
