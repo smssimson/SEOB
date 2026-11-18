@@ -62,25 +62,64 @@ function areaLabel(d,page){
  return [page,loc].filter(Boolean).join(" ");
 }
 function types(d){return Array.from(new Set((d.types||[]).filter(Boolean).map(v=>txt(v).replace(/^(구조체|비구조체)\s*/,"")))).join(", ")||"미지정"}
-function spec(d){var direct=txt(d.manualSpec);if(direct)return direct.replace(/×/g,"X").replace(/(\d)\s*x\s*(?=\d)/gi,"$1X").replace(/(\d)\s*ea\b/gi,"$1EA");var p=[d.width,d.length].map(txt).filter(Boolean),base=p.join("X"),n=Number(d.count);n=Number.isInteger(n)&&n>1?n:1;return base?(n>1?base+"X"+n+"EA":base):n+"EA"}
+/* v186: the field editor stores original dimensions in millimetres.
+   Convert units only in the exported defect register; never mutate site data. */
+function dimensions(d){
+ var direct=txt(d.manualSpec).replace(/×/g,"X").replace(/\s+/g,"");
+ var width=txt(d.width),length=txt(d.length),count=Number(d.count);
+ var explicitEA=d.countEAExplicit===true;
+ function numericPart(part){
+  var m=txt(part).match(/^(\d+(?:\.\d+)?)(mm|m)?$/i);
+  if(!m)return null;
+  var n=Number(m[1]);
+  return Number.isFinite(n)&&n>=0?{value:n,unit:(m[2]||'mm').toLowerCase()}:null;
+ }
+ var rawSize=direct.match(/^(\d+(?:\.\d+)?(?:mm|m)?)X(\d+(?:\.\d+)?(?:mm|m)?)(?:X(\d+)EA)?$/i);
+ var eaOnly=direct.match(/^(\d+)EA$/i);
+ if(rawSize){width=rawSize[1];length=rawSize[2];if(rawSize[3]){count=Number(rawSize[3]);explicitEA=true}}
+ else if(eaOnly){width='';length='';count=Number(eaOnly[1]);explicitEA=true}
+ else if(/\d+EA/i.test(direct)){
+  // Unsupported free-form dimensions are not guessed; count remains independently readable.
+  var n=direct.match(/(?:^|X)(\d+)EA\b/i);
+  if(n){count=Number(n[1]);explicitEA=true}
+ }
+ // The editor's 1EA default is not a user-entered count. 2EA+ is necessarily explicit.
+ if(Number.isInteger(count)&&count>1)explicitEA=true;
+ var crack=(d.types||[]).some(t=>/균열/.test(txt(t)));
+ function formatted(part,asMetres){
+  var n=numericPart(part);if(!n)return '-';
+  var value=asMetres?(n.unit==='mm'?n.value/1000:n.value):(n.unit==='m'?n.value*1000:n.value);
+  if(!Number.isFinite(value))return '-';
+  var rounded=Math.round((value+Number.EPSILON)*1000000)/1000000;
+  // Show 1.0–9.0 for whole-number metre values, preserving tenths or smaller fractions.
+  return Number.isInteger(rounded)?rounded.toFixed(1):String(rounded);
+ }
+ return {
+  width:formatted(width,!crack),
+  length:formatted(length,true),
+  count:explicitEA&&Number.isInteger(count)&&count>=1?String(count):'-',
+  crack:crack
+ };
+}
 function remedy(d){var t=(d.types||[]).join(" ");return /누수|백태/.test(t)?"수분 유입 원인 확인 및 방수·배수상태 점검 후 보수 검토":/균열/.test(t)?"진행 여부 주기적 관찰 및 필요 시 보수 검토":/철근노출|박락|파손/.test(t)?"손상 범위 확인 후 단면복구·재발방지 검토":"유지관리계획에 따른 주의관찰 및 보수 검토"}
-var header=["번호","층/도면","부재(부위)","결함 종류","결함 크기","손상원인추정","조치 필요사항"];
+var header=["번호","층/도면","부재(부위)","결함 종류","폭","길이","개수","손상원인추정","조치 필요사항"];
 function sheetXml(state,key,items){
- var rows=[],merge=["A1:G1","A2:G2"];
+ var rows=[],merge=["A1:I1","A2:I2"];
  function cell(value,r,i,style){return '<c r="'+String.fromCharCode(65+i)+r+'" s="'+style+'" t="inlineStr"><is><t xml:space="preserve">'+xml(value)+'</t></is></c>'}
  function row(n,values,style,height){rows.push('<row r="'+n+'" ht="'+height+'" customHeight="1">'+values.map((v,i)=>cell(v,n,i,style)).join("")+"</row>")}
  row(1,["결함 현황표"],1,42);
- row(2,[(txt(state.project)||"현장")+" | "+key+" | 결함 "+new Set(items.map(it=>it.d)).size+"건 · 사진 "+items.filter(it=>it.hasPhoto).length+"장 · 미촬영 "+items.filter(it=>!it.hasPhoto).length+"건"],2,30);
+ row(2,[(txt(state.project)||"현장")+" | "+key+" | 결함 "+new Set(items.map(it=>it.d)).size+"건 · 사진 "+items.filter(it=>it.hasPhoto).length+"장 · 미촬영 "+items.filter(it=>!it.hasPhoto).length+"건 · 폭: 균열 mm / 기타 m · 길이: m"],2,30);
  row(3,header,2,30);
- if(!items.length)row(4,["-","-","-","등록된 결함 없음","-","-","-"],3,40);
+ if(!items.length)row(4,["-","-","-","등록된 결함 없음","-","-","-","-","-"],3,40);
  items.forEach((it,i)=>{var d=it.d,cause=it.cause;
-  row(i+4,[it.number,areaLabel(d,it.page),member(d),types(d),spec(d),cause,remedy(d)],3,Math.max(47,Math.min(92,36+Math.ceil(cause.length/34)*14)));
+  var size=dimensions(d);
+  row(i+4,[it.number,areaLabel(d,it.page),member(d),types(d),size.width,size.length,size.count,cause,remedy(d)],3,Math.max(47,Math.min(92,36+Math.ceil(cause.length/34)*14)));
  });
- var cols=[9,22,16,22,18,64,53].map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("");
+ var cols=[9,22,16,22,9,12,8,64,53].map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("");
  var end=Math.max(4,items.length+3);
  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
   '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>'+
-  '<dimension ref="A1:G'+end+'"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="3" topLeftCell="A4" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+
+  '<dimension ref="A1:I'+end+'"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="3" topLeftCell="A4" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+
   '<sheetFormatPr defaultRowHeight="18"/><cols>'+cols+'</cols><sheetData>'+rows.join("")+'</sheetData>'+
   '<mergeCells count="2">'+merge.map(v=>'<mergeCell ref="'+v+'"/>').join("")+'</mergeCells>'+
   '<printOptions horizontalCentered="1"/><pageMargins left="0.3" right="0.3" top="0.5" bottom="0.5" header="0.2" footer="0.2"/>'+
@@ -116,5 +155,5 @@ async function download(state){
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
  return info;
 }
-root.SARCHDefectStatusV157={download:download,groups:groups,estimate:estimate,build:build};
+root.SARCHDefectStatusV157={download:download,groups:groups,estimate:estimate,build:build,dimensions:dimensions};
 })(typeof window!=="undefined"?window:self);
