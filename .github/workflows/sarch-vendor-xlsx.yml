@@ -1,4 +1,4 @@
-# first-run: vendor pinned ExcelJS bundle after workflow registration
+# fix: ExcelJS npm distribution ships LICENSE (without .md)
 name: SARCH vendor validated XLSX writer
 on:
   push:
@@ -26,9 +26,9 @@ jobs:
           mkdir -p survey/vendor /tmp/sarch-exceljs
           cd /tmp/sarch-exceljs
           npm pack --silent exceljs@4.4.0 > package-name.txt
-          tar -xzf "$(cat package-name.txt)" package/dist/exceljs.min.js package/LICENSE.md
+          tar -xzf "$(cat package-name.txt)" package/dist/exceljs.min.js package/LICENSE
           cp package/dist/exceljs.min.js "$GITHUB_WORKSPACE/survey/vendor/exceljs.min.js"
-          cp package/LICENSE.md "$GITHUB_WORKSPACE/survey/vendor/exceljs.LICENSE.md"
+          cp package/LICENSE "$GITHUB_WORKSPACE/survey/vendor/exceljs.LICENSE.md"
           node --check "$GITHUB_WORKSPACE/survey/vendor/exceljs.min.js"
           wc -c "$GITHUB_WORKSPACE/survey/vendor/exceljs.min.js"
       - name: Commit pinned and licensed offline XLSX writer
