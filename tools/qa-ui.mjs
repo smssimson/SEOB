@@ -495,7 +495,8 @@ async function check(mod,width,height){
           const summary=imported.getWorksheet('개략공사비_요약');
           const zipped=await JSZip.loadAsync(raw),sheet=await zipped.file('xl/worksheets/sheet2.xml').async('string');
           const xml=new DOMParser().parseFromString(sheet,'application/xml');
-          const numberCells=[detail.getRow(5).getCell(2).value,detail.getRow(45).getCell(2).value];
+          const numberCells=Array.from({length:41},(_,i)=>detail.getRow(i+5).getCell(2).value).sort((a,b)=>a-b);
+          const allNumbers=numberCells.join(',')===Array.from({length:41},(_,i)=>i+1).join(',');
           const c=detail.getRow(45).getCell(12).value;
           Object.assign(result,{
             sourceIntact:untouched===JSON.stringify(payload),
@@ -503,7 +504,7 @@ async function check(mod,width,height){
             writer:api.version,
             detailRows:detail.actualRowCount,
             summaryRows:summary.actualRowCount,
-            numbers:numberCells,
+            allNumbers,numbers:numberCells.slice(0,3).concat(numberCells.slice(-3)),
             lastSourceSanitized:typeof c==='string'&&!c.includes(unsafe),
             xmlParsed:!xml.getElementsByTagName('parsererror').length,
             detailRow45:!!xml.querySelector('row[r="45"]'),
@@ -513,7 +514,7 @@ async function check(mod,width,height){
         return result;
       });
       report(id,"canonical ExcelJS workbook reopens 41 original rows with no missing detail sheet",
-        canonicalExcel.writer==='190'&&canonicalExcel.detailRows===45&&canonicalExcel.numbers?.join('|')==='1|41'&&
+        canonicalExcel.writer==='190'&&canonicalExcel.detailRows===45&&canonicalExcel.allNumbers&&
         canonicalExcel.sourceIntact&&canonicalExcel.xmlParsed&&canonicalExcel.lastSourceSanitized&&
         canonicalExcel.detailRow45&&!canonicalExcel.zipBad&&canonicalExcel.size>5000,
         JSON.stringify(canonicalExcel).slice(0,750));
