@@ -87,9 +87,9 @@ ok(!shared.includes('fetch(')&&!shared.includes('XMLHttpRequest'),'sharing does 
 const report=read('sarch-defect-status-v157.js');
 scriptSyntax(report,'sarch-defect-status-v157.js');
 ok(report.includes('SARCHDefectStatusV157')&&report.includes('workbook.xml'),'per-building XLSX report generator');
-ok(report.includes('"손상원인추정","조치 필요사항"]')&&!report.includes('"손상원인추정","사진"'),'7-column report has no photo column');
+ok(report.includes('"폭","길이","개수","손상원인추정","조치 필요사항"]')&&!report.includes('"손상원인추정","사진"'),'nine-column XLSX separates width, length and EA without a photo column');
 ok(report.includes('row(3,header,2,30)')&&!report.includes('row(3,["※ 손상원인추정')&&!report.includes('[일반적 추정]'),'header on row 3, no disclaimer/uncertainty suffix');
-ok(report.includes('row(i+4,[')&&report.includes('A1:G1')&&report.includes('A2:G2'),'data on row 4, merge spans 7 columns');
+ok(report.includes('row(i+4,[')&&report.includes('A1:I1')&&report.includes('A2:I2'),'data on row 4, title merges span nine columns');
 ok(read("survey/index.html").includes("ctx.strokeStyle=annotationColor(d)")&&read("survey/index.html").includes("g.strokeStyle=annotationColor(d)"),'structural and nonstructural crack color matches defect category on canvas and PNG');
 ok(read("survey/index.html").includes('id="sm170RectBtn"')&&read("survey/index.html").includes('id="sm170JoinBtn"'),'region drawing and joining buttons exist');
 ok(read("survey/index.html").includes("kind:'region'")&&read("survey/index.html").includes("sm170Rect(drag.start,end)"),'drag creates persisted damage rectangle');
@@ -115,7 +115,7 @@ const zipContents={};
 reportAPI.build({file:(path,content)=>zipContents[path]=content},sampleState);
 const sheetOutput=zipContents['xl/worksheets/sheet1.xml'];
 ok(!sheetOutput.includes('>2,3,5</t>')&&sheetOutput.includes('대표 원인')&&sheetOutput.includes('다른 원인'),'XLSX shows six individual rows, not a joined number row');
-ok(sheetOutput.includes('A1:G1')&&sheetOutput.includes('조치 필요사항')&&!sheetOutput.includes('사진</t>'),'grouped XLSX retains seven-column layout');
+ok(sheetOutput.includes('A1:I1')&&sheetOutput.includes('A2:I2')&&sheetOutput.includes('조치 필요사항')&&!sheetOutput.includes('사진</t>'),'grouped XLSX has nine columns without photo column');
 ok(JSON.stringify(sampleState)===originalReportState&&sampleState.defects.length===6&&sampleState.defects[2].photos[0]==='photo13','XLSX grouping never mutates existing defect records or photos');
 const surveyReport=read('survey/index.html');
 ok(surveyReport.includes('id="causeEstimate"')&&surveyReport.includes('결함 현황표 엑셀'),'cause editor and Excel output');
@@ -142,7 +142,22 @@ ok(surveyV155.includes('<option value="__custom__">직접 입력</option>'),'dro
 ok(surveyV155.includes("input.focus();input.select();")&&surveyV155.includes("send(value)"),'direct-entry fields are focused and save original fields');
 ok(surveyV155.includes("const direct=String(d.manualSpec??'').trim()")&&surveyV155.includes('if(direct)return direct.replace('),'manual dimension overrides generated drawing/photo/repair labels');
 ok(surveyV155.includes("normalized.match(")&&surveyV155.includes("if(!m)return null"),'free-form manual dimension does not borrow stale measurements for area calculation');
-ok(report.includes('var direct=txt(d.manualSpec)')&&report.includes('n+"EA"'),'XLSX report displays 1EA only when dimensions are absent');
+ok(report.includes('var direct=txt(d.manualSpec)')&&report.includes('explicitEA=d.countEAExplicit===true'),'default 1EA is treated as not supplied unless explicitly selected');
+const dimTests=[
+ [{types:['콘크리트 손상(박리·박락·파손)'],width:100,length:200,count:1},['0.1','0.2','-']],
+ [{types:['균열'],width:0.1,length:1000,count:9},['0.1','1.0','9']],
+ [{types:['구조체 균열'],manualSpec:'0.15X2000X3EA'},['0.15','2.0','3']],
+ [{types:['마감재 박락'],width:500,length:2000,count:1},['0.5','2.0','-']],
+ [{types:['마감재 박락'],width:1000,length:2000,count:1,countEAExplicit:true},['1.0','2.0','1']],
+ [{types:['마감재 박락','균열'],width:0.2,length:4000,count:1},['0.2','4.0','-']],
+ [{types:['균열'],width:'.15',length:1000,count:1},['0.15','1.0','-']],
+ [{types:['철근노출'],manualSpec:'3EA'},['-','-','3']]
+];
+for(const [input,expected] of dimTests){
+ const original=JSON.stringify(input),r=reportAPI.dimensions(input),vals=[r.width,r.length,r.count];
+ ok(JSON.stringify(vals)===JSON.stringify(expected),'XLSX width/length/EA: '+original+' ⇒ '+vals.join('/'));
+ ok(JSON.stringify(input)===original,'XLSX conversion leaves original defect untouched');
+}
 ok(!surveyV155.includes('id="frontPhotoJump"')&&surveyV155.includes('grid-column:auto;order:0;scroll-margin-top'),'photo workspace no longer occupies a full-width top grid row');
 ok(surveyV155.indexOf('id="board"')<surveyV155.indexOf('id="projectName"')&&surveyV155.indexOf('id="projectName"')<surveyV155.indexOf('id="frontPhotoWorkspace"'),'site and drawing name fields come directly before front photo workspace in left panel');
 ok(surveyV155.includes('id="sm163MergeToggle"')&&surveyV155.includes('id="sm163MergeRemove"'),'visual group and per-defect release buttons');
@@ -162,9 +177,9 @@ const measuredFn=new Function('isCrackDefect','function measuredQty(d){'+measure
 ok(Math.abs(measuredFn({manualSpec:'300X300X2EA'})-0.18)<0.000001,'manual dimensions calculate quantity when unambiguous');
 ok(measuredFn({manualSpec:'2EA',width:300,length:300})===null,'EA-only manual input does not accidentally use stale preset dimensions');
 
-ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=176')&&rootSWCacheCheck(),'photo-ordered defect XLSX cache updated');
+ok(read('survey/sw.js').includes('sarch-defect-status-v157.js?v=186')&&rootSWCacheCheck(),'photo-ordered nine-column XLSX cache updated');
 ok(read('survey/sw.js').includes("sarch-share-inbox-v1")&&read('survey/sw.js').includes("req.formData()"),'independently installed survey app stages received files safely');
-function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=176')}
+function rootSWCacheCheck(){return read('seob-sw.js').includes('sarch-defect-status-v157.js?v=186')}
 const rootManifest=JSON.parse(read('manifest.webmanifest'));
 ok(rootManifest.share_target?.action==='/SEOB/share-target','installed app accepts Android file shares');
 ok(rootManifest.share_target?.params?.files?.[0]?.accept?.includes('.json'),'JSON extension registered for share target');
@@ -325,4 +340,7 @@ ok(cost185.includes('function sm185CompleteCost(d,rule)')&&cost185.includes('rul
 ok(cost185.includes('미확인 단가 자동 추정')&&cost185.includes('placeholder="자동추정 단가"'),'indicative rate inputs visibly identify auto-filled prices');
 ok(!cost185.includes('res.materialRate=0;res.otherRate=0;'),'legacy manually entered labor must not silently zero material/equipment estimates');
 ok(cost185.includes('sm183FallbackCost(d,r,null)')&&cost185.includes('materialRate:round(material*materialMultiplier)'),'fallback estimates provide all three expense categories');
+ok(read('survey/index.html').includes('crack?Array.from({length:20},(_,i)=>Number(((i+1)/10).toFixed(1)))'),'crack width presets advance by 0.1 mm with no 0.05 steps');
+ok(read('survey/index.html').includes('d.countEAExplicit=true'),'one EA explicitly selected is saved as explicit');
+ok(report.includes('row(i+4,[it.number,areaLabel(d,it.page),member(d),types(d),size.width,size.length,size.count,cause,remedy(d)]'),'exported nine-column rows separate dimensions');
 console.log('S:ARCH v'+version.version+' OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
