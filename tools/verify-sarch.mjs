@@ -336,6 +336,10 @@ ok(b7.formula.includes('SUM(')&&Math.abs(b7.value-22.90272)<.00001,'cost summary
 ok(f7.formula.includes('B7*(1+D7/100)')&&Math.abs(f7.value-27.483264)<.00001,'indirect cost total has a cached result and live Excel formula');
 ok(cSheet2.includes('r="I6" s="6"><f>')&&!cSheet2.includes('<v></v>'),'unpriced formula has no invalid empty cached value; Excel recalculates blank instead of corrupting sheet');
 ok(cSheet1.includes('COUNTIF(')&&cSheet1.includes('SUMIF('),'floor and method rollups are formula-backed');
+const filterAt=cSheet2.indexOf('<autoFilter '),mergeAt=cSheet2.indexOf('<mergeCells '),dataAt=cSheet2.indexOf('</sheetData>');
+ok(filterAt>dataAt&&mergeAt>filterAt,'Open XML worksheet schema requires sheetData then autoFilter then mergeCells (sheet2 repair regression)');
+ok(!cSheet1.includes('<autoFilter ')&&cSheet1.indexOf('<mergeCells ')>cSheet1.indexOf('</sheetData>'),'summary without filter keeps valid merge location');
+
 ok(costXlsx.includes("const xmlSafe=v=>Array.from(String(v??''))"),'forbidden XML control characters removed from exported text');
 ok(costXlsx.includes("parser.parseFromString(source,'application/xml')"),'XLSX download validates XML before producing a file');
 const unsafeChars=String.fromCharCode(0,1,3,8,11,12,14,31,0xD800,0xFFFE);
