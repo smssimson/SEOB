@@ -1,4 +1,4 @@
-# rerun: v192 after shared drawing coordinate regression assertions updated
+# rerun: v192 after multi-release cleanup assertion
 name: SARCH one-shot deployment diagnosis
 on:
   push:
