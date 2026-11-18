@@ -213,6 +213,42 @@ async function check(mod,width,height){
         state.defects=orig.defects;state.nextId=orig.nextId;delete window.__qaRegionRestore;
         selected=null;sm170RegionPicks.clear();sm170Preview=null;setMode("pin");persist();refresh();draw();
       });
+      // Select one real defect to reveal label and circle cardinal handles.
+      await page.evaluate(()=>{
+        selected=currentDefects()[0].id;
+        if(!showDefectLabels)document.getElementById('labelToggle').click();
+        refresh();draw();
+      });
+      const options=await page.evaluate(()=>{
+        const all=sm177Handles.filter(h=>h.sourceId===currentDefects()[0].id);
+        return {all:all.length,circle:all.find(h=>h.target==='circle'&&h.side==='bottom'),
+          label:all.find(h=>h.target==='label'&&h.side==='top')};
+      });
+      const cb=await page.locator("#canvas").boundingBox();
+      const tap=async pos=>{
+        await page.mouse.move(cb.x+pos.x,cb.y+pos.y);
+        await page.mouse.down();await page.mouse.up();
+      };
+      if(options.all===8){await tap(options.circle);await tap(options.label)}
+      const snapped=await page.evaluate(()=>{
+        const d=currentDefects()[0];
+        return {circle:d.linkCircleSide,label:d.linkLabelSide,handles:sm177Handles.length,
+         segments:sm177Segments.filter(s=>s.id===d.id).length};
+      });
+      report(id,"connector label and defect-circle endpoints independently snap to four sides",
+        options.all===8&&snapped.circle==='bottom'&&snapped.label==='top'&&snapped.segments===2,
+        JSON.stringify(snapped));
+      await page.evaluate(()=>{selected=null;refresh();draw()});
+      const unselected=await page.evaluate(()=>sm177Handles.length===0&&sm177Segments.length>=6);
+      report(id,"unselected connector shows line without green edit handles",unselected);
+      await page.evaluate(()=>{
+        selected=currentDefects()[0].id;refresh();draw();
+      });
+      const retained=await page.evaluate(()=>{
+        const d=currentDefects()[0];return d.linkCircleSide==='bottom'&&d.linkLabelSide==='top';
+      });
+      report(id,"connector endpoint choices persist after redraw",retained);
+      await page.evaluate(()=>{selected=null;refresh();draw()});
       await page.locator("#smUtilityTab").click();
       await page.locator("#sm163MergeToggle").click();
       const picked=await page.evaluate(()=>{

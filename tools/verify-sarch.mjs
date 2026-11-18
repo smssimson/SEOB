@@ -270,7 +270,7 @@ ok(read('survey/index.html').includes('function sm173PaintRegionUnion(')&&read('
 ok(read('survey/index.html').includes('delete d.regionGroupId;'),'individual release clears region grouping as well as label grouping');
 ok(layout.includes('const activeExtra=Array.from')&&layout.includes('const compactModule=')&&layout.includes("extra.style.setProperty('display','none','important')"),'hidden rename controls never trigger redundant floor details');
 ok(read('survey/index.html').includes("if(mode==='region'){sm170Preview=null;setMode('pin');draw();return}"),'region button supports second-click exit');
-ok(read('survey/index.html').includes("drag=null;setMode('pin');draw();return}if(drag.kind==='joint'"),'region mode stops after drawing');
+ok(read('survey/index.html').includes("drag=null;setMode('pin');draw();return}if(drag.kind==='endpoint'"),'region mode stops after drawing, before endpoint drag processing');
 ok(read('survey/index.html').includes("document.addEventListener('pointerdown',e=>{")&&read('survey/index.html').includes("sm170Preview=null;sm170RegionPicks.clear();setMode('pin');draw()"),'outside taps stop region mode');
 ok(read('survey/index.html').includes('sm174FmtQty(qty)'),'small quantities remain visible without rounding to 0.0');
 const cSheet1=costCells['xl/worksheets/sheet1.xml'],cSheet2=costCells['xl/worksheets/sheet2.xml'];
