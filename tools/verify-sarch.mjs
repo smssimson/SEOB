@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===177,'version.json should report v177');
+ok(version.version===184,'version.json should report v184');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,7 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v177"),m.dir+' offline cache version');
+ ok(sw.includes("smetric-"+m.dir+"-v"+(m.dir==='survey'?184:177)),m.dir+' offline cache version');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -173,7 +173,7 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v177'),'root offline cache updated');
+ok(rootSW.includes('smetric-offline-v184'),'root offline cache updated');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -245,7 +245,7 @@ for(const mod of ['survey','drawing','schmidt','tilt']){
 ok(rootSW.includes('sarch-shell-v145.js?v=145'),'root PWA caches shell JS');
 
 ok(read('survey/index.html').includes("'표면처리':'표면처리공법'")&&read('survey/index.html').includes("'단면복구':'단면복구공법'"),'repair methods shown with full 공법 suffix');
-ok(read('survey/index.html').includes('LABOR_2026.concreteRepair')&&read('survey/index.html').includes('LABOR_2026.concreteFinish'),'2026 concrete labor baselines are auto-filled when applicable');
+ok(read('survey/index.html').includes('laborCurrent.concreteRepair')&&read('survey/index.html').includes('laborCurrent.concreteFinish')&&read('survey/index.html').includes('sm183FallbackCost('),'current-year labor and offline fallback estimates apply to concrete repairs');
 ok(read('survey/index.html').includes('사용자 수정 단가')&&read('survey/index.html').includes("d.repair.rate=Math.max(0"),'cost rates remain user editable');
 ok(read('survey/index.html').includes('사진 AI 분석 미연결'),'registered photographs are never represented as AI-inspected');
 const costXlsx=read('sarch-repair-xlsx-v172.js');
@@ -265,7 +265,7 @@ ok(costCells['xl/worksheets/sheet1.xml'].includes('SUMIF')&&costCells['xl/worksh
 ok(costCells['xl/styles.xml'].includes('FF12304B')&&costCells['xl/styles.xml'].includes('FFFFF2DB'),'XLSX uses branded navy and editable-rate highlights');
 ok(JSON.stringify(costData)===costSnapshot,'XLSX generation never mutates source defect data');
 ok(read('survey/index.html').includes('SARCHRepairXLSXV172.download')&&read('survey/index.html').includes('엑셀(XLSX) 다운로드'),'survey repair export is genuine XLSX rather than CSV');
-ok(read('survey/sw.js').includes('sarch-repair-xlsx-v172.js?v=175')&&read('seob-sw.js').includes('sarch-repair-xlsx-v172.js?v=175'),'fixed XLSX generator included in both offline caches');
+ok(read('survey/sw.js').includes('sarch-repair-xlsx-v172.js?v=180')&&read('seob-sw.js').includes('sarch-repair-xlsx-v172.js?v=180'),'fixed XLSX generator included in both offline caches');
 ok(read('survey/index.html').includes('function sm173PaintRegionUnion(')&&read('survey/index.html').includes('sm173PaintDefectRegion(ctx'),'joined rectangles produce a single exterior polyline on screen and PNG');
 ok(read('survey/index.html').includes('delete d.regionGroupId;'),'individual release clears region grouping as well as label grouping');
 ok(layout.includes('const activeExtra=Array.from')&&layout.includes('const compactModule=')&&layout.includes("extra.style.setProperty('display','none','important')"),'hidden rename controls never trigger redundant floor details');
@@ -307,7 +307,14 @@ const anchors=read('survey/index.html');
 ok(anchors.includes("const SM177_SIDES=['top','right','bottom','left']"),'connector ends have four fixed cardinal positions');
 ok(anchors.includes('function sm177TextAnchors(r)')&&anchors.includes('function sm177CircleAnchors(p,r)'),'text and circle positions use exact midpoints');
 ok(anchors.includes('link.d.linkCircleSide')&&anchors.includes('d.linkLabelSide'),'circle and label endpoints maintain independent saved side choices');
-ok(anchors.includes("kind:'endpoint'")&&anchors.includes("sm177UpdateAnchor(drag,p);persist();"),'endpoint dragging snaps and saves selection');
+ok(anchors.includes("kind:'endpoint'")&&anchors.includes('sm180CancelHold(drag)')&&anchors.includes('sm177UpdateAnchor(drag,p);')&&anchors.includes('persist();drag=null;draw();return}'),'endpoint dragging snaps and saves selection and cancels hold safely');
 ok(anchors.includes('g!==ctx||selected!==source.id||sm163MergeMode'),'green edit nodes hidden when not selected or on exported PNG');
 ok(anchors.includes('sm177LineHit(p)')&&anchors.includes("e.key==='Escape'"),'connector line selection and escape-to-hide handles');
-console.log('S:ARCH v177 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+const photoApp=read('survey/index.html');
+ok(photoApp.includes('id="frontInsideCount">0 / 12장')&&photoApp.includes('내부 최대 12장'),'internal front-photo slots expanded to 12');
+ok(photoApp.includes('const ALBUM_IN=[')&&photoApp.includes("'지하주차장 전경'")&&photoApp.includes('front-photo-grid'),'internal front-photo upload UI has six additional slots');
+ok(photoApp.includes("insidePages.push(albumPage('시설물의 부위별 사진 (추가)'")&&photoApp.includes("extraInteriorImages.push({pic,src:"),'six additional interior photos included in printable and HWPX exports');
+ok(photoApp.includes("const pics=originalAlbumPics")&&photoApp.includes("zip.file('BinData/'+key+'.jpg'"),'HWPX export preserves existing image ordering');
+ok(photoApp.includes('sm183Proxy(d,r,labor.rate)')&&photoApp.includes('function sm183FallbackCost('),'estimate inputs recover when external price module is absent');
+ok(read('survey/sw.js').includes('estimate-rates-v182.js?v=182')&&rootSW.includes('./survey/estimate-rates-v182.js?v=182'),'estimate engine cached by both service workers');
+console.log('S:ARCH v184 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
