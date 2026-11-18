@@ -1,4 +1,4 @@
-# rerun: v190 canonical ExcelJS regression with correct floor sort ID checks
+# rerun: v191 damage-type summary totals and published writer
 name: SARCH one-shot deployment diagnosis
 on:
   push:
