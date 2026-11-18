@@ -1,4 +1,4 @@
-# rerun: v190 canonical ExcelJS workbook and 41-row Excel import roundtrip
+# rerun: v190 after updating canonical XLSX route verification
 name: SARCH one-shot deployment diagnosis
 on:
   push:
