@@ -334,8 +334,24 @@ const cellCache=(xml,cell)=>{
 const b7=cellCache(cSheet1,'B7'),f7=cellCache(cSheet1,'F7');
 ok(b7.formula.includes('SUM(')&&Math.abs(b7.value-22.90272)<.00001,'cost summary includes cached real subtotal for viewing without recalculation');
 ok(f7.formula.includes('B7*(1+D7/100)')&&Math.abs(f7.value-27.483264)<.00001,'indirect cost total has a cached result and live Excel formula');
-ok(cSheet2.includes('r="I6" s="6" t="str"><f>')&&cSheet2.includes('<v></v>'),'unpriced defects show blank, never a fictitious zero total');
+ok(cSheet2.includes('r="I6" s="6"><f>')&&!cSheet2.includes('<v></v>'),'unpriced formula has no invalid empty cached value; Excel recalculates blank instead of corrupting sheet');
 ok(cSheet1.includes('COUNTIF(')&&cSheet1.includes('SUMIF('),'floor and method rollups are formula-backed');
+ok(costXlsx.includes("const xmlSafe=v=>Array.from(String(v??''))"),'forbidden XML control characters removed from exported text');
+ok(costXlsx.includes("parser.parseFromString(source,'application/xml')"),'XLSX download validates XML before producing a file');
+const unsafeChars=String.fromCharCode(0,1,3,8,11,12,14,31,0xD800,0xFFFE);
+const adversarialCost={site:'가톨릭관동대'+unsafeChars+' 정밀안전점검',overhead:60,rows:Array.from({length:41},(_,i)=>({
+ page:['지상4층','지하1층','지상2층'][i%3]+(i===27?unsafeChars:''),
+ number:i+1,group:i%2?'비구조체':'구조체',type:i%3?'구조체 균열':'누수흔적',
+ method:'누수 보수 후 마감재 재시공',qty:(i+.3)/1000,rate:i%7===0?null:84.387,
+ priority:i%3+1,source:'노무비·보수재·장비/기타비 추정 '+('상세 추정 근거 & < > " '+unsafeChars).repeat(8)
+}))};
+const costSourceBefore=JSON.stringify(adversarialCost);
+const hostileParts={};costRoot.SARCHRepairXLSXV172.build({file:(k,v)=>hostileParts[k]=v},adversarialCost);
+const hostileDetail=hostileParts['xl/worksheets/sheet2.xml'];
+ok(hostileDetail.includes('r="L45"')&&!hostileDetail.includes(unsafeChars),'41 complex defect rows stay intact while invalid XML controls are stripped');
+ok(!/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uD800-\uDFFF\uFFFE\uFFFF]/u.test(hostileDetail),'generated worksheet contains no forbidden XML 1.0 codepoints');
+ok(JSON.stringify(adversarialCost)===costSourceBefore,'XML cleansing does not alter saved source records');
+
 const photoOrderState={project:'테스트',pages:[{name:'외부'},{name:'지상2층'}],defects:[
  {id:20,pageId:1,types:['구조체 균열'],location:'복도 벽체',photos:['photo-4']},
  {id:11,pageId:0,types:['비구조체 손상'],location:'정면 벽체',photos:[]},
