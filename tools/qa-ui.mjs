@@ -148,6 +148,30 @@ async function check(mod,width,height){
     const returned=await page.locator("#smFieldGroup").isVisible();
     report(id,"survey tool tab switches",opened&&returned);
     if(width===1280){
+      const crackWidths=await page.evaluate(()=>{
+        const old=state,oldSelection=selected;
+        let result={};
+        try{
+          const temp={id:886600,pageId:state.activePage,types:['구조체 균열'],point:{x:60,y:80},
+            width:'0.15',length:'1000',count:1,photos:[]};
+          state={...state,defects:[...state.defects,temp]};
+          selected=temp.id;refresh();
+          const select=document.getElementById('widthPreset');
+          const back=document.getElementById('widthCustomBack');
+          const read=()=>[...select.options].map(o=>o.value).filter(v=>v&&v!=='__custom__');
+          const before=read();
+          back?.click();
+          const after=read();
+          result={before,after,oldValueSaved:temp.width==='0.15',
+            valid:!before.includes('0.05')&&!before.includes('0.15')&&!before.includes('0.25')&&
+              !after.includes('0.05')&&!after.includes('0.15')&&!after.includes('0.25')&&
+              ['0.1','0.2','0.3','0.5'].every(x=>after.includes(x))};
+        }catch(error){result={error:String(error)}}finally{state=old;selected=oldSelection;refresh();draw()}
+        return result;
+      });
+      report(id,"crack width preset is 0.1 mm only; historical 0.15 stays editable but not in list",
+        !!crackWidths.valid&&crackWidths.oldValueSaved,
+        JSON.stringify(crackWidths).slice(0,580));
       const nineColumnReport=await page.evaluate(async()=>{
         const samples={project:'QA 임시 현장',pages:[{name:'지상1층'}],defects:[
           {id:601,pageId:0,location:'정면 기둥',types:['콘크리트 손상(박리·박락·파손)'],width:100,length:200,count:1,photos:[]},
