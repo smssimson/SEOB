@@ -1,3 +1,4 @@
+# second-pass: include interior HWPX photo export browser check
 name: SARCH one-shot deployment diagnosis
 on:
   push:
