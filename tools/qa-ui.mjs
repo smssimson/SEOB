@@ -400,6 +400,50 @@ async function check(mod,width,height){
           ds.every(d=>!!d.mergeGroupId)&&annotationRects.length===1;
       });
       report(id,"defect group selection and single label",picked&&grouped);
+      const individualGroupedSides=await page.evaluate(()=>{
+        const ds=currentDefects(),directions=['left','bottom','right'];
+        let allHandles=true;
+        try{
+          ds.forEach((d,i)=>{
+            selected=d.id;refresh();draw();
+            const h=sm177Handles.find(h=>h.sourceId===d.id&&h.target==='label'&&h.side===directions[i]);
+            if(!h){allHandles=false;return}
+            sm177UpdateAnchor({sourceId:d.id,ownerId:ds[0].id,target:'label'},{x:h.x,y:h.y});
+          });
+          selected=null;refresh();draw();
+          return {allHandles,sides:ds.map(d=>d.linkLabelSide),oneLabel:annotationRects.length===1,
+            perDefectSegments:ds.map(d=>sm177Segments.filter(s=>s.id===d.id).length),
+            sourceDataIntact:ds.every(d=>!!d.mergeGroupId)};
+        }catch(error){return {error:String(error)}}
+      });
+      report(id,"merged markers have independent left, bottom, right annotation endpoints",
+        individualGroupedSides.allHandles&&individualGroupedSides.oneLabel&&
+        individualGroupedSides.sides.join('|')==='left|bottom|right'&&
+        individualGroupedSides.perDefectSegments.every(n=>n===2)&&individualGroupedSides.sourceDataIntact,
+        JSON.stringify(individualGroupedSides).slice(0,480));
+      const mergedXlsx=await page.evaluate(async()=>{
+        const ds=[{id:29,pageId:0,mergeGroupId:'merged',location:'지상4층 천장',types:['비구조체 누수흔적'],width:800,length:3000,count:1,photos:['p29'],causeEstimate:'대표원인'},
+          ...[30,31,32].map((n,i)=>({id:n,pageId:0,mergeGroupId:'merged',location:'지상4층 벽체',types:['구조체 균열'],width:120+i,length:250+i,count:2+i,photos:['p'+n],causeEstimate:'다른원인'}))];
+        const payload={project:'QA 층',pages:[{name:'지상4층'}],defects:ds},before=JSON.stringify(payload);
+        try{
+          const zip=new JSZip();
+          const rows=window.SARCHDefectStatusV157.groups(payload)[0][1];
+          window.SARCHDefectStatusV157.build(zip,payload);
+          const actual=await JSZip.loadAsync(await zip.generateAsync({type:'uint8array'}));
+          const xml=await actual.file('xl/worksheets/sheet1.xml').async('string');
+          const doc=new DOMParser().parseFromString(xml,'application/xml');
+          const get=addr=>[...doc.getElementsByTagName('c')].find(c=>c.getAttribute('r')===addr)?.getElementsByTagName('t')[0]?.textContent||'';
+          const values=Array.from({length:4},(_,i)=>['C','D','E','F','G','H','I'].map(col=>get(col+(i+4))));
+          return {numbers:rows.map(r=>r.d.id),master:rows.map(r=>r.reportDefect.id),values,
+            sameValues:values.every(a=>JSON.stringify(a)===JSON.stringify(values[0])),
+            dimensionsMatch:values[0]?.slice(0,5).join('|')==='천장|누수흔적|0.8|3.0|-',
+            unchanged:before===JSON.stringify(payload),xmlValid:!doc.querySelector('parsererror')};
+        }catch(error){return {error:String(error)}}
+      });
+      report(id,"merged defects export the leader's member, dimensions, cause and remedy for every photo number",
+        mergedXlsx.numbers?.join('|')==='29|30|31|32'&&mergedXlsx.master?.every(n=>n===29)&&
+        mergedXlsx.sameValues&&mergedXlsx.dimensionsMatch&&mergedXlsx.unchanged&&mergedXlsx.xmlValid,
+        JSON.stringify(mergedXlsx).slice(0,720));
       await page.evaluate(()=>{selected=currentDefects()[1].id;refresh();draw()});
       await page.locator("#sm163MergeRemove").click();
       const released=await page.evaluate(()=>{
