@@ -3,7 +3,7 @@
  * Keeps the previous ZIP builder in the repository for legacy reference only.
  */
 (function(root){'use strict';
- const VERSION='191';
+ const VERSION='192';
  const TEXT_LIMIT=32000;
  const safeText=v=>Array.from(String(v??'')).filter(ch=>{
   const p=ch.codePointAt(0);
@@ -13,8 +13,8 @@
  const shade={navy:'12304B',dark:'173E63',pale:'F0F6FB',cream:'FFF2DB',white:'FFFFFF',border:'D4E0EA'};
  const fmt='#,##0.000';
  const headerLabels=['층/도면','결함번호','구분','손상명','적용공법','보수물량(㎡)','단위','단가(천원/㎡)','공사비(천원)','우선순위','사진','단가 산정 근거'];
- const widths=[22,13,13,24,30,18,9,20,19,13,12,74];
- const summaryWidths=[24,12,18,22,28,18,32,12,18,22,28,4];
+ const widths=[18,10,12,24,26,15,8,15,16,10,9,44];
+ const summaryWidths=[21,9,13,16,24,8,20,9,13,16,24,3];
  // Keep the original damage type in the detail sheet; group equivalent
  // structural/nonstructural names in the summary. Composite types are one row
  // so the sum cannot double-count a single defect.
@@ -52,7 +52,7 @@
  function section(ws,range,text,line,fill=shade.navy){
   ws.mergeCells(range);
   const ref=range.split(':')[0],c=ws.getCell(ref);c.value=safeText(text);
-  style(c,{background:fill,white:true,bold:true,size:line===1?18:10,align:line===1?'left':'center'});
+  style(c,{background:fill,white:true,bold:true,size:line===1?18:10,align:'center'});
   ws.getRow(line).height=line===1?45:line===2?30:29;
  }
  function formatHeader(ws,row,start=1,end=12){
@@ -95,7 +95,7 @@
    const d=data[i],n=i+5,amount=numeric(d.qty)&&numeric(d.rate)?d.qty*d.rate:null;
    const row=detail.getRow(n);
    row.values=[d.page,d.number,d.group,d.type,d.method,d.qty,'㎡',d.rate,null,d.priority+'순위',(d.photoCount?d.photoCount+'장':'없음'),d.source];
-   row.height=Math.min(62,Math.max(32,28+Math.ceil(d.source.length/74)*7));
+   row.height=Math.min(180,Math.max(32,24+Math.ceil(d.source.length/44)*12));
    for(let j=1;j<=12;j++)style(row.getCell(j),{background:i%2===0?shade.pale:shade.white,number:[6,8,9].includes(j),align:[6,8,9].includes(j)?'right':'center'});
    if(amount!==null){
     row.getCell(9).value={formula:'IF(OR(F'+n+'="",H'+n+'=""),"",F'+n+'*H'+n+')',result:amount};
@@ -147,7 +147,7 @@
   // beneath the taller one so a large number of damage types never overlaps it.
   summary.mergeCells('G9:K9');put('G9','결함별 참고금액','head');
   ['손상명','결함수','보수물량(㎡)','참고 소계(천원)','제경비 포함 참고액(천원)'].forEach((h,i)=>put('GHIJK'[i]+'10',h,'head'));
-  summary.getRow(10).height=32;
+  summary.getRow(10).height=35;
   const damageGroups=new Map();
   for(const d of data){
    const name=damageKey(d.type);
@@ -209,7 +209,7 @@
   if((sheet.actualRowCount||0)!==4+info.count)
    throw new Error('개략공사비 엑셀 검증 실패: 상세 데이터 행 누락 '+(sheet.actualRowCount||0)+'/'+(4+info.count));
   const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const name=safeText(payload.site||'현장').replace(/[\\/:*?"<>|]/g,'_')+'_보수물량_개략공사비.v191.xlsx';
+  const name=safeText(payload.site||'현장').replace(/[\\/:*?"<>|]/g,'_')+'_보수물량_개략공사비.v192.xlsx';
   const link=document.createElement('a'),url=URL.createObjectURL(blob);
   link.href=url;link.download=name;document.body.appendChild(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),20000);
