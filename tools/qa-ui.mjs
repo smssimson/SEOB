@@ -488,7 +488,7 @@ async function check(mod,width,height){
         const cell=(doc,ref)=>Array.from(doc.getElementsByTagName('c')).find(c=>c.getAttribute('r')===ref);
         const subTotal=Number(cell(summaryXml,'B7')?.getElementsByTagName('v')[0]?.textContent);
         const full=Number(cell(summaryXml,'F7')?.getElementsByTagName('v')[0]?.textContent);
-        const blank=cell(detailXml,'I6')?.getAttribute('t')==='str';
+        const blank=!!cell(detailXml,'I6')?.getElementsByTagName('f')[0]&&!cell(detailXml,'I6')?.getElementsByTagName('v')[0];
         return {count:summary.count,priced:summary.priced,twoSheets:workbook.includes('개략공사비_요약')&&workbook.includes('층별_결함별'),
           hasFormula:detail.includes('F5*H5'),navy:styles.includes('FF12304B'),bytes:bytes.length,
           parseOkay,subTotal,full,blank};
@@ -496,6 +496,49 @@ async function check(mod,width,height){
       report(id,"branded two-sheet XLSX zips and reopens in installed JSZip",
         costWorkbook.count===2&&costWorkbook.priced===1&&costWorkbook.twoSheets&&costWorkbook.hasFormula&&costWorkbook.navy&&costWorkbook.bytes>3000&&costWorkbook.parseOkay&&Math.abs(costWorkbook.subTotal-19.0856)<.001&&Math.abs(costWorkbook.full-24.81128)<.001&&costWorkbook.blank,
         JSON.stringify(costWorkbook));
+      const realisticCostWorkbook=await page.evaluate(async()=>{
+        const bad=String.fromCharCode(0,1,3,8,11,12,14,31,0xD800,0xFFFE);
+        const input={
+          site:'가톨릭관동대 '+bad+' 정밀안전점검',
+          overhead:60,
+          rows:Array.from({length:41},(_,i)=>({
+            page:['지상4층','지하1층','지상2층'][i%3]+(i===27?bad:''),
+            number:i+1,group:i%2?'구조체':'비구조체',
+            type:i%3?'마감재 손상(박리·박락·들뜸·탈락)':'누수흔적',
+            method:'누수 보수 후 마감재 재시공',
+            qty:(i+1)/1000,rate:i%7===0?null:84.387,
+            priority:i%3+1,photoCount:1,
+            source:('2026 노무비, 보수재 추정 / '+bad+' | 현장 <실측> & "메모" ').repeat(7)
+          }))
+        };
+        const before=JSON.stringify(input),zip=new JSZip();
+        let result={};
+        try{
+          const counts=window.SARCHRepairXLSXV172.build(zip,input);
+          const buffer=await zip.generateAsync({type:'uint8array',compression:'DEFLATE'});
+          const again=await JSZip.loadAsync(buffer);
+          const parser=new DOMParser(),results=[];
+          for(const file of ['[Content_Types].xml','xl/workbook.xml','xl/styles.xml','xl/worksheets/sheet1.xml','xl/worksheets/sheet2.xml']){
+            const xml=await again.file(file)?.async('string');
+            const document=parser.parseFromString(xml||'','application/xml');
+            results.push({file,ok:!!xml&&!document.getElementsByTagName('parsererror').length});
+          }
+          const detail=await again.file('xl/worksheets/sheet2.xml').async('string');
+          const doc=parser.parseFromString(detail,'application/xml');
+          const rows=[...doc.getElementsByTagName('row')].filter(r=>Number(r.getAttribute('r'))>=5);
+          const invalid=/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uD800-\uDFFF\uFFFE\uFFFF]/u.test(detail);
+          result={count:counts.count,rows:rows.length,xml:results,invalid,
+            hasLastRow:detail.includes('r="L45"'),bytes:buffer.length,
+            sourceUnchanged:JSON.stringify(input)===before};
+        }catch(error){result={error:String(error)}}
+        return result;
+      });
+      report(id,"41-defect cost workbook contains valid XML after unsafe user text sanitization",
+        realisticCostWorkbook.count===41&&realisticCostWorkbook.rows===41&&
+        realisticCostWorkbook.xml?.every(r=>r.ok)&&!realisticCostWorkbook.invalid&&
+        realisticCostWorkbook.hasLastRow&&realisticCostWorkbook.bytes>4000&&
+        realisticCostWorkbook.sourceUnchanged,
+        JSON.stringify(realisticCostWorkbook).slice(0,730));
       await page.evaluate(()=>{
         state=window.__qaSurveyBeforeMerge;delete window.__qaSurveyBeforeMerge;
         selected=null;sm163MergeMode=false;sm163Chosen.clear();
