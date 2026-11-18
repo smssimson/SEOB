@@ -427,4 +427,10 @@ ok(survey192.includes('function sm192OpenLength()')&&survey192.includes("menu.sc
 ok(survey192.includes('new File([f],basename()')&&survey192.includes('navigator.share({files:originals})'),'capture originals downloadable and shareable without recompression');
 ok(survey192.includes('id="sm192AllPng"')&&survey192.includes('zip.file(String(index+1).padStart')&&survey192.includes("prefix+'_전체층_외관조사망도.zip'"),'all floor PNG archive with numbered filenames');
 ok(canonicalWriter.includes("const VERSION='192'")&&canonicalWriter.includes('summaryWidths=[21,9,13,16,24,8,20,9,13,16,24,3]')&&canonicalWriter.includes("size:line===1?18:10,align:'center'"),'compact summary width and centered title');
+const survey193=read('survey/index.html');
+ok(survey193.includes("for(const id of ['sm79Order','typeSelect','sm192LocationPreset','locationMember','widthPreset','lengthPreset','eaPreset'])")&&survey193.includes('function sm193InstallFields()'),'all seven defect editor dropdowns use button grid');
+ok(survey193.includes("sm193OpenMenu('lengthPreset',true)")&&survey193.includes('trigger.onclick=()=>{if(menu.hidden)sm193OpenMenu(id)'),'both automatic and manual choices use the same grid');
+const capture193=survey193.slice(survey193.indexOf('async function addPhotos(e)'),survey193.indexOf('const originals=sm192Originals.get(d)||[]'));
+ok(capture193.includes('d.photos.push(await compressed(data,1500))')&&!capture193.includes('download(f,f.name)'),'camera capture registers photo without automatic download');
+ok(survey193.includes('navigator.share({files:originals})')&&survey193.includes('for(const f of originals)download(f,f.name)'),'explicit user-triggered original save remains available');
 console.log('S:ARCH v'+version.version+' OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
