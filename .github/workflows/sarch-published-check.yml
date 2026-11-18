@@ -1,4 +1,4 @@
-# rerun: v187 public Pages grouped connector fix and XLSX projection
+# rerun: v188 valid and sanitized repair-cost XLSX live deployment
 name: SARCH published-site verification
 on:
   push:
@@ -39,9 +39,14 @@ jobs:
                       result['interior12Slots']=('id="frontInsideCount">0 / 12장' in html and 'albumInteriorExtra' in html)
                       result['automaticPriceFallback']=('function sm185CompleteCost' in html and '자동추정 단가' in html)
                       result['defectXlsx187']=('sarch-defect-status-v157.js?v=187' in html and 'countEAExplicit' in html)
+                      result['safeCostExportLinked']=('sarch-repair-xlsx-v172.js?v=188' in html)
                       result['independentMergedSides']=('SM177_SIDES.includes(link.d.linkLabelSide)' in html and "const source=state.defects.find(x=>x.id===action.sourceId)" in html)
                       result['strictTenthsPicker']=('crack?Array.from({length:20}' in html and "!(crack&&cfg.preset==='widthPreset')" in html)
-                  result['publishedCurrent']=result.get('publishedVersion')==187 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx187') and result.get('independentMergedSides') and result.get('strictTenthsPicker')
+                  with urlopen(Request(pages+'sarch-repair-xlsx-v172.js?v=188',headers={'Cache-Control':'no-cache'}),timeout=15) as res:
+                      xlsxjs=res.read().decode('utf-8')
+                      result['costModuleHTTP']=res.status
+                      result['costXmlSanitizer']=('const xmlSafe=v=>Array.from(String(v??\'\'))' in xlsxjs and 'parser.parseFromString' in xlsxjs)
+                  result['publishedCurrent']=result.get('publishedVersion')==188 and result.get('interior12Slots') and result.get('automaticPriceFallback') and result.get('defectXlsx187') and result.get('independentMergedSides') and result.get('strictTenthsPicker') and result.get('safeCostExportLinked') and result.get('costXmlSanitizer')
                   if result['publishedCurrent']: break
               except Exception as error:
                   result['error']=str(error)
