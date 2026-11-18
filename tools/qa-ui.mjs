@@ -387,12 +387,15 @@ async function check(mod,width,height){
       });
       report(id,"connector endpoint choices persist after redraw",retained);
       await page.evaluate(()=>{selected=null;refresh();draw()});
-      await page.locator("#smUtilityTab").click();
-      await page.locator("#sm163MergeToggle").click();
-      const picked=await page.evaluate(()=>{
-        currentDefects().forEach(d=>sm163Pick(d));
-        return sm163MergeMode&&sm163Chosen.size===3;
-      });
+      const firstRow=page.locator("#list .sm75-defect-main").first();
+      await firstRow.scrollIntoViewIfNeeded();
+      const firstBox=await firstRow.boundingBox();
+      await page.mouse.move(firstBox.x+firstBox.width/2,firstBox.y+firstBox.height/2);
+      await page.mouse.down();await page.waitForTimeout(600);await page.mouse.up();
+      const held=await page.evaluate(()=>sm163MergeMode&&sm163Chosen.size===1&&!document.getElementById('sm192GroupBar').hidden);
+      await page.locator("#list .sm75-defect-main").nth(1).click();
+      await page.locator("#list .sm75-defect-main").nth(2).click();
+      const picked=held&&await page.evaluate(()=>sm163MergeMode&&sm163Chosen.size===3);
       await page.locator("#sm163MergeToggle").click();
       const grouped=await page.evaluate(()=>{
         const ds=currentDefects();
@@ -444,7 +447,7 @@ async function check(mod,width,height){
         mergedXlsx.numbers?.join('|')==='29|30|31|32'&&mergedXlsx.master?.every(n=>n===29)&&
         mergedXlsx.sameValues&&mergedXlsx.dimensionsMatch&&mergedXlsx.unchanged&&mergedXlsx.xmlValid,
         JSON.stringify(mergedXlsx).slice(0,720));
-      await page.evaluate(()=>{selected=currentDefects()[1].id;refresh();draw()});
+      await page.evaluate(()=>sm192StartSelect(currentDefects()[1]));
       await page.locator("#sm163MergeRemove").click();
       const released=await page.evaluate(()=>{
         const ds=currentDefects();
@@ -452,7 +455,7 @@ async function check(mod,width,height){
           annotationRects.length===2;
       });
       report(id,"release only selected group member",released);
-      await page.evaluate(()=>{selected=currentDefects()[0].id;refresh();draw()});
+      await page.evaluate(()=>sm192StartSelect(currentDefects()[0]));
       await page.locator("#sm163MergeRemove").click();
       const cleared=await page.evaluate(()=>currentDefects().every(d=>!d.mergeGroupId)&&annotationRects.length===3);
       report(id,"singleton group automatically dissolves",cleared);
@@ -472,6 +475,36 @@ async function check(mod,width,height){
       report(id,"joined rectangle regions draw L-shaped exterior without deleting source defects",
         regionFeature.joined&&regionFeature.sourceIntact&&regionFeature.segments>=6&&regionFeature.oneLabel,
         JSON.stringify(regionFeature));
+      const newSurveyFeatures=await page.evaluate(async()=>{
+        const previous=structuredClone(state),originalZoom=zoom,originalPan={...pan},oldSelected=selected;
+        try{
+          const d=currentDefects()[0];
+          selected=d.id;refresh();draw();
+          const select=document.getElementById('sm192LocationPreset');
+          const presetOptions=[...select.options].map(o=>o.value);
+          select.value='복도';select.dispatchEvent(new Event('change',{bubbles:true}));
+          const member=document.getElementById('locationMember');member.value='벽체';member.dispatchEvent(new Event('change',{bubbles:true}));
+          const locationOkay=d.location==='복도 벽체';
+          const width=document.getElementById('widthPreset');
+          width.style.display='';width.value=[...width.options].find(o=>o.value&&o.value!=='__custom__').value;
+          width.dispatchEvent(new Event('change',{bubbles:true}));
+          const menu=document.getElementById('sm192LengthMenu'),autoOpen=!menu.hidden&&menu.children.length>5;
+          menu.querySelector('button').click();
+          const lengthOkay=menu.hidden&&Number(d.length)>0;
+          const canonical=()=>annotationRects.map(r=>({id:r.id,x:(r.x-pan.x)/zoom,y:(r.y-pan.y)/zoom,w:r.w/zoom,h:r.h/zoom}));
+          selected=null;draw();const a=canonical();
+          zoom=originalZoom*1.7;pan={x:originalPan.x-35,y:originalPan.y+22};draw();const b=canonical();
+          const stable=a.length===b.length&&a.every((v,i)=>v.id===b[i].id&&['x','y','w','h'].every(k=>Math.abs(v[k]-b[i][k])<1e-7));
+          const canvas=sm192PngCanvas(img,state.pages[state.activePage],state.activePage,true);
+          const png=await sm192PngBlob(canvas),signature=new Uint8Array(await png.slice(0,8).arrayBuffer());
+          const zipped=new JSZip();zipped.file('01.png',png);zipped.file('02.png',png);const bytes=await zipped.generateAsync({type:'uint8array'});
+          const restored=await JSZip.loadAsync(bytes);
+          return {locationOkay,presetOptions,autoOpen,lengthOkay,stable,png:signature.join(',')==='137,80,78,71,13,10,26,10',zipFiles:Object.keys(restored.files).length};
+        }catch(error){return {error:String(error)}}finally{state=previous;zoom=originalZoom;pan=originalPan;selected=oldSelected;refresh();draw()}
+      });
+      report(id,"location presets, automatic length list, zoom-invariant labels and PNG bytes",
+        newSurveyFeatures.locationOkay&&newSurveyFeatures.presetOptions?.length===12&&newSurveyFeatures.autoOpen&&newSurveyFeatures.lengthOkay&&newSurveyFeatures.stable&&newSurveyFeatures.png&&newSurveyFeatures.zipFiles===2,
+        JSON.stringify(newSurveyFeatures).slice(0,600));
       const canonicalExcel=await page.evaluate(async()=>{
         const unsafe=String.fromCharCode(0,2,11,31,0xD800);
         const payload={site:'춘천 엠백화점 - 수정'+unsafe,overhead:60,
@@ -511,6 +544,7 @@ async function check(mod,width,height){
             summary.getCell('H11').numFmt==='0'&&summary.getCell('H11').value.formula.includes('COUNTIF(')&&summary.getCell('J11').value.formula.includes('SUMIF(');
 
           Object.assign(result,{
+            compact:summary.getCell('A1').alignment.horizontal==='center'&&summary.getColumn(11).width<=24&&detail.getColumn(12).width===44,
             damageSummary,damageNames:names,damageTotals:totals,
             sourceIntact:untouched===JSON.stringify(payload),
             size:raw.byteLength||raw.length,
@@ -527,7 +561,7 @@ async function check(mod,width,height){
         return result;
       });
       report(id,"canonical ExcelJS workbook reopens 41 original rows with no missing detail sheet",
-        canonicalExcel.writer==='191'&&canonicalExcel.detailRows===45&&canonicalExcel.allNumbers&&canonicalExcel.damageSummary&&
+        canonicalExcel.writer==='192'&&canonicalExcel.detailRows===45&&canonicalExcel.allNumbers&&canonicalExcel.damageSummary&&canonicalExcel.compact&&
         canonicalExcel.sourceIntact&&canonicalExcel.xmlParsed&&canonicalExcel.lastSourceSanitized&&
         canonicalExcel.detailRow45&&!canonicalExcel.zipBad&&canonicalExcel.size>5000,
         JSON.stringify(canonicalExcel).slice(0,750));
