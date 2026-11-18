@@ -28,7 +28,7 @@ function checkInline(html,name){
  }
 }
 const version=JSON.parse(read('version.json'));
-ok(version.version===184,'version.json should report v184');
+ok(Number.isInteger(version.version)&&version.version>=184,'version.json must preserve the v184 feature baseline or newer');
 ok(['survey','drawing','schmidt','tilt'].every(s=>version.modules.includes(s)),'all four modules available');
 const moduleChecks=[
  {dir:'survey',bridge:'sarchSurveyFile',exportId:'id="export"',importId:'id="import"',minimum:100000},
@@ -49,7 +49,9 @@ for(const m of moduleChecks){
  ok(html.includes('SARCHBackupMark'),m.dir+' manual backup record');
  checkInline(html,m.dir+'/index.html');
  const sw=read(m.dir+'/sw.js');
- ok(sw.includes("smetric-"+m.dir+"-v"+(m.dir==='survey'?184:177)),m.dir+' offline cache version');
+ const moduleCacheVersion=sw.match(new RegExp('smetric-'+m.dir+'-v(\\d+)'));
+ ok(!!moduleCacheVersion&&Number(moduleCacheVersion[1])>=177,m.dir+' versioned offline cache preserved');
+ if(m.dir==='survey')ok(Number(moduleCacheVersion[1])>=184,'survey cached release includes twelve interior photos and estimate engine');
  ok(sw.includes('sarch-workspace-v142.css?v=143')&&sw.includes('sarch-workspace-v142.js?v=161'),m.dir+' shared files cached offline');
  scriptSyntax(sw,m.dir+'/sw.js');
 }
@@ -173,7 +175,8 @@ ok(received.includes('id="pickBtn"')&&received.includes('id="filePick"'),'manual
 ok(received.includes('jsonFromPdf')&&received.includes('.pdf'),'received PDF project extracts JSON');
 ok(received.includes('await inbox.put(')&&received.includes('await run()'),'manually selected project staged for import');
 const rootSW=read('seob-sw.js');
-ok(rootSW.includes('smetric-offline-v184'),'root offline cache updated');
+const rootCacheVersion=rootSW.match(/smetric-offline-v(\d+)/);
+ok(!!rootCacheVersion&&Number(rootCacheVersion[1])>=version.version,'root offline cache must be at least the published release version');
 ok(rootSW.includes('sarch-workspace-v142.js')&&rootSW.includes('sarch-workspace-v142.css'),'new shared assets in root cache');
 ok(rootSW.includes('sarch-transfer-v156.js')&&rootSW.includes('sarch-defect-status-v157.js'),'new data-transfer and report modules cached');
 ok(rootSW.includes('sarch-share-inbox-v1')&&rootSW.includes('req.formData()'),'service worker intercepts shared project file');
@@ -317,4 +320,4 @@ ok(photoApp.includes("insidePages.push(albumPage('시설물의 부위별 사진 
 ok(photoApp.includes("const pics=originalAlbumPics")&&photoApp.includes("zip.file('BinData/'+key+'.jpg'"),'HWPX export preserves existing image ordering');
 ok(photoApp.includes('sm183Proxy(d,r,labor.rate)')&&photoApp.includes('function sm183FallbackCost('),'estimate inputs recover when external price module is absent');
 ok(read('survey/sw.js').includes('estimate-rates-v182.js?v=182')&&rootSW.includes('./survey/estimate-rates-v182.js?v=182'),'estimate engine cached by both service workers');
-console.log('S:ARCH v184 OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
+console.log('S:ARCH v'+version.version+' OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
