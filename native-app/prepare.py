@@ -43,9 +43,9 @@ for page in app.rglob("*.html"):
     if module:
         s=re.sub(r"<html(?=\s|>)",f'<html class="sarch-native-brand" data-module="{module}"',s,count=1,flags=re.I)
         s=re.sub(r"</body\s*>",'<link rel="stylesheet" href="/SEOB/sarch-native-brand.css"></body>',s,count=1,flags=re.I)
-        # Keep the existing accessible module names, controls and event listeners.
-        if module=="home":
-            s=s.replace("건축 현장업무 플랫폼","건축 현장업무 플랫폼")
+        # Preserve module controls and listeners; the native shell supplies only visual assets.
+        assert 'sarch-native-brand.css' in s, f"Brand stylesheet missing: {rel}"
+        s=s.replace('name="theme-color" content="#112940"', 'name="theme-color" content="#20252b"')
     if page==app/"schmidt"/"index.html":
         old="if(cameraStream&&cameraStream.active)return;"
         old_take="if(cameraBusy)return;let v=$('cameraVideo');"
