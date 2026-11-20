@@ -801,6 +801,11 @@ async function checkThemes(width,height){
  await page.waitForFunction(()=>document.querySelectorAll(".sarch-action-scene svg.sarch-work-scene image").length===4);
  const loaded=await page.evaluate(async()=>{const files=[...document.querySelectorAll(".sarch-action-scene svg image")].map(x=>x.getAttribute("href"));return (await Promise.all(files.map(src=>new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img.naturalWidth>0);img.onerror=()=>resolve(false);img.src=src})))).every(Boolean)});
  report("home-"+width,theme+" action artwork decoded",loaded);
+ if(theme==="shinchan"){
+ const approved=await page.evaluate(()=>{const scenes=[...document.querySelectorAll(".sarch-approved-scene svg image")];return scenes.length===4&&scenes.every((el,i)=>el.getAttribute("href").endsWith("sarch-v202-shin-scene-"+i+".webp"))});
+ report("home-"+width,"approved four unique scene assets",approved);
+ }
+
  report("home-"+width,theme+" artwork loaded",true);
  await page.screenshot({path:folder+"/theme-"+theme+"-"+width+".png"});
  }
