@@ -790,9 +790,39 @@ async function check(mod,width,height){
   try{await page.screenshot({path:folder+"/"+id+"-error.png"})}catch(_){}
  }finally{await context.close()}
 }
+async function checkThemes(width,height){
+ const context=await browser.newContext({viewport:{width,height},serviceWorkers:"block"});
+ const page=await context.newPage(),themes=["shinchan","pokemon","digimon","marvel"];
+ try{
+ await page.goto(root,{waitUntil:"load"});
+ await page.locator("#sarchGlobalTheme").waitFor({state:"attached"});
+ for(const theme of themes){
+ await page.locator("#sarchGlobalTheme").selectOption(theme);
+ await page.waitForFunction(()=>{const im=[...document.querySelectorAll(".sarch-theme-card-character img")];return im.length>=4&&im.every(x=>x.complete&&x.naturalWidth>0)});
+ report("home-"+width,theme+" artwork loaded",true);
+ await page.screenshot({path:folder+"/theme-"+theme+"-"+width+".png"});
+ }
+ for(const mod of modules){
+  await page.evaluate(()=>localStorage.setItem("sarch-global-theme-v199","dark"));
+  await page.goto(root+mod+"/",{waitUntil:"load"});await page.waitForSelector("body.sarch-shell-v145");await page.waitForTimeout(350);
+  const rects=()=>page.evaluate(()=>[...document.querySelectorAll(".smetric-app-header .smetric-head-controls>button,.smetric-app-header .smetric-head-controls>a,.smetric-app-header .sarch-protect-toggle")].map(el=>{const r=el.getBoundingClientRect();return {id:el.id||el.textContent.trim(),x:r.x,y:r.y,w:r.width,h:r.height}}).filter(x=>x.w>1&&x.h>1));
+  const before=await rects();
+  for(const theme of themes){
+   await page.evaluate(t=>{localStorage.setItem("sarch-global-theme-v199",t);window.dispatchEvent(new Event("pageshow"))},theme);
+   await page.waitForTimeout(100);
+   const after=await rects();
+   const stable=before.length===after.length&&before.every((x,i)=>["x","y","w","h"].every(k=>Math.abs(x[k]-after[i][k])<=2));
+   const overlay=await page.evaluate(()=>{const a=document.querySelector(".sarch-theme-header-character");return !!a&&a.parentElement.classList.contains("sm43-header-audit")||!!a&&["smSurveyQualityButton","smDrawingQualityButton","qualityCheck","audit"].includes(a.parentElement.id)});
+   report(mod+"-"+width,theme+" header layout preserved",stable&&overlay,JSON.stringify({before,after,overlay}));
+  }
+ }
+ }catch(e){report("themes-"+width,"theme smoke",false,String(e).slice(0,300))}finally{await context.close()}
+}
+
 try{
  for(const [w,h] of [[390,844],[1280,800],[800,1280],[1440,900]]){
   for(const mod of modules)await check(mod,w,h);
+  if(w===390||w===1280||w===800)await checkThemes(w,h);
  }
 }finally{await browser.close()}
 const failures=results.filter(x=>!x.ok);
