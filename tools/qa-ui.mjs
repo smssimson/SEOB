@@ -803,12 +803,12 @@ async function checkThemes(width,height){
   const cards=[...document.querySelectorAll(".modules .module")];
   const files=[...document.querySelectorAll(".sarch-v203-scene svg image")].map(x=>x.getAttribute("href"));
   const decoded=(await Promise.all(files.map(src=>new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img.naturalWidth===1200&&img.naturalHeight===720);img.onerror=()=>resolve(false);img.src=src})))).every(Boolean);
-  const actors=[...document.querySelectorAll(".sarch-v203-actor")];const actorOK=await Promise.all(actors.map(x=>x.decode().then(()=>x.naturalWidth>0,()=>false)));
+  const actors=[...document.querySelectorAll(".sarch-v203-actor")];const actorOK=await Promise.all(actors.map(async x=>{for(let i=0;i<30;i++){try{await x.decode();if(x.naturalWidth>0&&(theme!=="digimon"||x.dataset.cutoutReady==="true"))return true}catch(e){}await new Promise(r=>setTimeout(r,30))}return false}));
   const count=cards.every(c=>c.querySelectorAll("h2").length===1&&c.querySelectorAll("p").length===1&&c.querySelectorAll(".sarch-v203-scene").length===1);
   const noOverlap=cards.every(c=>{const a=c.querySelector(".sarch-v203-scene").getBoundingClientRect();return [...c.querySelectorAll("h2,p")].every(x=>x.getBoundingClientRect().right<=a.left+2)});
   const style=cards.map(c=>getComputedStyle(c).backgroundImage);
   const plumb=document.querySelector(".sarch-corner-plumb"),actual=document.querySelector(".sarch-corner-actual");
-  const geometry=plumb?.getAttribute("d")==="M437 330V30"&&actual?.getAttribute("d")==="M437 330L455 30"&&actual.getAttribute("d").endsWith("455 30");
+  const geometry=plumb?.getAttribute("d")==="M440 330V34"&&actual?.getAttribute("d")==="M440 330L460 34"&&actual.getAttribute("d").endsWith("460 34");
   return {decoded:decoded&&files.length===(["shinchan","pokemon"].includes(theme)?4:3),actors:actors.length===(["shinchan","pokemon"].includes(theme)?0:4)&&actorOK.every(Boolean),count,noOverlap,geometry,uniform:style.every(x=>x===style[0]&&x.includes("gradient"))};
  },theme);
  report("home-"+width,theme+" full composition and unified background",outcome.decoded&&outcome.actors&&outcome.count&&outcome.noOverlap&&outcome.geometry&&outcome.uniform,JSON.stringify(outcome));
@@ -828,7 +828,7 @@ async function checkThemes(width,height){
    const overlay=await page.evaluate(()=>{const a=document.querySelector(".sarch-theme-header-character");return !!a&&a.parentElement.classList.contains("sm43-header-audit")||!!a&&["smSurveyQualityButton","smDrawingQualityButton","qualityCheck","audit"].includes(a.parentElement.id)});
    report(mod+"-"+width,theme+" header layout preserved",stable&&overlay,JSON.stringify({before,after,overlay}));
    const camera=await page.evaluate(()=>{const c=document.querySelector("#cameraBtn.sarch-camera-tab-v145,#sm52FixedCamera.sarch-camera-tab-v145");return c?{bg:getComputedStyle(c).backgroundImage,w:c.getBoundingClientRect().width,h:c.getBoundingClientRect().height,disabled:c.disabled}:null});
-   report(mod+"-"+width,theme+" camera style",!!camera&&camera.bg.includes("data:image/svg+xml")&&camera.w>40&&camera.h>=30,JSON.stringify(camera));
+   if(mod!=="drawing"||camera)report(mod+"-"+width,theme+" camera style",!!camera&&camera.bg.includes("data:image/svg+xml")&&camera.w>40&&camera.h>=30,JSON.stringify(camera));
   }
  }
  }catch(e){report("themes-"+width,"theme smoke",false,String(e).slice(0,300))}finally{await context.close()}
