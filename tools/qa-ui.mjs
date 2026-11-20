@@ -798,7 +798,9 @@ async function checkThemes(width,height){
  await page.locator("#sarchGlobalTheme").waitFor({state:"attached"});
  for(const theme of themes){
  await page.locator("#sarchGlobalTheme").selectOption(theme);
- await page.waitForFunction(()=>{const im=[...document.querySelectorAll(".sarch-theme-card-character img")];return im.length>=4&&im.every(x=>x.complete&&x.naturalWidth>0)});
+ await page.waitForFunction(()=>document.querySelectorAll(".sarch-action-scene svg.sarch-work-scene image").length===4);
+ const loaded=await page.evaluate(async()=>{const files=[...document.querySelectorAll(".sarch-action-scene svg image")].map(x=>x.getAttribute("href"));return (await Promise.all(files.map(src=>new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img.naturalWidth>0);img.onerror=()=>resolve(false);img.src=src})))).every(Boolean)});
+ report("home-"+width,theme+" action artwork decoded",loaded);
  report("home-"+width,theme+" artwork loaded",true);
  await page.screenshot({path:folder+"/theme-"+theme+"-"+width+".png"});
  }
@@ -814,6 +816,8 @@ async function checkThemes(width,height){
    const stable=before.length===after.length&&before.every((x,i)=>["x","y","w","h"].every(k=>Math.abs(x[k]-after[i][k])<=2));
    const overlay=await page.evaluate(()=>{const a=document.querySelector(".sarch-theme-header-character");return !!a&&a.parentElement.classList.contains("sm43-header-audit")||!!a&&["smSurveyQualityButton","smDrawingQualityButton","qualityCheck","audit"].includes(a.parentElement.id)});
    report(mod+"-"+width,theme+" header layout preserved",stable&&overlay,JSON.stringify({before,after,overlay}));
+   const camera=await page.evaluate(()=>{const c=document.querySelector("#cameraBtn.sarch-camera-tab-v145,#sm52FixedCamera.sarch-camera-tab-v145");return c?{bg:getComputedStyle(c).backgroundImage,w:c.getBoundingClientRect().width,h:c.getBoundingClientRect().height,disabled:c.disabled}:null});
+   report(mod+"-"+width,theme+" camera style",!!camera&&camera.bg.includes("data:image/svg+xml")&&camera.w>40&&camera.h>=30,JSON.stringify(camera));
   }
  }
  }catch(e){report("themes-"+width,"theme smoke",false,String(e).slice(0,300))}finally{await context.close()}
