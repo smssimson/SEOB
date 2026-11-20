@@ -20,7 +20,7 @@ function setup(){
   if(para&&i===3)para.textContent="건물 모서리 · 기울기 측정 · 기록";
  });
  const mark=document.querySelector(".hero-mark");
- if(mark)mark.innerHTML='<img src="./sarch-icon.svg?v=139" alt="" aria-hidden="true">';
+ if(mark)mark.innerHTML='<img src="./sarch-icon.svg?v=196" alt="" aria-hidden="true">';
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup,{once:true});else setup();
 })();
