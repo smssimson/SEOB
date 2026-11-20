@@ -798,14 +798,20 @@ async function checkThemes(width,height){
  await page.locator("#sarchGlobalTheme").waitFor({state:"attached"});
  for(const theme of themes){
  await page.locator("#sarchGlobalTheme").selectOption(theme);
- await page.waitForFunction(()=>document.querySelectorAll(".sarch-action-scene svg.sarch-work-scene image").length===4);
- const loaded=await page.evaluate(async()=>{const files=[...document.querySelectorAll(".sarch-action-scene svg image")].map(x=>x.getAttribute("href"));return (await Promise.all(files.map(src=>new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img.naturalWidth>0);img.onerror=()=>resolve(false);img.src=src})))).every(Boolean)});
- report("home-"+width,theme+" action artwork decoded",loaded);
- if(theme==="shinchan"){
- const approved=await page.evaluate(()=>{const scenes=[...document.querySelectorAll(".sarch-approved-scene svg image")];return scenes.length===4&&scenes.every((el,i)=>el.getAttribute("href").endsWith("sarch-v202-shin-scene-"+i+".webp"))});
- report("home-"+width,"approved four unique scene assets",approved);
- }
-
+ await page.waitForFunction(()=>document.querySelectorAll(".sarch-v203-scene").length===4);
+ const outcome=await page.evaluate(async theme=>{
+  const cards=[...document.querySelectorAll(".modules .module")];
+  const files=[...document.querySelectorAll(".sarch-v203-scene svg image")].map(x=>x.getAttribute("href"));
+  const decoded=(await Promise.all(files.map(src=>new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img.naturalWidth===1200&&img.naturalHeight===720);img.onerror=()=>resolve(false);img.src=src})))).every(Boolean);
+  const actors=[...document.querySelectorAll(".sarch-v203-actor")];const actorOK=await Promise.all(actors.map(x=>x.decode().then(()=>x.naturalWidth>0,()=>false)));
+  const count=cards.every(c=>c.querySelectorAll("h2").length===1&&c.querySelectorAll("p").length===1&&c.querySelectorAll(".sarch-v203-scene").length===1);
+  const noOverlap=cards.every(c=>{const a=c.querySelector(".sarch-v203-scene").getBoundingClientRect();return [...c.querySelectorAll("h2,p")].every(x=>x.getBoundingClientRect().right<=a.left+2)});
+  const style=cards.map(c=>getComputedStyle(c).backgroundImage);
+  const plumb=document.querySelector(".sarch-corner-plumb"),actual=document.querySelector(".sarch-corner-actual");
+  const geometry=plumb?.getAttribute("d")==="M437 330V30"&&actual?.getAttribute("d")==="M437 330L455 30"&&actual.getAttribute("d").endsWith("455 30");
+  return {decoded:decoded&&files.length===(["shinchan","pokemon"].includes(theme)?4:3),actors:actors.length===(["shinchan","pokemon"].includes(theme)?0:4)&&actorOK.every(Boolean),count,noOverlap,geometry,uniform:style.every(x=>x===style[0]&&x.includes("gradient"))};
+ },theme);
+ report("home-"+width,theme+" full composition and unified background",outcome.decoded&&outcome.actors&&outcome.count&&outcome.noOverlap&&outcome.geometry&&outcome.uniform,JSON.stringify(outcome));
  report("home-"+width,theme+" artwork loaded",true);
  await page.screenshot({path:folder+"/theme-"+theme+"-"+width+".png"});
  }
