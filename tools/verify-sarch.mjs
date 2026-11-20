@@ -439,4 +439,5 @@ ok(survey194.includes("window.showDirectoryPicker({id:'sarch-album',mode:'readwr
 const albumWriter194=survey194.slice(survey194.indexOf('async function sm194WriteOriginals(files)'),survey194.indexOf('// v193: Native select'));
 ok(albumWriter194.includes("folder.queryPermission({mode:'readwrite'})")&&albumWriter194.includes('handle.createWritable()')&&albumWriter194.includes('await writer.write(f)')&&!albumWriter194.includes('download('),'album writes original through authorized folder, not downloads');
 ok(survey194.includes('if(captured)await sm194WriteOriginals(captureOriginals)'),'direct album saving only for camera capture after app registration');
+ok(read('survey/index.html').includes('id="smFingerDraw" checked')&&read('survey/index.html').includes("preferred!=='off'"),'finger marking defaults on and respects explicit pen-only preference');
 console.log('S:ARCH v'+version.version+' OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');
