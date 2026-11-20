@@ -1,0 +1,96 @@
+name: SARCH native app test build
+on:
+  push:
+    branches: [native-app-v200]
+    paths:
+      - 'native-app/**'
+      - '.github/workflows/sarch-native.yml'
+  workflow_dispatch:
+concurrency:
+  group: sarch-native-brand-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  android:
+    if: github.ref == 'refs/heads/native-app-v200'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare bundled web app and install dependencies
+        run: |
+          python -m pip install pillow
+          python native-app/prepare.py
+          cd native-app/build
+          npm install --no-audit --no-fund
+          npm run bundle
+          npx cap add android
+          python ../permissions.py android
+          npx cap sync android
+      - name: Build Android test APK
+        working-directory: native-app/build/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          mkdir -p "$GITHUB_WORKSPACE/native-app/artifacts"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/native-app/artifacts/SARCH-v200-Brand-test.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SARCH-v200-Brand-Android-test
+          path: native-app/artifacts/SARCH-v200-Brand-test.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish standalone APK test release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=sarch-v200-android-test
+          file=native-app/artifacts/SARCH-v200-Brand-test.apk
+          test -s "$file"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" "$file" --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$tag" "$file" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "S:ARCH v200 Android test" --notes "Test APK. Back up all existing projects before installation. Debug signing may differ from earlier APK; native OTA is not implemented." --prerelease
+          fi
+  ios-project:
+    if: github.ref == 'refs/heads/native-app-v200'
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate iOS project with photo permissions
+        run: |
+          python -m pip install pillow
+          python native-app/prepare.py
+          cd native-app/build
+          npm install --no-audit --no-fund
+          npm run bundle
+          npx cap add ios
+          python ../permissions.py ios
+          npx cap sync ios
+          mkdir -p ../artifacts
+          zip -qr ../artifacts/SARCH-v200-Brand-iOS-project.zip ios www package.json package-lock.json capacitor.config.json bridge.js render-icons.cjs -x 'ios/App/Pods/*' 'ios/App/build/*'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SARCH-v200-Brand-iOS-project
+          path: native-app/artifacts/SARCH-v200-Brand-iOS-project.zip
+          if-no-files-found: error
+          retention-days: 30
