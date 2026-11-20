@@ -1,0 +1,106 @@
+/* S:ARCH premium visual layer. All selectors are confined to the native build.
+   No layout dimensions, events, canvas, drawing strokes or exports are changed. */
+html.sarch-native-brand {
+ --sa-gold:#d8c4a7; --sa-gold-strong:#eed6b2; --sa-graphite:#20252b;
+ --sa-slate:#454b53; --sa-ivory:#f3efe7; --sa-foundation:#11161b;
+}
+html.sarch-native-brand body {
+ --sa-bg:#161b21; --sa-panel:#22282f; --sa-soft:#2b323a; --sa-field:#171c22;
+ --sa-text:#f3efe7; --sa-muted:#bcb9b4; --sa-line:#50545a; --sa-accent:#d8c4a7;
+ font-family:Dotum,"돋움",Arial,sans-serif;
+}
+html.sarch-native-brand body:is([data-theme="light"],[data-theme="paper"],[data-theme="sand"],[data-theme="mint"],[data-theme="forest"],[data-theme="ocean"],[data-theme="lavender"],[data-theme="rose"]) {
+ --sa-bg:#eeeae3; --sa-panel:#fffdf9; --sa-soft:#e9e4da; --sa-field:#fffdfa;
+ --sa-text:#272b30; --sa-muted:#655e54; --sa-line:#c6bba9; --sa-accent:#785c37;
+}
+html.sarch-native-brand:not([data-module="home"]) body {
+ --app-bg:var(--sa-bg)!important; --surface:var(--sa-panel)!important; --surface-soft:var(--sa-soft)!important;
+ --field:var(--sa-field)!important; --ink:var(--sa-text)!important; --muted:var(--sa-muted)!important;
+ --line:var(--sa-line)!important; --bg:var(--sa-bg)!important; --panel:var(--sa-panel)!important;
+ --panel2:var(--sa-soft)!important; --txt:var(--sa-text)!important; --text:var(--sa-text)!important;
+ --sm-bg:var(--sa-bg)!important; --sm-panel:var(--sa-panel)!important; --sm-panel2:var(--sa-soft)!important;
+ --sm-field:var(--sa-field)!important; --sm-text:var(--sa-text)!important; --sm-muted:var(--sa-muted)!important;
+ --sm-line:var(--sa-line)!important; --sm-button:var(--sa-soft)!important;
+ --head:#1d2228!important; --header:#1d2228!important; --sm-head:#1d2228!important;
+ background:var(--sa-bg)!important;color:var(--sa-text)!important;
+}
+/* Header and identity */
+html.sarch-native-brand body :is(.smetric-app-header,.sm-topbar,.header) {
+ background:linear-gradient(115deg,#1c2127,#30343a 65%,#1c2127)!important;
+ border-color:#675b4d!important; color:#f3efe7!important;
+ box-shadow:0 3px 12px #0003!important;
+}
+html.sarch-native-brand body .smetric-brand {color:var(--sa-ivory)!important;letter-spacing:.4px!important}
+html.sarch-native-brand body .smetric-brand:before {
+ background:#22272d url("/SEOB/sarch-icon.svg") center/contain no-repeat!important;
+ box-shadow:0 0 0 1px #a6917455!important;
+}
+html.sarch-native-brand body :is(.smetric-app-header,.sm-topbar,.header) :is(button,select,a.smetric-home,a.home) {
+ background:#2a3037!important;color:#f3efe7!important;border-color:#716758!important;
+ box-shadow:none!important;
+}
+/* All workspace chrome, deliberately not the canvas, annotation layers, or printed output. */
+@media screen {
+html.sarch-native-brand:not([data-module="home"]) body :is(.sarch-site-v135,#sarchFloor135,.smetric-sitebar,.sm-draw-sitebar,.projectbar,.smetric-common-card,.smetric-v17-card,.sm65-sheet-section,.sm65-floorbar,.pagebar,.sheetbar,.sm43-tool-panel,.sm43-tabs,.sm43-deck,.sm43-group,.sm-survey-tools,.sm-tool-group,.sm-mode-tabs,.toolbar,.tools,.controls,.panel,.card,.side,.sidebar,.list,.entry,.group-items,.modal-box,.sarch-protect-menu) {
+ background-color:var(--sa-panel)!important; border-color:var(--sa-line)!important; color:var(--sa-text)!important;
+}
+html.sarch-native-brand:not([data-module="home"]) body :is(.sarch-site-v135,#sarchFloor135,.smetric-sitebar,.sm-draw-sitebar,.projectbar,.sm65-floorbar,.pagebar,.sheetbar,.sm43-tool-panel,.sm43-group,.sm-survey-tools,.sm-tool-group,.toolbar,.tools,.controls,.side,.sidebar,.list,.sarch-protect-menu) {
+ background-image:none!important;
+}
+html.sarch-native-brand:not([data-module="home"]) body :is(.sarch-floor-title-v135,.site-title,.sm43-group-title,.sm-tool-group-title,.toolbar-title,.groupTitle,.smetric-common-title,.smetric-v17-heading) {
+ color:var(--sa-accent)!important;border-color:var(--sa-line)!important;
+}
+html.sarch-native-brand:not([data-module="home"]) body :is(.sarch-site-v135,#sarchFloor135,.smetric-sitebar,.sm-draw-sitebar,.projectbar,.sm65-floorbar,.pagebar,.sheetbar,.sm43-tool-panel,.sm-survey-tools,.toolbar,.tools,.controls,.side,.sidebar,.list,.sarch-protect-menu) :is(button,.button,select,input:not([type=color]):not([type=range]):not([type=checkbox]):not([type=radio]):not([type=file]),textarea) {
+ background-color:var(--sa-field);border-color:var(--sa-line);color:var(--sa-text);
+}
+html.sarch-native-brand:not([data-module="home"]) body :is(.sarch-site-v135,#sarchFloor135,.smetric-sitebar,.sm-draw-sitebar,.projectbar,.sm65-floorbar,.pagebar,.sheetbar,.sm43-tool-panel,.sm-survey-tools,.toolbar,.tools,.controls) :is(button,.button,select):not(.danger):not(.site-remove):not(.red):not([aria-pressed="true"]):not(.active):not(.selected):not([class*="color"]):not([class*="mark"]):not([id*="Red"]):not([id*="Blue"]) {
+ background:var(--sa-soft)!important;border-color:var(--sa-line)!important;color:var(--sa-text)!important;
+ box-shadow:none!important;
+}
+html.sarch-native-brand:not([data-module="home"]) body :is(.sm43-tab,.sm-mode-tabs button,.sm43-group-title,.sarch-camera-tab-v145) :is(svg) {color:var(--sa-accent)}
+html.sarch-native-brand:not([data-module="home"]) body :is(.sm43-tab,.sm-mode-tabs button,.toolbar button,.sm43-group-title):is(.active,.selected,[aria-selected="true"],[aria-pressed="true"]):not([class*="color"]):not([id*="Red"]):not([id*="Blue"]) {
+ box-shadow:inset 0 -2px 0 var(--sa-accent)!important;border-color:var(--sa-accent)!important;
+}
+html.sarch-native-brand body :is(button,a,select,input):focus-visible {outline:2px solid var(--sa-accent)!important;outline-offset:2px!important}
+html.sarch-native-brand body :is(button,select):disabled {opacity:.48!important;cursor:not-allowed!important}
+html.sarch-native-brand body #sarchQuickDock .sarch-dock-panel {
+ background:linear-gradient(135deg,#30343a,#161b21)!important;border-color:#8a7962!important;
+}
+html.sarch-native-brand body #sarchQuickDock :is(.sarch-dock-panel a,.sarch-dock-toggle) {
+ background:#272d34!important;border-color:#6f6252!important;color:#f3efe7!important;
+}
+html.sarch-native-brand body #sarchQuickDock .sarch-dock-panel a[aria-current=page] {
+ background:#43392e!important;border-color:#d8c4a7!important;color:#f6dfbb!important;
+}
+html.sarch-native-brand body #sarchQuickDock .sarch-dock-panel a svg {color:#d8c4a7!important}
+}
+/* The home screen has its own curated, consistent presentation. */
+html.sarch-native-brand[data-module="home"] body {background:#161b21!important;color:#f3efe7!important}
+html.sarch-native-brand[data-module="home"] body .page {
+ background:radial-gradient(ellipse at 90% 12%,#373a3f 0%,transparent 55%),linear-gradient(135deg,#171c22,#101419)!important;
+}
+html.sarch-native-brand[data-module="home"] body .page:before {background:none!important}
+html.sarch-native-brand[data-module="home"] body .ambient {opacity:.25!important}
+html.sarch-native-brand[data-module="home"] body :is(.hero h1,.hero h1 span,.section-label b,.identity strong) {color:#f3efe7!important}
+html.sarch-native-brand[data-module="home"] body :is(.eyebrow,.hero p,.section-label span,.header small,.footer) {color:#c8bba8!important}
+html.sarch-native-brand[data-module="home"] body .eyebrow:before {background:#d8c4a7!important}
+html.sarch-native-brand[data-module="home"] body .hero-mark {background:#272c32!important;border-color:#706452!important;box-shadow:0 0 0 12px #c4a9810c!important}
+html.sarch-native-brand[data-module="home"] body .module:is(.blue,.orange,.teal,.violet) {
+ --accent:#d8c4a7!important;--pale:#3d3832!important;
+ background:linear-gradient(135deg,#30363e 0%,#242a31 55%,#1b2026 100%)!important;
+ border:1px solid #716657!important;color:#f3efe7!important;
+ box-shadow:0 12px 26px #0004,inset 0 1px 0 #ffffff0e!important;
+}
+html.sarch-native-brand[data-module="home"] body .module:hover {border-color:#e0c6a0!important}
+html.sarch-native-brand[data-module="home"] body .module:before {background:radial-gradient(circle,#d8c4a71a,transparent 70%)!important}
+html.sarch-native-brand[data-module="home"] body .module:after {border-color:#8c7b62!important;opacity:.35!important}
+html.sarch-native-brand[data-module="home"] body .module h2 {color:#f3efe7!important}
+html.sarch-native-brand[data-module="home"] body .module p {color:#c6c1b8!important}
+html.sarch-native-brand[data-module="home"] body .module :is(.module-icon,.arrow) {background:#1c2127!important;border-color:#786b59!important;color:#e1c6a0!important;box-shadow:none!important}
+html.sarch-native-brand[data-module="home"] body .module .art {filter:grayscale(1) sepia(.42) brightness(.8)!important;opacity:.66!important}
+html.sarch-native-brand[data-module="home"] body .footer :is(a,button) {background:#252a30!important;border-color:#766958!important;color:#f3efe7!important}
+html.sarch-native-brand[data-module="home"] body #sarchManualUpdate {background:#2b3037!important;border-color:#8c7b62!important;color:#ead6b8!important}
+html.sarch-native-brand body #sarchSplash141 {
+ background:radial-gradient(ellipse at 50% 30%,#3c3b38,#20262d 45%,#11161b 100%)!important;color:#f3efe7!important;
+}
+html.sarch-native-brand body #sarchSplash141 p {color:#d8c4a7!important;letter-spacing:1.8px!important}
