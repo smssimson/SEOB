@@ -1,0 +1,31 @@
+/* Global theme chrome; artwork never enters work canvases or print/export. */
+.sarch-legacy-theme-hidden{display:none!important}
+@media screen{
+.sarch-global-picker{display:flex!important;align-items:center;gap:10px;white-space:nowrap;font:700 13px Dotum,sans-serif;color:inherit!important}
+.sarch-global-picker select{font:inherit;min-width:145px;padding:9px 12px;border-radius:10px;border:1px solid #8f7c62;background:#242a31;color:#f3efe7}
+.sarch-global-picker select:focus-visible{outline:2px solid #d8c4a7;outline-offset:2px}
+.sarch-theme-character{pointer-events:none;display:block;flex-shrink:0}
+.sarch-theme-character svg{width:100%;height:100%;display:block;min-height:0!important}
+.sarch-theme-card-character{position:absolute;z-index:2;left:25px;bottom:9px;width:103px;height:81px}
+.sarch-theme-header-character{width:68px;height:49px;margin:0 0 0 auto;align-self:center}
+html.sarch-native-brand[data-module="home"][data-sarch-theme]:not([data-sarch-theme="dark"]) body{background:var(--sa-bg)!important;color:var(--sa-text)!important}
+html.sarch-native-brand[data-module="home"][data-sarch-theme]:not([data-sarch-theme="dark"]) body .page{background:radial-gradient(ellipse at 95% 5%,var(--sa-soft),transparent 65%),var(--sa-bg)!important}
+html.sarch-native-brand[data-module="home"][data-sarch-theme]:not([data-sarch-theme="dark"]) body :is(.hero h1,.hero h1 span,.hero p,.eyebrow,.section-label span,.footer){color:var(--sa-text)!important}
+html.sarch-native-brand[data-module="home"][data-sarch-theme]:not([data-sarch-theme="dark"]) body .module:is(.blue,.orange,.teal,.violet){--accent:var(--sa-accent)!important;--pale:var(--sa-soft)!important;background:linear-gradient(145deg,var(--sa-panel),var(--sa-soft))!important;border-color:var(--sa-line)!important;color:var(--sa-text)!important}
+html.sarch-native-brand[data-module="home"][data-sarch-theme]:not([data-sarch-theme="dark"]) body .module h2{color:var(--sa-text)!important}
+html.sarch-native-brand[data-module="home"][data-sarch-theme]:not([data-sarch-theme="dark"]) body .module p{color:var(--sa-muted)!important}
+html.sarch-native-brand[data-module="home"][data-sarch-theme]:not([data-sarch-theme="dark"]) body .module :is(.module-icon,.arrow){background:var(--sa-field)!important;color:var(--sa-accent)!important;border-color:var(--sa-line)!important}
+html.sarch-native-brand[data-module="home"][data-sarch-theme]:not([data-sarch-theme="dark"]) body .module .art{filter:drop-shadow(0 0 .4px var(--sa-accent))!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .header{background:var(--sa-head1)!important;border-color:var(--sa-head2)!important;color:var(--sa-headtext)!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .header small{color:var(--sa-headtext)!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-global-picker select{background:var(--sa-head1)!important;border-color:var(--sa-head2)!important;color:var(--sa-headtext)!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"]) .module .art{filter:brightness(.53) saturate(1.1)!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module::before{background:radial-gradient(circle,var(--sa-head2),transparent 70%)!important;opacity:.12!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module .art{width:min(52%,305px)!important}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .smetric-app-header{position:relative;overflow:visible}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) :is(#sarchFloor135,.sarch-site-v135,.smetric-sitebar,.sm-draw-sitebar,.projectbar){box-shadow:inset 3px 0 0 var(--sa-head2)!important}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) :is(.sarch-floor-title-v135,.site-title,.smetric-common-title,.sm43-group-title){color:var(--sa-accent)!important}
+@media(max-width:800px){.sarch-theme-card-character{width:83px;height:65px;left:20px;bottom:5px}.sarch-theme-header-character{width:54px;height:39px;margin-left:0}.sarch-global-picker{margin-left:auto}.sarch-global-picker select{min-width:115px}}
+@media(max-width:430px){.sarch-global-picker{font-size:12px;gap:5px}.sarch-global-picker select{padding:7px;min-width:94px}.sarch-theme-card-character{width:71px;height:56px;left:18px;bottom:2px}.sarch-theme-header-character{width:43px;height:32px}html.sarch-native-brand[data-module="home"] body .header{flex-wrap:wrap}}
+}
+@media print{.sarch-theme-character,.sarch-global-picker{display:none!important}}
