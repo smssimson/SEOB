@@ -6,6 +6,9 @@ on:
       - 'native-app/**'
       - '.github/workflows/sarch-native.yml'
   workflow_dispatch:
+concurrency:
+  group: sarch-native-brand-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -41,11 +44,11 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
           mkdir -p "$GITHUB_WORKSPACE/native-app/artifacts"
-          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/native-app/artifacts/SARCH-v195-test.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/native-app/artifacts/SARCH-v195-Brand-test.apk"
       - uses: actions/upload-artifact@v4
         with:
-          name: SARCH-v195-Android-test
-          path: native-app/artifacts/SARCH-v195-test.apk
+          name: SARCH-v195-Brand-Android-test
+          path: native-app/artifacts/SARCH-v195-Brand-test.apk
           if-no-files-found: error
           retention-days: 30
   ios-project:
@@ -71,10 +74,10 @@ jobs:
           python ../permissions.py ios
           npx cap sync ios
           mkdir -p ../artifacts
-          zip -qr ../artifacts/SARCH-v195-iOS-project.zip ios www package.json package-lock.json capacitor.config.json bridge.js -x 'ios/App/Pods/*' 'ios/App/build/*'
+          zip -qr ../artifacts/SARCH-v195-Brand-iOS-project.zip ios www package.json package-lock.json capacitor.config.json bridge.js render-icons.cjs -x 'ios/App/Pods/*' 'ios/App/build/*'
       - uses: actions/upload-artifact@v4
         with:
-          name: SARCH-v195-iOS-project
-          path: native-app/artifacts/SARCH-v195-iOS-project.zip
+          name: SARCH-v195-Brand-iOS-project
+          path: native-app/artifacts/SARCH-v195-Brand-iOS-project.zip
           if-no-files-found: error
           retention-days: 30
