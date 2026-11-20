@@ -1,9 +1,9 @@
-"""Apply platform app permissions and original S:ARCH icon after cap add."""
+"""Apply platform app permissions and new S:ARCH icon after cap add."""
 import pathlib,sys,plistlib,xml.etree.ElementTree as ET
 from PIL import Image
 build=pathlib.Path(__file__).resolve().parent/"build"
 platform=sys.argv[1]
-icon=build/"www"/"SEOB"/"smetric-icon-512.png"
+icon=build/"www"/"SEOB"/"smetric-icon-1024.png"
 if platform=="android":
     path=build/"android/app/src/main/AndroidManifest.xml"
     ns="http://schemas.android.com/apk/res/android"
@@ -22,6 +22,14 @@ if platform=="android":
             folder.mkdir(exist_ok=True)
             for filename in ("ic_launcher.png","ic_launcher_round.png"):
                 im.resize((size,size),Image.Resampling.LANCZOS).save(folder/filename)
+        # Align Android's native start screen with the web splash.
+        for splash in res.glob("drawable*/splash.png"):
+            with Image.open(splash) as old: w,h=old.size
+            bg=Image.new("RGB",(w,h),"#20252b")
+            size=max(1,int(min(w,h)*.42))
+            logo=im.resize((size,size),Image.Resampling.LANCZOS)
+            bg.paste(logo,((w-size)//2,(h-size)//2),logo)
+            bg.save(splash)
         # Replace the adaptive launcher with the generated raster icons.
         for x in (res/"mipmap-anydpi-v26").glob("ic_launcher*.xml"): x.unlink()
 elif platform=="ios":
@@ -41,5 +49,13 @@ elif platform=="ios":
             if not name: continue
             size=int(float(entry.get("size","1024x1024").split("x")[0])*float(entry.get("scale","1x").rstrip("x")))
             img=Image.open(icon).convert("RGBA").resize((size,size),Image.Resampling.LANCZOS)
-            bg=Image.new("RGB",img.size,"#112940");bg.paste(img,mask=img.getchannel("A"));bg.save(folder/name)
+            bg=Image.new("RGB",img.size,"#20252b");bg.paste(img,mask=img.getchannel("A"));bg.save(folder/name)
+        splash_dir=build/"ios/App/App/Assets.xcassets/Splash.imageset"
+        for splash in splash_dir.glob("*.png"):
+            with Image.open(splash) as old: w,h=old.size
+            bg=Image.new("RGB",(w,h),"#20252b")
+            size=max(1,int(min(w,h)*.38))
+            logo=Image.open(icon).convert("RGBA").resize((size,size),Image.Resampling.LANCZOS)
+            bg.paste(logo,((w-size)//2,(h-size)//2),logo)
+            bg.save(splash)
 else: raise ValueError(platform)
