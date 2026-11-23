@@ -121,7 +121,10 @@ function actorImage(theme,i){
  return actorCache.get(key);
 }
 async function cardArt(card,theme,i,source){
- if(card.dataset.sarchSceneVersion===theme+"-212"&&card.querySelector(".sarch-v212-scene"))return;
+ if(card.dataset.sarchSceneVersion===theme+"-212"&&card.querySelector(".sarch-v212-scene")){
+  card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene").forEach(el=>el.remove());
+  return;
+ }
  let wrap=card.querySelector(".sarch-v212-scene");
  if(!wrap){wrap=document.createElement("span");wrap.className="sarch-v212-scene";wrap.setAttribute("aria-hidden","true");card.append(wrap)}
  wrap.dataset.theme=theme;
@@ -143,6 +146,9 @@ function repaint(){
  const theme=document.body.dataset.theme;
  const cards=document.querySelectorAll(".modules .module");
  if(!themes.has(theme)){
+  document.body.style.removeProperty("--sa212-icon");
+  document.querySelectorAll("[data-sarch212-pin]").forEach(btn=>delete btn.dataset.sarch212Pin);
+  document.querySelectorAll(".sarch-v212-interior").forEach(el=>el.remove());
   cards.forEach(card=>{card.querySelectorAll(".sarch-v212-scene").forEach(n=>n.remove());card.classList.remove("sarch-v212-ready");delete card.dataset.sarchSceneVersion});
   return;
  }
@@ -151,6 +157,13 @@ function repaint(){
  }else{
   // Interior theme chrome uses the established palette; no work-canvas decoration.
   document.querySelectorAll(".sarch-v212-interior").forEach(el=>el.remove());
+  document.body.style.setProperty("--sa212-icon",'url("'+new URL("sarch-theme-"+(theme==="shinchan"?"shinchan-0.webp":theme==="pokemon"?"pokemon-0.png":theme==="digimon"?"digimon-0.png":"marvel-0.jpg"),root).href+'")');
+  const re=/홈|저장|누락 점검|도면 순서|현장 스케치|번호 찍기|자료 보호|장비조사|기울기|도면 작성|사진 관리/;
+  document.querySelectorAll("button").forEach(btn=>{
+   if(btn.id==="cameraBtn"||btn.id==="sm52FixedCamera"||btn.classList.contains("sarch-camera-tab-v145"))return;
+   const label=(btn.textContent||"").trim();
+   if(label.length<28&&re.test(label))btn.dataset.sarch212Pin="1";else delete btn.dataset.sarch212Pin;
+  });
   const head=document.querySelector("header.smetric-app-header");
   if(head){
    const d=document.createElement("span");d.className="sarch-v212-interior";d.setAttribute("aria-hidden","true");
