@@ -92,3 +92,14 @@ html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"
 }
 }
 @media print{.sarch-v212-scene,.sarch-v212-interior{display:none!important}}
+
+@media screen{
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) button[data-sarch212-pin="1"]::before{
+ content:""!important;display:inline-block!important;width:15px!important;height:15px!important;
+ flex:0 0 15px!important;vertical-align:-3px!important;margin-right:5px!important;
+ background-image:var(--sa212-icon)!important;background-position:center!important;
+ background-repeat:no-repeat!important;background-size:cover!important;
+ border-radius:50%!important;border:1px solid var(--sa-head2,#c9ae75)!important;
+ box-shadow:0 1px 3px #0003!important;pointer-events:none!important
+}
+}
