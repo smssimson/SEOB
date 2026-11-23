@@ -159,7 +159,7 @@ function createCard(theme,i){
    art+='<ellipse cx="450" cy="280" rx="155" ry="110" fill="url(#sa210G)"/>';
    // Left crew is complete, then the matching concrete building on the right.
    if(theme==='shinchan'||theme==='pokemon')art+=integratedTilt(theme);
-   else if(theme==='dark')art+=tripod(theme);
+   else art+='<g transform="translate(92 -5)">'+tripod(theme)+'</g>';
    art+=building(theme)+plumb(theme);
  }else{
    // No extra equipment or overpaint: return to the source scene exactly.
