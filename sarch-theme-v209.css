@@ -10,9 +10,12 @@ html.sarch-native-brand[data-module="home"] body .module .sarch-v209-svg{
  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
  display:block!important;overflow:hidden!important;filter:drop-shadow(0 4px 7px #0004)
 }
-html.sarch-native-brand[data-module="home"] body .module :is(.sarch-v206-scene,.sarch-v207-scene,.art){
- display:none!important
-}
+html.sarch-native-brand[data-module="home"] body .module :is(.sarch-v206-scene,.sarch-v207-scene){display:none!important}
+html.sarch-native-brand[data-module="home"] body[data-sarch209="shinchan"] .module .art,
+html.sarch-native-brand[data-module="home"] body[data-sarch209="pokemon"] .module .art,
+html.sarch-native-brand[data-module="home"] body[data-sarch209="digimon"] .module .art,
+html.sarch-native-brand[data-module="home"] body[data-sarch209="marvel"] .module .art,
+html.sarch-native-brand[data-module="home"] body[data-sarch209="dark"] .module:is(.blue,.violet) .art{display:none!important}
 html.sarch-native-brand[data-module="home"] body .module :is(.module-icon,h2,p,.arrow,.sarch-card-index){position:relative;z-index:4!important}
 html.sarch-native-brand[data-module="home"] body .module :is(h2,p){max-width:45%!important}
 html.sarch-native-brand[data-module="home"] body .module .sarch-v209-actor{
