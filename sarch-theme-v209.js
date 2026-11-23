@@ -156,6 +156,8 @@ function updateHome(theme){
  cards.forEach((card,i)=>{
   if(i>3)return;
   const existing=card.querySelector('.sarch-v209-scene');
+  // Standard, non-character themes keep their familiar CAD and test artwork.
+  if(theme==='dark'&&(i===1||i===2)){existing?.remove();return;}
   if(existing&&existing.dataset.theme===theme)return;
   existing?.remove();
   const scene=createCard(theme,i);scene.dataset.theme=theme;card.append(scene);
