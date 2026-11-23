@@ -797,23 +797,50 @@ async function checkThemes(width,height){
  await page.goto(root,{waitUntil:"load"});
  await page.locator("#sarchGlobalTheme").waitFor({state:"attached"});
  for(const theme of themes){
- await page.locator("#sarchGlobalTheme").selectOption(theme);
- await page.waitForFunction(()=>document.querySelectorAll(".sarch-v203-scene").length===4);
- const outcome=await page.evaluate(async theme=>{
-  const cards=[...document.querySelectorAll(".modules .module")];
-  const files=[...document.querySelectorAll(".sarch-v203-scene svg image")].map(x=>x.getAttribute("href"));
-  const decoded=(await Promise.all(files.map(src=>new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(img.naturalWidth===1200&&img.naturalHeight===720);img.onerror=()=>resolve(false);img.src=src})))).every(Boolean);
-  const actors=[...document.querySelectorAll(".sarch-v203-actor")];const actorOK=await Promise.all(actors.map(async x=>{for(let i=0;i<30;i++){try{await x.decode();if(x.naturalWidth>0&&(theme!=="digimon"||x.dataset.cutoutReady==="true"))return true}catch(e){}await new Promise(r=>setTimeout(r,30))}return false}));
-  const count=cards.every(c=>c.querySelectorAll("h2").length===1&&c.querySelectorAll("p").length===1&&c.querySelectorAll(".sarch-v203-scene").length===1);
-  const noOverlap=cards.every(c=>{const a=c.querySelector(".sarch-v203-scene").getBoundingClientRect();return [...c.querySelectorAll("h2,p")].every(x=>x.getBoundingClientRect().right<=a.left+2)});
-  const style=cards.map(c=>getComputedStyle(c).backgroundImage);
-  const plumb=document.querySelector(".sarch-corner-plumb"),actual=document.querySelector(".sarch-corner-actual");
-  const geometry=plumb?.getAttribute("d")==="M430 332V30"&&actual?.getAttribute("d")==="M430 332L449 30"&&!!document.querySelector(".sarch-facade-left")?.getAttribute("d")?.includes("449 30L430 332")&&!!document.querySelector(".sarch-facade-right")?.getAttribute("d")?.includes("L430 332Z");
-  return {decoded:decoded&&files.length===(["shinchan","pokemon"].includes(theme)?4:3),actors:actors.length===(["shinchan","pokemon"].includes(theme)?0:4)&&actorOK.every(Boolean),count,noOverlap,geometry,uniform:style.every(x=>x===style[0]&&x.includes("gradient"))};
- },theme);
- report("home-"+width,theme+" full composition and unified background",outcome.decoded&&outcome.actors&&outcome.count&&outcome.noOverlap&&outcome.geometry&&outcome.uniform,JSON.stringify(outcome));
- report("home-"+width,theme+" artwork loaded",true);
- await page.screenshot({path:folder+"/theme-"+theme+"-"+width+".png"});
+  await page.locator("#sarchGlobalTheme").selectOption(theme);
+  await page.waitForFunction(t=>[...document.querySelectorAll(".modules .module")].length===4&&
+   [...document.querySelectorAll(".modules .module")].every(c=>
+    c.dataset.sarchSceneVersion===t+"-214"&&
+    c.querySelectorAll(".sarch-v214-scene").length===1&&
+    c.querySelector(".sarch-v214-scene canvas")?.width===600),theme,{timeout:30000});
+  const outcome=await page.evaluate(async t=>{
+   const cards=[...document.querySelectorAll(".modules .module")];
+   const canvases=cards.map(c=>c.querySelector(".sarch-v214-scene canvas"));
+   const actors=cards.flatMap(c=>[...c.querySelectorAll(".sarch-v214-actor")]);
+   const actorOK=actors.every(x=>x.complete&&x.naturalWidth>0);
+   const expectedActors=t==="shinchan"?0:4;
+   const count=cards.every(c=>c.querySelectorAll("h2").length===1&&c.querySelectorAll("p").length===1&&
+    c.querySelectorAll(".sarch-v214-scene").length===1);
+   const noDuplicate=cards.every(c=>[...c.querySelectorAll(".sarch-v206-scene,.sarch-v203-scene")]
+     .every(e=>getComputedStyle(e).display==="none"));
+   const layerOK=cards.every(c=>{
+    const canvas=c.querySelector(".sarch-v214-scene"),title=c.querySelector("h2");
+    const r=c.getBoundingClientRect(),q=title.getBoundingClientRect();
+    return canvas&&Number(getComputedStyle(title).zIndex)>=Number(getComputedStyle(canvas).zIndex)&&
+     q.left>=r.left-2&&q.right<=r.right+2&&q.top>=r.top&&q.bottom<=r.bottom;
+   });
+   const nonEmpty=canvases.every(cv=>{
+    const a=cv.getContext("2d").getImageData(0,0,cv.width,cv.height).data;
+    let visible=0;for(let k=3;k<a.length;k+=4*89)if(a[k]>12)visible++;
+    return visible>10;
+   });
+   const style=cards.map(c=>getComputedStyle(c).backgroundImage);
+   let atlasOK=true;
+   if(t==="pokemon"){
+    const img=new Image();img.src="./sarch-v214-pokemon-background.webp";
+    try{await img.decode();atlasOK=img.naturalWidth===960&&img.naturalHeight===640}
+    catch(_){atlasOK=false}
+   }
+   const positions=cards.map(c=>{const el=c.querySelector(".sarch-v214-scene"),r=el.getBoundingClientRect();return {width:r.width,height:r.height,display:getComputedStyle(el).display}});
+   const visible=positions.every(p=>p.width>120&&p.height>100&&p.display!=="none");
+   return {count,noDuplicate,layerOK,nonEmpty,atlasOK,actors:actors.length,
+    actorOK,expectedActors,visible,uniform:style.every(x=>x===style[0]&&x.includes("gradient")),positions};
+  },theme);
+  report("home-"+width,theme+" single-scene artwork and card layout",
+   outcome.count&&outcome.noDuplicate&&outcome.layerOK&&outcome.nonEmpty&&outcome.atlasOK&&
+   outcome.actors===outcome.expectedActors&&outcome.actorOK&&outcome.visible&&outcome.uniform,
+   JSON.stringify(outcome));
+  await page.screenshot({path:folder+"/theme-"+theme+"-"+width+".png"});
  }
  for(const mod of modules){
   await page.evaluate(()=>localStorage.setItem("sarch-global-theme-v199","dark"));
