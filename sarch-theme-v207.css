@@ -1,0 +1,20 @@
+/* S:ARCH v207 – preserve all existing controls, images paint-only. */
+@media screen {
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module .art,
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module .sarch-theme-card-character:not(.sarch-v206-scene){display:none!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module .sarch-v206-scene{
+display:block!important;position:absolute!important;left:auto!important;right:8px!important;bottom:2px!important;width:min(69%,390px)!important;height:82%!important;max-height:220px!important;overflow:hidden!important;isolation:isolate;z-index:1!important;pointer-events:none!important
+}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module .sarch-v206-scene .sarch-work-scene{display:block!important;width:100%!important;height:100%!important;overflow:hidden!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module .sarch-v206-scene>img{display:none!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module :is(.module-icon,h2,p,.arrow,.sarch-card-index){z-index:3!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module:is(.blue,.teal) .sarch-v206-scene{right:3px!important;width:70%!important}
+html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module.violet .sarch-v206-scene{right:0!important;width:74%!important}
+.sarch-v207-module-mark{pointer-events:none;flex:0 0 auto;font:700 22px/1 Dotum,sans-serif;color:var(--sa-head2,#e6c58f);text-shadow:0 1px 3px #0008;margin-inline:2px;max-width:35px}
+.sarch-v207-module-mark[hidden]{display:none!important}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) [data-sarch-v207-button]{position:relative!important;border-color:var(--sa-head2)!important;box-shadow:inset 0 -2px 0 #0002,0 0 0 1px #ffffff10!important}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-theme-header-character{max-height:44px!important;overflow:hidden!important}
+@media(max-width:800px){html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module .sarch-v206-scene{height:75%!important;width:65%!important;right:0!important}}
+@media(max-width:430px){html.sarch-native-brand[data-module="home"] body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .module .sarch-v206-scene{height:68%!important;width:68%!important}}
+}
+@media print{.sarch-v207-module-mark{display:none!important}}
