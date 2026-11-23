@@ -85,10 +85,22 @@ function field(c,img,theme){
  c.fillStyle="#102235";c.fillRect(0,0,600,360);
  // Preserve lush foreground/trees; replace the old curtain-wall architecture.
  const g=c.createLinearGradient(215,0,365,0);g.addColorStop(0,"#10223500");g.addColorStop(1,"#102235");
- redrawTile(c,img,0);
- c.fillStyle=g;c.fillRect(215,0,385,333);
+ if(theme==="shinchan"||theme==="pokemon"){
+  redrawTile(c,img,0);
+  c.fillStyle=g;c.fillRect(215,0,385,333);
+ }else{
+  // The older Digimon/Marvel atlas contains a separate neon building.
+  // Do NOT draw it beneath the replacement concrete structure.
+  const haze=c.createRadialGradient(245,260,5,230,270,235);
+  haze.addColorStop(0,theme==="digimon"?"#35a4d332":"#ad697d32");
+  haze.addColorStop(1,"#10223500");
+  c.fillStyle=haze;c.fillRect(0,0,600,360);
+  c.save();c.strokeStyle=palette[theme][3]+"33";c.lineWidth=1;
+  for(let x=50;x<320;x+=37){c.beginPath();c.moveTo(x,290);c.lineTo(x,350);c.stroke()}
+  c.restore();
+ }
  texturedBuilding(c,theme);
- maskForeground(c,img,theme);
+ if(theme==="shinchan"||theme==="pokemon")maskForeground(c,img,theme);
  drawCrack(c,theme);
 }
 function tilt(c,img,theme){
