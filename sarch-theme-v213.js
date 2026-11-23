@@ -277,6 +277,82 @@ async function cardArt(card,theme,i,source){
  card.dataset.sarchSceneVersion=theme+"-212";card.classList.add("sarch-v213-ready");
  card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene,.sarch-v211-scene").forEach(n=>n.remove());
 }
+const BUTTON_GLYPHS={
+ home:'<path d="M3 10l9-7 9 7v10h-7v-6h-4v6H3z"/>',
+ check:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3h8v3H8zM8 13l3 3 5-6"/>',
+ save:'<path d="M4 4h14l3 3v13H3V4zM7 4v6h10V4M7 20v-7h10v7"/>',
+ shield:'<path d="M12 2l8 4v6c0 5-3 8-8 10-5-2-8-5-8-10V6zM8 12l3 3 5-6"/>',
+ order:'<path d="M7 3v18M3 7l4-4 4 4M17 21V3M13 17l4 4 4-4"/>',
+ edit:'<path d="M4 20l4-1 12-12-3-3L5 16zM14 7l3 3"/>',
+ pen:'<path d="M4 20l4-1 12-12-3-3L5 16zM14 7l3 3M3 21h18"/>',
+ camera:'<path d="M3 7h5l2-3h5l2 3h4v13H3z"/><circle cx="12" cy="13" r="4"/>',
+ rotate:'<path d="M21 12a9 9 0 1 1-3-6M21 3v6h-6"/>',
+ tag:'<path d="M4 4h9l7 7-9 9-7-7z"/><circle cx="9" cy="9" r="1.5"/>',
+ plus:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 7v10M7 12h10"/>',
+ trash:'<path d="M4 7h16M8 7V4h8v3M6 7l1 14h10l1-14M10 10v8M14 10v8"/>',
+ measure:'<path d="M4 5l15 15M7 2L2 7l15 15 5-5zM9 9l2-2M13 13l2-2"/>',
+ inspect:'<rect x="3" y="4" width="13" height="17" rx="2"/><path d="M6 9h6M6 13h6"/><circle cx="17" cy="16" r="4"/><path d="m20 19 2 2"/>',
+ floor:'<path d="M3 3h18v18H3zM3 10h18M11 3v18M11 15h10"/>',
+ link:'<path d="M10 7H8a5 5 0 0 0 0 10h3M14 7h2a5 5 0 0 1 0 10h-3M8 12h8"/>',
+ undo:'<path d="M9 7 4 12l5 5M4 12h10a6 6 0 0 1 0 12"/>',
+ warning:'<path d="M12 2 2 21h20zM12 9v5M12 18v.2"/>',
+ settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/>',
+ arrow:'<path d="M4 12h16M14 6l6 6-6 6"/>'
+};
+function uiCategory(text){
+ const t=(text||"").trim().replace(/\s+/g," ");
+ if(!t||t.length>35)return null;
+ if(/누락.?점검|품질.?점검|검토/.test(t))return "check";
+ if(/자료.?보호|복구|백업/.test(t))return "shield";
+ if(/홈/.test(t))return "home";
+ if(/도면.?순서|정렬/.test(t))return "order";
+ if(/회전/.test(t))return "rotate";
+ if(/번호.?찍기|번호/.test(t))return "tag";
+ if(/구간.?결합|연결/.test(t))return "link";
+ if(/구간.?표시|실.?구획/.test(t))return "floor";
+ if(/취소|되돌리기|실행.?취소/.test(t))return "undo";
+ if(/삭제|지우기|휴지통/.test(t))return "trash";
+ if(/새.?도면|새.?현장|추가/.test(t))return "plus";
+ if(/촬영|사진|카메라/.test(t))return "camera";
+ if(/저장|내보내기|출력/.test(t))return "save";
+ if(/스케치|그리기|모서리/.test(t))return "pen";
+ if(/이름.?변경|수정|편집/.test(t))return "edit";
+ if(/기울기|측정값|치수|각도|길이/.test(t))return "measure";
+ if(/결함|손상/.test(t))return "warning";
+ if(/현장.?조사|점검|탐사|조사/.test(t))return "inspect";
+ if(/도면/.test(t))return "floor";
+ if(/설정|기타.?도구|도구/.test(t))return "settings";
+ if(/이전|다음|페이지/.test(t))return "arrow";
+ return null;
+}
+function installButtonIcons(theme){
+ const tint={shinchan:"#91422d",pokemon:"#816221",digimon:"#4bbedc",marvel:"#dfa6a2"}[theme];
+ document.querySelectorAll("button").forEach(btn=>{
+  if(btn.matches('#cameraBtn,#sm52FixedCamera,.sarch-camera-tab-v145,[type="color"]'))return;
+  const kind=uiCategory(btn.textContent||btn.getAttribute("aria-label")||"");
+  if(!kind){delete btn.dataset.sarch213Ui;btn.style.removeProperty("--sa213-glyph");return}
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="'+tint+'" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">'+BUTTON_GLYPHS[kind]+'</svg>';
+  const data="url('data:image/svg+xml,"+encodeURIComponent(svg)+"')";
+  btn.style.setProperty("--sa213-glyph",data);
+  btn.dataset.sarch213Ui=kind;
+ });
+}
+function updateModuleBadge(theme){
+ document.querySelectorAll(".sarch-v213-interior").forEach(el=>el.remove());
+ const head=document.querySelector("header.smetric-app-header");
+ if(!head)return;
+ const index=["survey","drawing","schmidt","tilt"].indexOf(document.documentElement.dataset.module);
+ if(index<0)return;
+ const slot=document.createElement("span");slot.className="sarch-v213-interior";slot.setAttribute("aria-hidden","true");
+ slot.title=["현장조사 테마 장면","도면작성 테마 장면","장비조사 테마 장면","기울기 테마 장면"][index];
+ const pic=document.createElement("canvas");pic.width=204;pic.height=118;slot.append(pic);head.append(slot);
+ atlas(theme).then(im=>{
+  if(!slot.isConnected||document.body.dataset.theme!==theme)return;
+  const g=pic.getContext("2d");
+  g.drawImage(im,index%2*600,Math.floor(index/2)*360,600,360,0,0,pic.width,pic.height);
+ }).catch(()=>{slot.remove()});
+}
+
 let queued=false;
 function repaint(){
  queued=false;
@@ -284,6 +360,7 @@ function repaint(){
  const cards=document.querySelectorAll(".modules .module");
  if(!themes.has(theme)){
   document.body.style.removeProperty("--sa213-icon");
+  document.querySelectorAll("[data-sarch213-ui]").forEach(btn=>{delete btn.dataset.sarch213Ui;btn.style.removeProperty("--sa213-glyph")});
   document.querySelectorAll("[data-sarch213-pin]").forEach(btn=>delete btn.dataset.sarch213Pin);
   document.querySelectorAll(".sarch-v213-interior").forEach(el=>el.remove());
   cards.forEach(card=>{card.querySelectorAll(".sarch-v213-scene").forEach(n=>n.remove());card.classList.remove("sarch-v213-ready");delete card.dataset.sarchSceneVersion});
@@ -292,22 +369,11 @@ function repaint(){
  if(document.documentElement.dataset.module==="home"){
   atlas(theme).then(img=>cards.forEach((card,i)=>{if(i<4)cardArt(card,theme,i,img).catch(console.warn)})).catch(console.warn);
  }else{
-  // Interior theme chrome uses the established palette; no work-canvas decoration.
-  document.querySelectorAll(".sarch-v213-interior").forEach(el=>el.remove());
-  document.body.style.setProperty("--sa213-icon",'url("'+new URL("sarch-theme-"+(theme==="shinchan"?"shinchan-0.webp":theme==="pokemon"?"pokemon-0.png":theme==="digimon"?"digimon-0.png":"marvel-0.jpg"),root).href+'")');
-  const re=/홈|저장|누락 점검|도면 순서|현장 스케치|번호 찍기|자료 보호|장비조사|기울기|도면 작성|사진 관리/;
-  document.querySelectorAll("button").forEach(btn=>{
-   if(btn.id==="cameraBtn"||btn.id==="sm52FixedCamera"||btn.classList.contains("sarch-camera-tab-v145"))return;
-   const label=(btn.textContent||"").trim();
-   if(label.length<28&&re.test(label))btn.dataset.sarch213Pin="1";else delete btn.dataset.sarch213Pin;
-  });
-  const head=document.querySelector("header.smetric-app-header");
-  if(head){
-   const d=document.createElement("span");d.className="sarch-v213-interior";d.setAttribute("aria-hidden","true");
-   d.style.backgroundImage='url("'+new URL("sarch-v204-"+theme+"-atlas.webp",root).href+'")';
-   d.style.backgroundPosition=["0% 0%","100% 0%","0% 100%","100% 100%"][["survey","drawing","schmidt","tilt"].indexOf(document.documentElement.dataset.module)]||"0% 0%";
-   head.append(d);
-  }
+  // Theme toolbar artwork and action-specific icons; never touch measurement canvases.
+  document.querySelectorAll("[data-sarch213-pin]").forEach(btn=>delete btn.dataset.sarch213Pin);
+  document.body.style.removeProperty("--sa213-icon");
+  installButtonIcons(theme);
+  updateModuleBadge(theme);
  }
 }
 function schedule(){if(!queued){queued=true;requestAnimationFrame(repaint)}}
@@ -315,7 +381,7 @@ function init(){
  schedule();
  new MutationObserver(records=>{
   if(records.some(r=>r.type==="attributes"&&r.target===document.body&&r.attributeName==="data-theme"
-   ||r.type==="childList"&&[...r.addedNodes].some(n=>n.nodeType===1&&n.matches?.(".sarch-v206-scene,.sarch-theme-card-character"))))schedule();
+   ||r.type==="childList"&&[...r.addedNodes].some(n=>n.nodeType===1&&(n.matches?.(".sarch-v206-scene,.sarch-theme-card-character,button")||n.querySelector?.("button")))))schedule();
  }).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["data-theme"]});
  window.addEventListener("pageshow",schedule);
 }
