@@ -257,7 +257,8 @@ ok(tiltHTML.includes("if(window.smTiltValueVisible!==false)sh.points.forEach((p,
 const renderSource=tiltHTML.slice(tiltHTML.indexOf('function render(){'),tiltHTML.indexOf('function smTiltAutoDirection('));
 ok(renderSource.lastIndexOf('smTiltDrawValue(p,i)')>renderSource.lastIndexOf('ctx.fillRect(r.x,r.y,r.w,r.h)'), 'measurement boxes painted after building rectangle so they cannot be hidden');
 ok(tiltHTML.includes('if(p.unavailable&&window.smTiltValueVisible===false)')&&tiltHTML.includes("smTiltSyncValueToggle()}save();renderList();render()"),'marking an unavailable point makes the yellow value box visible immediately');
-ok(tiltHTML.includes('./sw.js?v=168')&&tiltHTML.includes('seob-sw.js?v=168'),'PWA service worker script registrations refresh for new tilt version');
+const pwaVersion=JSON.parse(read('version.json')).version;
+ok(tiltHTML.includes('./sw.js?v=168')&&tiltHTML.includes('seob-sw.js?v='+pwaVersion),'PWA service worker script registrations match the current release version');
 ok(tiltHTML.includes("'#canvasWrap,#items,#detail,#smValueSizeLabel,#smTiltValueToggle'"),'measurement-toggle pointer event must not clear selected tilt point');
 const drawHTML=read('drawing/index.html');
 onlyOnce(drawHTML,'href="../sarch-drawing-tools-v144.css?v=149"','drawing v144 stylesheet');
