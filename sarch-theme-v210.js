@@ -121,7 +121,7 @@ function integratedForeground(theme){
   '<path d="M154 355L155 265L179 215L182 171L203 139L229 111L257 97L294 99L324 115L346 147L353 183L387 206L403 238L412 264L403 355Z"/>'+
   '<path d="M334 355V260H458V355Z"/>'+
   '<path d="M457 355V283H556V355Z"/>'+
-  '<path d="M457 48H599V205H457Z"/>'+
+  '<path d="M363 44H524V208H363Z"/>'+
   '</clipPath></defs>';
   return clip+'<g clip-path="url(#sa210-field-foreground)">'+svgAtlas(theme,0)+'</g>';
  }
@@ -176,8 +176,6 @@ function updateHome(theme){
   if(i>3)return;
   const existing=card.querySelector('.sarch-v210-scene');
   // Preserve the original drawings and hammer illustrations for base themes.
-  if(theme==='dark'&&(i===1||i===2)){existing?.remove();return;}
-  // Standard, non-character themes keep their familiar CAD and test artwork.
   if(theme==='dark'&&(i===1||i===2)){existing?.remove();return;}
   if(existing&&existing.dataset.theme===theme)return;
   existing?.remove();
