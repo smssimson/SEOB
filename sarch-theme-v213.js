@@ -180,6 +180,22 @@ function crewLayer(c,img){
  g.globalCompositeOperation="source-over";
  c.drawImage(off,7,28,361,323);
 }
+function drawSurveyInstrument(c,theme){
+ // A small illustrated digital total station with graduated tripod legs.
+ const edge=palette[theme][3];c.save();c.lineJoin="round";c.lineCap="round";
+ c.shadowColor="#051621aa";c.shadowBlur=8;c.shadowOffsetY=5;
+ for(const [x,y] of [[150,339],[214,339],[180,338]]){
+  line(c,[[180,248],[x,y]],"#b99159",7);
+  line(c,[[180,248],[x,y]],"#e4bf7e",3.2);
+ }
+ poly(c,[[157,236],[203,236],[207,259],[153,259]],"#d5a44f","#f9d794",2);
+ poly(c,[[165,200],[196,200],[200,238],[160,238]],"#c5984a","#f0ca72",2);
+ poly(c,[[171,207],[190,207],[190,228],[171,228]],"#183c50","#f0cc85",1.6);
+ c.fillStyle="#79c8dd";c.beginPath();c.arc(181,218,6,0,Math.PI*2);c.fill();
+ line(c,[[178,197],[178,184],[193,178]],edge,3);
+ poly(c,[[186,179],[209,179],[213,189],[189,191]],"#2d4655",edge,1);
+ c.restore();
+}
 function showDisplacement(c,theme,edge){
  // The survey is anchored at the very lowest structural corner B.
  // Dashed vertical = plumb line from B; solid = actual B→top corner.
@@ -221,6 +237,7 @@ function tilt(c,img,theme){
  }
  c.restore();
  if(theme==="shinchan"||theme==="pokemon")crewLayer(c,img);
+ else drawSurveyInstrument(c,theme);
  const geometry=texturedBuilding(c,theme,16);
  showDisplacement(c,theme,geometry);
 }
