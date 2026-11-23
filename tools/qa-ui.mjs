@@ -808,7 +808,7 @@ async function checkThemes(width,height){
   const noOverlap=cards.every(c=>{const a=c.querySelector(".sarch-v203-scene").getBoundingClientRect();return [...c.querySelectorAll("h2,p")].every(x=>x.getBoundingClientRect().right<=a.left+2)});
   const style=cards.map(c=>getComputedStyle(c).backgroundImage);
   const plumb=document.querySelector(".sarch-corner-plumb"),actual=document.querySelector(".sarch-corner-actual");
-  const geometry=plumb?.getAttribute("d")==="M440 330V34"&&actual?.getAttribute("d")==="M440 330L460 34"&&actual.getAttribute("d").endsWith("460 34");
+  const geometry=plumb?.getAttribute("d")==="M430 332V30"&&actual?.getAttribute("d")==="M430 332L449 30"&&!!document.querySelector(".sarch-facade-left")?.getAttribute("d")?.includes("449 30L430 332")&&!!document.querySelector(".sarch-facade-right")?.getAttribute("d")?.includes("L430 332Z");
   return {decoded:decoded&&files.length===(["shinchan","pokemon"].includes(theme)?4:3),actors:actors.length===(["shinchan","pokemon"].includes(theme)?0:4)&&actorOK.every(Boolean),count,noOverlap,geometry,uniform:style.every(x=>x===style[0]&&x.includes("gradient"))};
  },theme);
  report("home-"+width,theme+" full composition and unified background",outcome.decoded&&outcome.actors&&outcome.count&&outcome.noOverlap&&outcome.geometry&&outcome.uniform,JSON.stringify(outcome));
