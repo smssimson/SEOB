@@ -182,3 +182,9 @@ html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme=
 @media print{
  .sarch-v213-interior,.sarch-v213-scene{display:none!important}
 }
+
+/* Pre-empt old v206 art while the single v213 canvas loads; no duplicate images. */
+@media screen{
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module :is(.sarch-v206-scene,.sarch-v203-scene,.sarch-theme-card-character):not(.sarch-v213-scene){display:none!important}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-v213-interior canvas{border-radius:10px}
+}
