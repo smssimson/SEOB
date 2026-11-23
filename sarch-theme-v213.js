@@ -258,7 +258,7 @@ function actorImage(theme,i){
  return actorCache.get(key);
 }
 async function cardArt(card,theme,i,source){
- if(card.dataset.sarchSceneVersion===theme+"-212"&&card.querySelector(".sarch-v213-scene")){
+ if(card.dataset.sarchSceneVersion===theme+"-213"&&card.querySelector(".sarch-v213-scene")){
   card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene").forEach(el=>el.remove());
   return;
  }
@@ -274,7 +274,7 @@ async function cardArt(card,theme,i,source){
  if(document.body.dataset.theme!==theme||wrap.dataset.theme!==theme||!wrap.isConnected)return;
  wrap.replaceChildren(canvas);
  if(image){const el=document.createElement("img");el.className="sarch-v213-actor "+theme;el.alt="";el.draggable=false;el.src=image;wrap.append(el)}
- card.dataset.sarchSceneVersion=theme+"-212";card.classList.add("sarch-v213-ready");
+ card.dataset.sarchSceneVersion=theme+"-213";card.classList.add("sarch-v213-ready");
  card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene,.sarch-v211-scene").forEach(n=>n.remove());
 }
 const BUTTON_GLYPHS={
