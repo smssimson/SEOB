@@ -807,7 +807,7 @@ async function checkThemes(width,height){
    const cards=[...document.querySelectorAll(".modules .module")];
    const canvases=cards.map(c=>c.querySelector(".sarch-v214-scene canvas"));
    const actors=cards.flatMap(c=>[...c.querySelectorAll(".sarch-v214-actor")]);
-   const actorOK=actors.every(x=>x.complete&&x.naturalWidth>0);
+   const actorOK=(await Promise.all(actors.map(async x=>{try{await x.decode()}catch(_){}return x.naturalWidth>0}))).every(Boolean);
    const expectedActors=t==="shinchan"?0:4;
    const count=cards.every(c=>c.querySelectorAll("h2").length===1&&c.querySelectorAll("p").length===1&&
     c.querySelectorAll(".sarch-v214-scene").length===1);
