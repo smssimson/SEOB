@@ -29,3 +29,13 @@ margin-right:5px;color:var(--sa-accent,#e5c486);text-shadow:0 1px 1px #0003;
 @media(max-width:430px){html.sarch-native-brand[data-module=home] body:is([data-theme=shinchan],[data-theme=pokemon],[data-theme=digimon],[data-theme=marvel]) .module .sarch-v206-scene{width:68%!important;height:74%!important}}
 }
 @media print{.sarch-v208-interior-tile{display:none!important}}
+
+/* Win over earlier v206/v207 high-specificity card positioning rules. */
+@media screen{
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module .sarch-v206-scene{
+left:auto!important;right:0!important;bottom:0!important;width:70%!important;height:88%!important;max-height:none!important;overflow:hidden!important
+}
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module.violet .sarch-v206-scene{width:74%!important}
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module .sarch-v206-scene .sarch-work-scene{width:100%!important;height:100%!important;overflow:hidden!important}
+@media(max-width:800px){html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module .sarch-v206-scene{height:78%!important;width:69%!important}}
+}
