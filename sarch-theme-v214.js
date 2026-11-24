@@ -10,13 +10,13 @@ const palette={
 };
 const actors={
  // 1~3세대만 사용: 피카츄(1), 브케인(2), 물짱이(3), 꼬부기(1).
- pokemon:['sarch-theme-pokemon-0.png','sarch-theme-pokemon-1.png','sarch-theme-pokemon-2.png','sarch-theme-pokemon-5.png'],
+ pokemon:['sarch-theme-pokemon-0.png','sarch-theme-pokemon-1.png','sarch-theme-pokemon-5.png','sarch-totodile-158.png'],
  digimon:["sarch-theme-digimon-0.png","sarch-theme-digimon-1.png","sarch-theme-digimon-2.png","sarch-theme-digimon-3.png"],
  marvel:["sarch-theme-marvel-0.jpg","sarch-theme-marvel-1.jpg","sarch-theme-marvel-2.jpg","sarch-theme-marvel-3.jpg"]
 };
 const atlasCache=new Map(),actorCache=new Map();
 function load(src){return new Promise((res,rej)=>{const im=new Image();im.decoding="async";im.onload=()=>res(im);im.onerror=()=>rej(new Error(src));im.src=new URL(src,root).href})}
-function atlas(theme){if(!atlasCache.has(theme))atlasCache.set(theme,load("sarch-v204-"+theme+"-atlas.webp"));return atlasCache.get(theme)}
+function atlas(theme){if(!atlasCache.has(theme))atlasCache.set(theme,load(theme==="pokemon"?"sarch-v214-pokemon-background.webp":"sarch-v204-"+theme+"-atlas.webp"));return atlasCache.get(theme)}
 function poly(c,p,fill,stroke,line=1){c.beginPath();p.forEach(([x,y],j)=>j?c.lineTo(x,y):c.moveTo(x,y));c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.lineWidth=line;c.strokeStyle=stroke;c.stroke()}}
 function line(c,p,color,w=1){c.beginPath();p.forEach(([x,y],j)=>j?c.lineTo(x,y):c.moveTo(x,y));c.strokeStyle=color;c.lineWidth=w;c.stroke()}
 function texturedBuilding(c,theme,lean=0){
@@ -376,6 +376,28 @@ function actorImage(theme,i){
  return actorCache.get(key);
 }
 function hasIllustratedScene(theme){return theme==="shinchan"||theme==="pokemon"}
+async function paintPokemonCard(c,source,index){
+ const crops=[[138,0,342,320],[480,0,390,320],[120,320,360,320],[566,320,394,320]];
+ const [x,y,w,h]=crops[index];
+ c.drawImage(source,x,y,w,h,0,0,600,360);
+ const src=await actorImage("pokemon",index);
+ if(!src)return;
+ const actor=await load(src);
+ const placements=[[82,131,193],[272,122,174],[0,116,192],[0,138,170]];
+ const [left,top,size]=placements[index];
+ c.save();
+ c.shadowColor="#142336aa";c.shadowBlur=5;c.shadowOffsetY=4;
+ if(index===0||index===2){
+  c.translate(left+size,top);c.scale(-1,1);c.drawImage(actor,0,0,size,size);
+ }else c.drawImage(actor,left,top,size,size);
+ c.restore();
+ c.save();
+ c.globalCompositeOperation="destination-in";
+ const fade=c.createLinearGradient(0,0,90,0);
+ fade.addColorStop(0,"transparent");fade.addColorStop(1,"black");
+ c.fillStyle=fade;c.fillRect(0,0,600,360);
+ c.restore();
+}
 async function cardArt(card,theme,i,source){
  if(card.dataset.sarchSceneVersion===theme+"-214"&&card.querySelector(".sarch-v214-scene")){
   card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene").forEach(el=>el.remove());
@@ -406,7 +428,8 @@ async function cardArt(card,theme,i,source){
   c.fillStyle=skyFade;
   c.fillRect(0,0,canvas.width,canvas.height);
   c.restore();
- }else if(hasIllustratedScene(theme))redrawTile(c,source,i);
+ }else if(theme==="pokemon")await paintPokemonCard(c,source,i);
+ else if(hasIllustratedScene(theme))redrawTile(c,source,i);
  else inspectionScene(c,theme,i,source);
  const image=hasIllustratedScene(theme)?null:await actorImage(theme,i);
  if(document.body.dataset.theme!==theme||wrap.dataset.theme!==theme||!wrap.isConnected)return;
