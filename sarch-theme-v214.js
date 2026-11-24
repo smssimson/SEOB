@@ -487,7 +487,7 @@ function workFigure(theme,i){
   add(path("M130 178l63 -19 23 33 -65 23Z","#eee4c9",1.8),stroke("M147 184l38 -12 16 16 -39 13Z M166 179l10 17m-12 -6 28 -9","#426579",1.6),stroke("M171 163l18 20","#252e35",5),stroke("M171 163l16 18","#e6af4f",3),path("M187 181l3 4 -5 -2Z","#31343a",1));
  }
  for(const [x,y] of grips)add(ell(x,y,human?8:7,human?7:6,theme==="digimon"&&i===3?"#e5c66a":armColor,1.6));
- return '<svg xmlns="http://www.w3.org/2000/svg" width="220" height="240" viewBox="0 0 220 240"><defs><linearGradient id="body'+id+'" x1="0" y1="0" x2=".82" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="'+light+'"/><stop offset=".34" stop-color="'+base+'"/><stop offset="1" stop-color="'+shade+'"/></linearGradient></defs>'+parts.join("")+'</svg>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="236" height="260" viewBox="-8 -10 236 260"><defs><linearGradient id="body'+id+'" x1="0" y1="0" x2=".82" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="'+light+'"/><stop offset=".34" stop-color="'+base+'"/><stop offset="1" stop-color="'+shade+'"/></linearGradient></defs>'+parts.join("")+'</svg>';
 }
 const workCache=new Map();
 function workImage(theme,i){
@@ -521,7 +521,7 @@ async function paintWorkingScene(c,theme,i,source){
  }
  const im=await workImage(theme,i);
  c.save();c.shadowColor="#07152188";c.shadowBlur=6;c.shadowOffsetY=3;
- c.drawImage(im,ox,oy,220,240);c.restore();
+ c.drawImage(im,ox-8,oy-10,236,260);c.restore();
  // Fade only the unoccupied far-left background, not any part of the actor.
  c.save();c.globalCompositeOperation="destination-in";
  const fade=c.createLinearGradient(0,0,65,0);fade.addColorStop(0,"transparent");fade.addColorStop(1,"black");
