@@ -1,4 +1,4 @@
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource, CameraDirection } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -22,7 +22,7 @@ if (Capacitor.isNativePlatform()) {
     const a=e.target?.closest?.('a[href]');
     if(!a||a.hasAttribute('download'))return;
     try {
-      const u=new URL(a.getAttribute('href'),location.href);
+      const u=new URL(a.getAttribute('href'),document.baseURI);
       if(u.origin===location.origin&&/^\/SEOB\/(?:survey\/|drawing\/|schmidt\/|tilt\/)?$/.test(u.pathname)){
         u.pathname+='index.html';a.href=u.href;
       }
@@ -30,6 +30,30 @@ if (Capacitor.isNativePlatform()) {
   },true);
 
   window.SARCHNative = { enabled: true };
+  const updater = registerPlugin('SarchUpdate');
+  // Confirm only an actually rendered home page. Check for updates there, not
+  // while a survey or drawing is being edited. A verified bundle is staged
+  // for the next app launch; never reload the current work.
+  let updateBusy=false,lastCheck=0;
+  async function checkNativeUpdate(){
+    if(updateBusy || document.documentElement.dataset.module!=='home' ||
+       document.visibilityState==='hidden' || document.querySelectorAll('.module').length!==4)return;
+    if(Date.now()-lastCheck<60000)return;
+    updateBusy=true;lastCheck=Date.now();
+    try{
+      const response=await fetch('/SEOB/version.json',{cache:'no-store'});
+      if(!response.ok)throw Error('local version unavailable');
+      const {version}=await response.json();
+      if(!Number.isInteger(version))return;
+      await updater.ready({version});
+      if(navigator.onLine)await updater.check({version});
+    }catch(e){console.warn('SARCH native update check',e)}
+    finally{updateBusy=false}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(checkNativeUpdate,400),{once:true});
+  else setTimeout(checkNativeUpdate,400);
+  window.addEventListener('online',checkNativeUpdate);
+  document.addEventListener('visibilitychange',checkNativeUpdate);
   let busy = false;
   const photoInput = el => el instanceof HTMLInputElement &&
     el.type === 'file' && el.hasAttribute('capture') &&
