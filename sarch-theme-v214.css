@@ -314,3 +314,26 @@ html.sarch-native-brand:not([data-module="home"]) body.sarch-shell-v145:is([data
  background-position:center 3px!important;
 }
 }
+
+/* v223: the whole operator and equipment share a single 600×360 canvas.
+   Keep the scene within a padded safe area at every responsive size. */
+@media screen {
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]){
+ width:65%!important;height:calc(100% - 14px)!important;right:7px!important;bottom:7px!important;overflow:hidden!important;
+}
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-v214-canvas{
+ width:100%!important;height:100%!important;object-fit:contain!important;object-position:right bottom!important;
+ mask-image:none!important;-webkit-mask-image:none!important;
+}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-v214-interior canvas{
+ object-fit:contain!important;object-position:center!important;
+}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-theme-header-character{
+ display:none!important;
+}
+@media(max-width:450px){
+ html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]){
+ width:61%!important;height:calc(88% - 12px)!important;right:5px!important;bottom:6px!important;
+ }
+}
+}
