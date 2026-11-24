@@ -1,0 +1,52 @@
+/* S:ARCH shared notebook editor: independent of the four project themes. */
+#sarchInk231{position:fixed!important;inset:0!important;z-index:2147483000!important;display:flex!important;flex-direction:column!important;background:#151515!important;color:#f1f1f1!important;font:14px Dotum,Arial,sans-serif!important;overflow:hidden!important;box-sizing:border-box!important;padding:0!important;isolation:isolate}
+#sarchInk231[hidden]{display:none!important}
+#sarchInk231 *,#sarchInk231 *:before,#sarchInk231 *:after{box-sizing:border-box}
+#sarchInk231 .inkbar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:6px;background:#242424;color:#eee;padding:4px 8px;border-bottom:1px solid #393939;min-height:46px;overflow:hidden}
+#sarchInk231 .inktools{display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:thin;min-width:0;justify-content:flex-start;flex:1}
+#sarchInk231 .inkgroup{display:flex;align-items:center;gap:4px;flex:none}
+#sarchInk231 .inksep{width:1px;height:22px;background:#5b5b5b;margin:0 5px;flex:none}
+#sarchInk231 button,#sarchInk231 select,#sarchInk231 input{font:13px Dotum,Arial,sans-serif!important;box-shadow:none!important;margin:0!important;border-radius:6px!important}
+#sarchInk231 button{display:inline-flex!important;align-items:center;justify-content:center;flex:none;width:auto!important;min-width:34px!important;height:36px!important;padding:4px 8px!important;border:1px solid transparent!important;background:transparent!important;color:#e8e8e8!important;cursor:pointer;white-space:nowrap}
+#sarchInk231 button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#sarchInk231 button:hover,#sarchInk231 button[aria-pressed=true]{background:#505050!important;color:#fff!important}
+#sarchInk231 button:disabled{opacity:.35!important;cursor:default}
+#sarchInk231 .inkapply{background:#276a91!important;color:white!important;font-weight:bold!important}
+#sarchInk231 .inkclose{font-size:19px!important}
+#sarchInk231 .inklabel{font-size:12px;white-space:nowrap;color:#aaa}
+#sarchInk231 .inkcolor{width:27px!important;min-width:27px!important;height:27px!important;padding:0!important;border:1px solid #888!important;border-radius:50%!important;background:var(--ink-color)!important}
+#sarchInk231 .inkcolor[aria-pressed=true]{outline:2px solid #fff;outline-offset:2px;background:var(--ink-color)!important}
+#sarchInk231 input[type=color]{width:29px!important;height:28px!important;border:0!important;padding:0!important;background:transparent!important;flex:none}
+#sarchInk231 input[type=range]{width:76px!important;min-width:60px;accent-color:#b9cbd9;flex:none;padding:0!important}
+#sarchInk231 select{height:32px!important;min-width:52px!important;width:auto!important;background:#303030!important;border:1px solid #555!important;color:#eee!important;padding:2px 5px!important;flex:none}
+#sarchInk231 .inkstage{position:relative;flex:1;min-height:0;overflow:hidden;background:#151515;touch-action:none}
+#sarchInk231 canvas{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;touch-action:none;object-fit:fill!important;cursor:crosshair}
+#sarchInk231 .inkbottom{border-top:1px solid #393939;border-bottom:0;padding-bottom:max(4px,env(safe-area-inset-bottom));min-height:44px}
+#sarchInk231 .inkbottom .inktools{justify-content:center}
+#sarchInk231 .inkmessage{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);max-width:90%;padding:7px 12px;background:#333e;color:#eee;border-radius:6px;font-size:12px;pointer-events:none;white-space:normal;text-align:center}
+#sarchInk231 .inkmessage:empty{display:none}
+#sarchInk231 .inktextpanel{position:absolute;inset:0;display:grid;place-items:center;background:#0008;z-index:4}
+#sarchInk231 .inktextpanel[hidden]{display:none!important}
+#sarchInk231 .inktextinner{background:#252525;border:1px solid #555;border-radius:12px;padding:14px;max-width:480px;width:90%;display:grid;gap:10px}
+#sarchInk231 textarea{width:100%!important;min-height:110px;resize:vertical;background:#141414!important;color:#fff!important;border:1px solid #777!important;border-radius:6px;padding:10px;font:16px Dotum,Arial,sans-serif}
+#sarchInk231 .inktextactions{display:flex;justify-content:flex-end;gap:6px}
+#sarchInk231 .inkselection{flex:none;display:flex;gap:4px}
+#sarchInk231 .inkselection[hidden]{display:none!important}
+@media(max-width:800px){#sarchInk231 .inkbar{padding:3px 4px}#sarchInk231 .inkbottom .inktools{justify-content:flex-start}#sarchInk231 .inklabel{display:none}#sarchInk231 button{min-width:32px!important;padding:3px 6px!important}#sarchInk231 .inkapply{font-size:12px!important}}
+
+/* Contextual controls open directly below the selected toolbar icon. */
+#sarchInk231 .inksettings{position:absolute;z-index:12;width:248px;max-width:calc(100% - 16px);background:#292929!important;color:#f2f2f2!important;border:1px solid #565656;border-radius:12px;padding:12px;box-shadow:0 8px 24px #0009;font:13px Dotum,Arial,sans-serif}
+#sarchInk231 .inksettings[hidden],#sarchInk231 .inksettings section[hidden]{display:none!important}
+#sarchInk231 .inksettings section{display:grid;gap:10px}
+#sarchInk231 .inksettings-title{display:flex;align-items:center;justify-content:space-between;font-weight:bold}
+#sarchInk231 .inksettings-title button{height:28px!important;min-width:28px!important;font-size:20px!important}
+#sarchInk231 .inksettings-row{display:flex;gap:6px}
+#sarchInk231 .inksettings-row button{flex:1;border:1px solid #666!important}
+#sarchInk231 .inksettings-row button[aria-pressed=true]{background:#276a91!important;border-color:#71b8e3!important}
+#sarchInk231 .inksettings label{display:flex;align-items:center;gap:5px;color:#eee!important;font-size:13px}
+#sarchInk231 .inksettings output{margin-left:auto;color:#9ed7ff;font-weight:bold}
+#sarchInk231 .inksettings input[type=range]{width:100%!important;height:30px!important}
+#sarchInk231 .inkpreview{height:70px;display:grid;place-items:center;background:#1c1c1c;border-radius:7px;overflow:hidden}
+#sarchInk231 .inkpreview span{border:1.5px solid #b4c1ca;background:#a5b4c333;border-radius:50%}
+#sarchInk231 .inkmarkerpreview{position:relative;isolation:isolate;display:grid;place-items:center;height:42px;background:#fafafa;color:#161616;border-radius:6px;overflow:hidden;font-weight:bold}
+#sarchInk231 .inkmarkerpreview span{position:absolute;z-index:-1;inset:10px 12px;border-radius:4px}
