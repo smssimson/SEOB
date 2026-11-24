@@ -26,12 +26,17 @@ for name in files:
 for name in ["index.html","survey/index.html","drawing/index.html","schmidt/index.html","tilt/index.html"]:
     assert (app/name).is_file(),name
 # The app keeps the /SEOB/ URL path as the existing module navigation expects it.
-(www/"index.html").write_text('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S:ARCH</title><script>location.replace("./SEOB/")</script><a href="./SEOB/">S:ARCH 열기</a>',encoding="utf-8")
+(www/"index.html").write_text('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S:ARCH</title><script>location.replace("/SEOB/index.html")</script><a href="/SEOB/index.html">S:ARCH 열기</a>',encoding="utf-8")
 # The checked-out web release already contains the official brand and all artwork.
 shutil.copy2(root/"native-app"/"brand"/"render-icons.cjs",out/"render-icons.cjs")
 for page in app.rglob("*.html"):
     s=page.read_text(encoding="utf-8")
     if not re.search(r"<head(?:\s[^>]*)?>",s,re.I): continue
+    # Native assets require explicit HTML filenames; extensionless paths may
+    # load the root SPA entry again and trigger a redirect loop.
+    s=re.sub(r"""(href\s*=\s*["'])(\./|\.\./|\./(?:survey|drawing|schmidt|tilt)/)(["'])""",r"\1\2index.html\3",s,flags=re.I)
+    s=s.replace('location.href="./"+type.key+"/?sarch_received="','location.href="./"+type.key+"/index.html?sarch_received="')
+    s=s.replace("navigator.serviceWorker.register(", "window.SARCHNativeRegisterWorker(")
     # Load before application scripts so programmatic file-input clicks also work.
     s=re.sub(r"(<head(?:\s[^>]*)?>)",r'\1<script src="/native-bridge.js"></script>',s,count=1,flags=re.I)
     if page==app/"schmidt"/"index.html":
@@ -41,8 +46,16 @@ for page in app.rglob("*.html"):
         s=s.replace(old,"if(window.SARCHNative?.enabled){$('cameraHelp').textContent='촬영 버튼을 누르면 기기 카메라가 열리고 앨범에도 저장됩니다.';return;}"+old,1)
         s=s.replace(old_take,"if(cameraBusy)return;if(window.SARCHNative?.enabled){$('photoInput').value='';$('photoInput').click();return;}let v=$('cameraVideo');",1)
     page.write_text(s,encoding="utf-8")
-package={"name":"sarch-native","version":"1.0.225","private":True,"scripts":{"bundle":"node render-icons.cjs && esbuild bridge.js --bundle --format=iife --target=es2020 --outfile=www/native-bridge.js"},"dependencies":{"@capacitor/core":"^7.0.0","@capacitor/android":"^7.0.0","@capacitor/ios":"^7.0.0","@capacitor/camera":"^7.0.0","@capacitor/filesystem":"^7.0.0","@capacitor/share":"^7.0.0"},"devDependencies":{"@capacitor/cli":"^7.0.0","esbuild":"^0.25.0","@resvg/resvg-js":"^2.6.2"}}
+quick=app/"sarch-quick-nav-v139.js"
+q=quick.read_text(encoding="utf-8")
+q=re.sub(r'path:"(survey|drawing|schmidt|tilt)/"',r'path:"\1/index.html"',q)
+quick.write_text(q,encoding="utf-8")
+assert 'location.replace("/SEOB/index.html")' in (www/"index.html").read_text(encoding="utf-8")
+for mod in modules:
+    assert (app/mod/"index.html").is_file()
+    assert './'+mod+'/index.html' in (app/"index.html").read_text(encoding="utf-8")
+package={"name":"sarch-native","version":"1.0.226","private":True,"scripts":{"bundle":"node render-icons.cjs && esbuild bridge.js --bundle --format=iife --target=es2020 --outfile=www/native-bridge.js"},"dependencies":{"@capacitor/core":"^7.3.0","@capacitor/android":"^7.3.0","@capacitor/ios":"^7.0.0","@capacitor/camera":"^7.0.0","@capacitor/filesystem":"^7.0.0","@capacitor/share":"^7.0.0"},"devDependencies":{"@capacitor/cli":"^7.3.0","esbuild":"^0.25.0","@resvg/resvg-js":"^2.6.2"}}
 (out/"package.json").write_text(json.dumps(package,indent=2),encoding="utf-8")
-(out/"capacitor.config.json").write_text(json.dumps({"appId":"com.sarch.fieldwork","appName":"S:ARCH","webDir":"www","server":{"hostname":"localhost","androidScheme":"https"}},indent=2),encoding="utf-8")
+(out/"capacitor.config.json").write_text(json.dumps({"appId":"com.sarch.fieldwork","appName":"S:ARCH","webDir":"www","server":{"hostname":"localhost","androidScheme":"https","appStartPath":"/SEOB/index.html"}},indent=2),encoding="utf-8")
 (out/"bridge.js").write_text((root/"native-app"/"bridge.js").read_text(encoding="utf-8"),encoding="utf-8")
 print(f"Prepared {count} bundled source files")
