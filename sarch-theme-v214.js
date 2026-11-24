@@ -383,13 +383,15 @@ async function paintPokemonCard(c,source,index){
  const src=await actorImage("pokemon",index);
  if(!src)return;
  const actor=await load(src);
- const placements=[[82,131,193],[272,122,174],[0,116,192],[0,138,170]];
- const [left,top,size]=placements[index];
+ // Foot anchors keep each silhouette inside the opaque part of the scene.
+ const stances=[[192,324,176,7,true],[353,298,162,13,false],[190,321,164,15,true],[189,313,154,9,false]];
+ const [footX,footY,size,lean,mirror]=stances[index];
  c.save();
+ c.translate(footX,footY);
+ c.rotate(lean*Math.PI/180);
+ c.scale(mirror?-1:1,1);
  c.shadowColor="#142336aa";c.shadowBlur=5;c.shadowOffsetY=4;
- if(index===0||index===2){
-  c.translate(left+size,top);c.scale(-1,1);c.drawImage(actor,0,0,size,size);
- }else c.drawImage(actor,left,top,size,size);
+ c.drawImage(actor,-size/2,-size,size,size);
  c.restore();
  c.save();
  c.globalCompositeOperation="destination-in";
