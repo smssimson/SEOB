@@ -14,6 +14,26 @@ if platform=="android":
             el=ET.Element("uses-permission",{"{"+ns+"}name":perm,"{"+ns+"}maxSdkVersion":limit})
             root.insert(0,el)
     tree.write(path,encoding="utf-8",xml_declaration=True)
+    # Same dark window background at the OS splash, Activity and WebView stages.
+    styles=build/"android/app/src/main/res/values/styles.xml"
+    st=ET.parse(styles)
+    def item(style,name,value):
+        el=next((x for x in style.findall("item") if x.get("name")==name),None)
+        if el is None: el=ET.SubElement(style,"item",{"name":name})
+        el.text=value
+    for style in st.getroot().findall("style"):
+        name=style.get("name")
+        if name in ("AppTheme","AppTheme.NoActionBar","AppTheme.NoActionBarLaunch"):
+            item(style,"android:windowBackground","#20252b")
+            item(style,"android:statusBarColor","#20252b")
+            item(style,"android:navigationBarColor","#20252b")
+            item(style,"android:windowLightStatusBar","false")
+            item(style,"android:windowLightNavigationBar","false")
+        if name=="AppTheme.NoActionBarLaunch":
+            item(style,"windowSplashScreenBackground","#20252b")
+            item(style,"windowSplashScreenAnimatedIcon","@mipmap/ic_launcher")
+            item(style,"postSplashScreenTheme","@style/AppTheme.NoActionBar")
+    st.write(styles,encoding="utf-8",xml_declaration=True)
     if icon.exists():
         im=Image.open(icon).convert("RGBA")
         res=build/"android/app/src/main/res"
