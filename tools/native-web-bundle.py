@@ -36,7 +36,10 @@ def prepare(source, www):
             s=s.replace(take,"if(cameraBusy)return;if(window.SARCHNative?.enabled){$('photoInput').value='';$('photoInput').click();return;}let v=$('cameraVideo');",1)
         if page==app/"index.html":
             s=re.sub(r'<button\b[^>]*\bid="sarchInstallShare155"[^>]*>[\s\S]*?</button>',"",s,count=1)
-            s=re.sub(r'<button\b[^>]*\bid="sarchManualUpdate"[^>]*>[\s\S]*?</button>',"",s,count=1)
+            # Keep the home update control and bind to the installed native plugin.
+            s=s.replace('title="GitHub 배포 후 최신 버전 확인">↻ 업데이트','title="Android 최신 버전 확인">↻ 수동 업데이트')
+            s=s.replace('</body>','<script defer src="./sarch-native-update-v230.js"></script></body>')
+            assert 'id="sarchManualUpdate"' in s and 'sarch-native-update-v230.js' in s
         page.write_text(s,encoding="utf-8")
     quick=app/"sarch-quick-nav-v139.js"
     q=re.sub(r'path:"(survey|drawing|schmidt|tilt)/"',r'path:"\1/index.html"',quick.read_text(encoding="utf-8"))
