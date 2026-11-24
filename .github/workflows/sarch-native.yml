@@ -59,7 +59,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: SARCH-v225-Android
-          path: native-app/artifacts/SARCH-v225-Brand-test.apk
+          path: native-app/artifacts/SARCH-v225.apk
           if-no-files-found: error
           retention-days: 30
       - name: Publish standalone APK test release
@@ -68,7 +68,7 @@ jobs:
         run: |
           set -euo pipefail
           tag=sarch-v225-android-test
-          file=native-app/artifacts/SARCH-v225-Brand-test.apk
+          file=native-app/artifacts/SARCH-v225.apk
           test -s "$file"
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$tag" "$file" --repo "$GITHUB_REPOSITORY" --clobber
