@@ -74,7 +74,7 @@ public class SarchUpdate extends Plugin {
     static void rejectTrial(Context c){
         SharedPreferences p=state(c);
         int v=p.getInt("trialVersion",0);
-        p.edit().putInt("rejected",v).remove("trial").remove("trialVersion").remove("pending").commit();
+        p.edit().putInt("rejected",Math.max(v,p.getInt("rejected",0))).remove("trial").remove("trialVersion").remove("pending").remove("confirmed").commit();
         web(c).edit().remove("serverBasePath").commit();
     }
     private static String readText(InputStream in,int max)throws IOException{
