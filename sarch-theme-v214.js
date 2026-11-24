@@ -1,7 +1,7 @@
 /* S:ARCH v214 — one composited scene per card, originals kept intact.
    Canvas is only for home-page decorative art: never touches survey drawings or data. */
 (()=>{"use strict";
-const root=new URL(".",document.currentScript.src),themes=new Set(["shinchan","pokemon","digimon","marvel"]);
+const root=new URL(".",document.currentScript.src),themes=new Set(["shinchan"]);
 const palette={
  shinchan:["#d9c7a7","#9b9487","#707a78","#e9c979"],
  pokemon:["#c9c8ac","#8d9b8c","#718586","#edd47a"],
@@ -623,7 +623,7 @@ async function paintPokemonCard(c,source,index){
  c.restore();
 }
 async function cardArt(card,theme,i,source){
- if(card.dataset.sarchSceneVersion===theme+"-224"&&card.querySelector(".sarch-v214-scene")){
+ if(card.dataset.sarchSceneVersion===theme+"-225"&&card.querySelector(".sarch-v214-scene")){
   card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene").forEach(el=>el.remove());
   return;
  }
@@ -657,7 +657,7 @@ async function cardArt(card,theme,i,source){
  if(document.body.dataset.theme!==theme||wrap.dataset.theme!==theme||!wrap.isConnected)return;
  wrap.replaceChildren(canvas);
  if(WORK_NAMES[theme])wrap.title=WORK_NAMES[theme][i];
- card.dataset.sarchSceneVersion=theme+"-224";card.classList.add("sarch-v214-ready");
+ card.dataset.sarchSceneVersion=theme+"-225";card.classList.add("sarch-v214-ready");
  card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene,.sarch-v211-scene").forEach(n=>n.remove());
 }
 const BUTTON_GLYPHS={
