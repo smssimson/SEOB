@@ -616,7 +616,7 @@ panel.appendChild(sm52Camera);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange);
  else arrange();
 })();
-</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=231',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
+</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=232',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
 #smetric-v66-update{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(16px);z-index:2147483646;max-width:min(90vw,370px);padding:9px 14px;border-radius:11px;background:rgba(24,47,63,.91);color:#e9fff5;box-shadow:0 6px 24px rgba(0,0,0,.16);font:500 12px/1.5 system-ui,sans-serif;text-align:center;pointer-events:none;opacity:0;transition:opacity .3s,transform .3s}
 #smetric-v66-update.visible{opacity:1;transform:translateX(-50%) translateY(0)}
 </style><script id="smetric-v66-auto-update">(function(){'use strict';
@@ -625,7 +625,7 @@ const BASE='/SEOB/';let shown=false;let running=false;
 function toast(message){if(shown)return;shown=true;let el=document.getElementById('smetric-v66-update');if(!el){el=document.createElement('div');el.id='smetric-v66-update';el.setAttribute('role','status');el.setAttribute('aria-live','polite');document.body.appendChild(el)}el.textContent=message;requestAnimationFrame(()=>el.classList.add('visible'));setTimeout(()=>{el.classList.remove('visible');setTimeout(()=>el.remove(),350)},4500)}
 function status(worker){return new Promise(resolve=>{if(!worker)return resolve(null);const ch=new MessageChannel();let timer=setTimeout(()=>resolve(null),4500);ch.port1.onmessage=e=>{clearTimeout(timer);resolve(e.data)};try{worker.postMessage({type:'SMETRIC_OFFLINE_STATUS'},[ch.port2])}catch(e){clearTimeout(timer);resolve(null)}})}
 async function run(){if(running||!navigator.onLine)return;running=true;try{
- const reg=await navigator.serviceWorker.register(BASE+'seob-sw.js?v=231',{scope:BASE,updateViaCache:'none'});
+ const reg=await navigator.serviceWorker.register(BASE+'seob-sw.js?v=232',{scope:BASE,updateViaCache:'none'});
  await reg.update();
  // New worker may be installing; only report success after it has activated and cached all files.
  let worker=reg.active;if(reg.installing){await new Promise(resolve=>{const w=reg.installing;const timeout=setTimeout(resolve,18000);w.addEventListener('statechange',()=>{if(w.state==='activated'||w.state==='redundant'){clearTimeout(timeout);resolve()}})});worker=reg.active}
@@ -700,21 +700,21 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
 <link rel="stylesheet" href="../sarch-shell-v145.css?v=147">
 <script defer src="../sarch-shell-v145.js?v=145"></script>
 <script defer src="../sarch-drawing-tools-v144.js?v=149"></script>
-<link rel="stylesheet" href="../sarch-brand-v196.css"><link rel="stylesheet" href="../sarch-fandom-v198.css"><link rel="stylesheet" href="../sarch-global-theme-v206.css"><script defer src="../sarch-global-theme-v217.js?v=225"></script><link rel="stylesheet" href="../sarch-theme-v214.css?v=225"><script defer src="../sarch-theme-v214.js?v=225"></script><link rel="stylesheet" href="../sarch-ink-v231.css"><script src="../sarch-ink-v231.js"></script><script>
+<link rel="stylesheet" href="../sarch-brand-v196.css"><link rel="stylesheet" href="../sarch-fandom-v198.css"><link rel="stylesheet" href="../sarch-global-theme-v206.css"><script defer src="../sarch-global-theme-v217.js?v=225"></script><link rel="stylesheet" href="../sarch-theme-v214.css?v=225"><script defer src="../sarch-theme-v214.js?v=225"></script><link rel="stylesheet" href="../sarch-ink-v232.css"><script src="../sarch-ink-v232.js"></script><script>
 (function(){
 function isInk(p){return !!p.sarchInk&&(p.kind==='stroke'||p.kind==='polygon'||p.kind==='annotation')}
 function asStroke(p){
  if(p.kind==='annotation')return {tool:'text',points:deep(p.pts),color:p.color,width:p.inkWidth||3,text:p.inkText||'',format:deep(p.inkFormat||{})};
- return {tool:p.inkOpacity<1?'marker':'pen',points:deep(p.pts),color:p.color||'#26394a',width:p.inkWidth||3,closed:!!p.closed};
+ return {tool:p.inkTool==='marker'||p.inkOpacity<1?'marker':'pen',points:deep(p.pts),color:p.color||'#26394a',width:p.inkWidth||3,closed:!!p.closed,opacity:p.inkOpacity??1};
 }
 function asPath(s){
  if(s.tool==='text')return {kind:'annotation',closed:false,pts:deep(s.points),color:s.color,sarchInk:true,inkText:s.text,inkFormat:deep(s.format||{}),inkWidth:s.width||3};
  let pts=window.SARCHInk231.geometry(s);if(!pts.length)return null;
- let closed=s.tool==='rect'||s.tool==='ellipse'||s.closed;
+ let closed=s.tool==='rect'||s.tool==='ellipse'||s.tool==='triangle'||s.closed;
  if(closed&&pts.length>1&&distance(pts[0],pts.at(-1))<.001)pts=pts.slice(0,-1);
  if(pts.length===1)pts=[pts[0],{x:pts[0].x+.02,y:pts[0].y+.02}];
  if(s.tool==='pen'&&pts.length>2&&!closed)pts=simplify(pts,1.2);
- return {kind:closed?'polygon':'stroke',closed:!!closed,pts:deep(pts),color:s.color||'#26394a',sarchInk:true,inkWidth:s.tool==='marker'?Math.max(s.width||3,12):s.width||3,inkOpacity:s.tool==='marker'?.34:1};
+ return {kind:closed?'polygon':'stroke',closed:!!closed,pts:deep(pts),color:s.color||'#26394a',sarchInk:true,inkWidth:s.tool==='marker'?Math.max(s.width||3,12):s.width||3,inkTool:s.tool==='marker'?'marker':'pen',inkOpacity:s.tool==='marker'?Math.max(.05,Math.min(1,Number(s.opacity??.34))):1};
 }
 function launchSharedDrawing(){
  if(!window.SARCHInk231)return;
