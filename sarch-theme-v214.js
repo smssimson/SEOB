@@ -499,7 +499,7 @@ function workImage(theme,i){
 /* v224: existing illustrated environments and original character artwork.
  * All layers are rendered into a single safely framed decorative canvas. */
 let detailAtlas;
-const getDetailAtlas=()=>detailAtlas||(detailAtlas=load("sarch-v214-pokemon-background.webp"));
+const getDetailAtlas=()=>detailAtlas||(detailAtlas=load("sarch-v214-pokemon-background.webp").catch(e=>{detailAtlas=null;throw e}));
 const originalFiles={pokemon:["sarch-theme-pokemon-0.png",null,"sarch-theme-pokemon-5.png",null],digimon:["sarch-theme-digimon-0.png","sarch-theme-digimon-1.png",null,"sarch-theme-digimon-3.png"],marvel:[null,null,null,null]};
 const originalCache=new Map();
 function originalCutout(theme,i){
