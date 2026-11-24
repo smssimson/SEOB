@@ -10,7 +10,7 @@
 #sketchModal{position:fixed;inset:0;background:#102233c9;z-index:120;display:none;align-items:center;justify-content:center;padding:10px}
 #sketchModal.open{display:flex}.sketchWindow{background:#fff;border-radius:13px;width:min(1100px,100%);max-height:96dvh;display:flex;flex-direction:column;padding:12px;gap:9px}
 .sketchTools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.sketchTools button{padding:8px 11px}.sketchTools label{margin:0;font-size:12px;display:flex;align-items:center;gap:5px}.sketchTools input{width:65px;padding:6px}
-.sketchPalette{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.sketchPalette button{width:30px;height:30px;padding:0;border-radius:50%;border:2px solid #d0d9e3;box-shadow:inset 0 0 0 2px white}.sketchPalette button.chosen{outline:2px solid #2563eb;outline-offset:2px}.sketchTip{font-size:12px;color:#52677a}#sketchCanvas{width:100%;height:auto;min-height:0;aspect-ratio:16/11;background:#fff;border:1px solid #b9c7d5;border-radius:5px;touch-action:none;display:block;object-fit:contain}
+.sketchPalette{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.sketchPalette button{width:30px;height:30px;padding:0;border-radius:50%;border:2px solid #d0d9e3;box-shadow:inset 0 0 0 2px white}.sketchPalette button.chosen{outline:2px solid #2563eb;outline-offset:2px}.sketchTip{font-size:12px;color:#52677a}#sketchCanvas{width:100%;height:auto;min-height:0;aspect-ratio:16/11;background:#fff;border:1px solid #b9c7d5;border-radius:5px;touch-action:none;display:block;object-fit:contain;object-position:center center;flex-shrink:1}
 
 /* v21: 독립 기기별 테마 및 간결한 현장 대시보드 */
 :root{--app-bg:#edf3f9;--surface:#ffffff;--surface-soft:#f2f6fc;--field:#fff;--ink:#1b2d46;--muted:#60748e;--line:#d6e1ee;--accent:#176ac2;--accent-hover:#0e57a6;--header:#112e4b;--board:#e3eaf3;color-scheme:light}
@@ -1463,7 +1463,21 @@ $('sketchPalette').innerHTML=skColors.map(c=>`<button type="button" data-skcolor
 function skPaletteRefresh(){document.querySelectorAll('[data-skcolor]').forEach(b=>{b.classList.toggle('chosen',b.dataset.skcolor===skColor);b.setAttribute('aria-pressed',String(b.dataset.skcolor===skColor))})}
 document.querySelectorAll('[data-skcolor]').forEach(b=>b.onclick=()=>{skColor=b.dataset.skcolor;skPaletteRefresh()});skPaletteRefresh();
 function skPaint(){skCtx.fillStyle='#fff';skCtx.fillRect(0,0,SKW,SKH);skCtx.lineCap='round';skCtx.lineJoin='round';for(const a of [...skStrokes,...(skCurrent?[skCurrent]:[])]){if(!a.points?.length)continue;skCtx.lineWidth=a.width;skCtx.strokeStyle=a.tool==='erase'?'#fff':(a.color||'#26394a');skCtx.beginPath();let p=a.points[0];if(a.tool==='rect'&&a.points.length>1){let q=a.points[a.points.length-1];skCtx.strokeRect(p.x,p.y,q.x-p.x,q.y-p.y);continue}skCtx.moveTo(p.x,p.y);if((a.tool==='line'||a.straight)&&a.points.length>1){let q=a.points[a.points.length-1];skCtx.lineTo(q.x,q.y)}else{for(const q of a.points.slice(1))skCtx.lineTo(q.x,q.y);if(a.points.length===1)skCtx.lineTo(p.x+.01,p.y+.01)}skCtx.stroke()}}
-function skCoords(e){const r=skCanvas.getBoundingClientRect();return{x:Math.max(0,Math.min(SKW,(e.clientX-r.left)*SKW/r.width)),y:Math.max(0,Math.min(SKH,(e.clientY-r.top)*SKH/r.height))}}
+// Map viewport pointer coordinates to the actual rendered bitmap, not the
+// outer canvas box (flex shrink, borders and object-fit letterboxing differ).
+function skCoords(e){
+ const r=skCanvas.getBoundingClientRect(),cs=getComputedStyle(skCanvas);
+ const sx=r.width/(skCanvas.offsetWidth||r.width||1),sy=r.height/(skCanvas.offsetHeight||r.height||1);
+ const px=k=>parseFloat(cs[k])||0;
+ const l=(px('borderLeftWidth')+px('paddingLeft'))*sx,t=(px('borderTopWidth')+px('paddingTop'))*sy;
+ const rr=(px('borderRightWidth')+px('paddingRight'))*sx,b=(px('borderBottomWidth')+px('paddingBottom'))*sy;
+ const w=Math.max(1,r.width-l-rr),h=Math.max(1,r.height-t-b);
+ // Contain uses the element's untransformed CSS dimensions.
+ const scale=Math.min(w/sx/SKW,h/sy/SKH);
+ const dw=SKW*scale*sx,dh=SKH*scale*sy;
+ const left=r.left+l+(w-dw)/2,top=r.top+t+(h-dh)/2;
+ return{x:Math.max(0,Math.min(SKW,(e.clientX-left)*SKW/dw)),y:Math.max(0,Math.min(SKH,(e.clientY-top)*SKH/dh))};
+}
 function skClearHold(){if(skHoldTimer!==null){clearTimeout(skHoldTimer);skHoldTimer=null}}
 function skArmHold(){skClearHold();if(!skCurrent||skCurrent.tool!=='pen'||skCurrent.straight||skCurrent.points.length<2)return;const target=skCurrent;skHoldTimer=setTimeout(()=>{skHoldTimer=null;if(skCurrent!==target||skPointer===null||skCurrent.points.length<2)return;const start=skCurrent.points[0],end=skCurrent.points[skCurrent.points.length-1];if(Math.hypot(end.x-start.x,end.y-start.y)<12)return;skCurrent.straight=true;skCurrent.points=[start,end];skPaint()},600)}
 function openSketch(edit){skClearHold();if(edit){let p=state.pages[state.activePage];if(!p||!p.sketch){alert('현재 도면은 스케치 도면이 아닙니다. 스케치 도면을 선택해 주세요.');return}skEditPage=state.activePage;skStrokes=structuredClone(p.sketch.strokes||[])}else{skEditPage=-1;skStrokes=[]}skCurrent=null;skPointer=null;skPaint();$('sketchModal').classList.add('open')}
@@ -1753,7 +1767,7 @@ function init(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
-</script><script id="smetric-v57-survey-undo">(function(){function ready(){const field=document.querySelector('#smFieldGroup .sm-field-actions');const original=document.getElementById('undo');if(!field||!original)return;const proxy=document.createElement('button');proxy.type='button';proxy.className='sm57-undo';proxy.textContent='↶ 실행 취소';proxy.title='마지막 작업 되돌리기';proxy.onclick=()=>original.click();field.appendChild(proxy);const sync=()=>{proxy.disabled=original.disabled;proxy.title=original.title||'마지막 작업 되돌리기'};new MutationObserver(sync).observe(original,{attributes:true,attributeFilter:['disabled','title']});sync()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready()})();</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=225',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
+</script><script id="smetric-v57-survey-undo">(function(){function ready(){const field=document.querySelector('#smFieldGroup .sm-field-actions');const original=document.getElementById('undo');if(!field||!original)return;const proxy=document.createElement('button');proxy.type='button';proxy.className='sm57-undo';proxy.textContent='↶ 실행 취소';proxy.title='마지막 작업 되돌리기';proxy.onclick=()=>original.click();field.appendChild(proxy);const sync=()=>{proxy.disabled=original.disabled;proxy.title=original.title||'마지막 작업 되돌리기'};new MutationObserver(sync).observe(original,{attributes:true,attributeFilter:['disabled','title']});sync()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready()})();</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=229',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
 #smetric-v66-update{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(16px);z-index:2147483646;max-width:min(90vw,370px);padding:9px 14px;border-radius:11px;background:rgba(24,47,63,.91);color:#e9fff5;box-shadow:0 6px 24px rgba(0,0,0,.16);font:500 12px/1.5 system-ui,sans-serif;text-align:center;pointer-events:none;opacity:0;transition:opacity .3s,transform .3s}
 #smetric-v66-update.visible{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
