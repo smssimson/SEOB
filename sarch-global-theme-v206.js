@@ -1,7 +1,7 @@
 /* S:ARCH unified theme selector and removable illustrated theme pack. */
 (()=>{"use strict";
 const KEY="sarch-global-theme-v199";
-const labels={dark:"기본 · S:ARCH",light:"라이트",navy:"네이비",forest:"포레스트",slate:"슬레이트",ocean:"오션",sand:"샌드",lavender:"라벤더",rose:"로즈",graphite:"그라파이트",paper:"도면지",blueprint:"블루프린트",mint:"민트",system:"기기 설정",shinchan:"짱구",pokemon:"포켓몬",digimon:"디지몬",marvel:"마블"};
+const labels={dark:"기본 · S:ARCH",light:"라이트",navy:"네이비",forest:"포레스트",slate:"슬레이트",ocean:"오션",sand:"샌드",lavender:"라벤더",rose:"로즈",graphite:"그라파이트",paper:"도면지",blueprint:"블루프린트",mint:"민트",shinchan:"짱구",pokemon:"포켓몬",digimon:"디지몬",marvel:"마블"};
 const base=new URL(".",document.currentScript.src);
 const images={
  shinchan:["shinchan-0.webp","shinchan-2.png","shinchan-3.webp","shinchan-0.webp"],
@@ -110,7 +110,6 @@ function placeHeader(){
  const obstruct=[...head.querySelectorAll(".smetric-brand,#smSaveIndicator,.sarch-protect,.smetric-head-controls>button,.smetric-head-controls>a,.smetric-head-controls>span")].filter(e=>e!==anchor&&!e.contains(anchor)&&!e.classList.contains("sarch-theme-character")).some(e=>{const t=e.getBoundingClientRect();return t.width>0&&t.height>0&&Math.min(right,t.right)-Math.max(left,t.left)>1&&Math.min(r.bottom,t.bottom)-Math.max(r.top,t.top)>1});
  headerArt.style.display=r.width>0&&left>=h.left+6&&!obstruct?"block":"none";
 }
-const media=window.matchMedia("(prefers-color-scheme: dark)");
 function stored(){try{const v=localStorage.getItem(KEY);return v&&Object.hasOwn(labels,v)?v:"dark"}catch(e){return "dark"}}
 
 // Set only the background paint on the existing camera button; do not replace handlers or layout.
@@ -129,8 +128,10 @@ function paintCamera(theme){
 
 function apply(choice){
  const val=Object.hasOwn(labels,choice)?choice:"dark";
- const current=val==="system"?(media.matches?"dark":"light"):val;
+ const current=val;
  const b=document.body; b.dataset.theme=current;
+ if(cameraIcons[current])b.style.setProperty("--st-camera-icon",'url("'+cameraIcons[current]+'")');
+ else b.style.removeProperty("--st-camera-icon");
  paintCamera(current);
  document.documentElement.dataset.sarchTheme=val;
  const global=document.getElementById("sarchGlobalTheme");if(global)global.value=val;
@@ -177,7 +178,7 @@ function init(){
  window.addEventListener("pageshow",()=>apply(stored()));
  window.addEventListener("resize",placeHeader,{passive:true});
  window.addEventListener("storage",e=>{if(e.key===KEY)apply(stored())});
- media.addEventListener?.("change",()=>{if(stored()==="system")apply("system")});
+
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();

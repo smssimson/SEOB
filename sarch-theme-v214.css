@@ -234,3 +234,83 @@ html.sarch-native-brand[data-module="home"] body.sarch-home-v139 .modules .modul
  mask-image:linear-gradient(90deg,transparent,#000 16%)!important;
 }
 }
+
+@media screen {
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139 .modules .module>.sarch-v214-scene .sarch-scene-foreground {
+ z-index:4!important;
+ mask-image:none!important;
+}
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139 .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-v214-actor {
+ right:min(53cqw,88.33cqh)!important;
+}
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139 .modules .module>.sarch-v214-scene[data-theme="marvel"] .sarch-v214-actor.marvel {
+ mask-image:radial-gradient(ellipse closest-side,#000 65%,#000c 82%,transparent 100%)!important;
+}
+
+html.sarch-native-brand:not([data-module="home"]) body[data-theme="shinchan"] {
+ --inspection-ink:#623725;
+ --inspection-surface:#fff7de;
+ --inspection-edge:#d5a066;
+ --inspection-workspace:#fae8bc;
+ --inspection-wallpaper:
+   radial-gradient(circle at 17px 19px,#f4bd5b4a 0 4px,transparent 4.5px),
+   radial-gradient(circle at 56px 52px,#ea756d38 0 3px,transparent 3.5px),
+   repeating-linear-gradient(-32deg,transparent 0 55px,#e47d5e18 55px 57px,transparent 57px 98px);
+}
+html.sarch-native-brand:not([data-module="home"]) body[data-theme="pokemon"] {
+ --inspection-ink:#25364b;
+ --inspection-surface:#f9f5d6;
+ --inspection-edge:#b6a255;
+ --inspection-workspace:#ece7b7;
+ --inspection-wallpaper:
+   radial-gradient(circle at 20px 25px,#b2974238 0 5px,transparent 5.6px),
+   radial-gradient(circle at 61px 62px,#51917a31 0 3px,transparent 3.6px),
+   repeating-linear-gradient(135deg,transparent 0 48px,#658b6c21 49px 51px,transparent 52px 99px);
+}
+html.sarch-native-brand:not([data-module="home"]) body[data-theme="digimon"] {
+ --inspection-ink:#d9f5ff;
+ --inspection-surface:#17354c;
+ --inspection-edge:#528eaa;
+ --inspection-workspace:#101f35;
+ --inspection-wallpaper:
+   radial-gradient(circle at 20px 25px,#77def750 0 2px,transparent 3px),
+   repeating-linear-gradient(0deg,transparent 0 31px,#51a0c829 32px 33px,transparent 34px 63px),
+   repeating-linear-gradient(90deg,transparent 0 31px,#51a0c829 32px 33px,transparent 34px 63px);
+}
+html.sarch-native-brand:not([data-module="home"]) body[data-theme="marvel"] {
+ --inspection-ink:#fff1e5;
+ --inspection-surface:#382b38;
+ --inspection-edge:#ad666c;
+ --inspection-workspace:#281f29;
+ --inspection-wallpaper:
+   radial-gradient(circle at 23px 23px,#ed909a35 0 1.8px,transparent 2.5px),
+   repeating-linear-gradient(135deg,transparent 0 44px,#cb657329 45px 48px,transparent 49px 90px);
+}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) {
+ background-color:var(--inspection-workspace)!important;
+ background-image:var(--inspection-wallpaper)!important;
+ background-size:80px 80px,112px 112px,auto!important;
+ background-attachment:fixed!important;
+}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) :is(.projectbar,.sarch-v121-site,.sm-draw-sitebar,.sm-survey-tools,#sarchFloor135,.sm43-tool-panel,.sm43-group-content,.toolbar,.sheetbar) {
+ background-color:var(--inspection-surface)!important;
+ background-image:var(--inspection-wallpaper)!important;
+ background-size:80px 80px,112px 112px,auto!important;
+ color:var(--inspection-ink)!important;
+ border-color:var(--inspection-edge)!important;
+}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) :is(.projectbar,.sarch-v121-site,.sm-draw-sitebar,#sarchFloor135,.sm43-group-content) :is(label,small,h2,h3,legend) {
+ color:var(--inspection-ink)!important;
+}
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) header.smetric-app-header::before {
+ background-image:var(--inspection-wallpaper)!important;
+ background-size:80px 80px,112px 112px,auto!important;
+ opacity:.82;
+}
+html.sarch-native-brand:not([data-module="home"]) body.sarch-shell-v145:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) :is(#cameraBtn,#sm52FixedCamera).sarch-camera-tab-v145 {
+ background-image:var(--st-camera-icon)!important;
+ background-repeat:no-repeat!important;
+ background-size:26px 20px!important;
+ background-position:center 3px!important;
+}
+}

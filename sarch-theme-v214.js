@@ -172,7 +172,7 @@ function crewLayer(c,img){
  fade.addColorStop(.89,"#000");fade.addColorStop(1,"#000f");
  g.fillStyle=fade;g.fillRect(0,0,600,360);
  g.globalCompositeOperation="source-over";
- c.drawImage(off,7,28,361,323);
+ c.drawImage(off,16,91,430,258);
 }
 function showDisplacement(c,theme,edge){
  // The survey is anchored at the very lowest structural corner B.
@@ -210,13 +210,24 @@ function tilt(c,img,theme){
  // Field engineering ambience without hard horizon or old photo edges.
  c.save();c.strokeStyle=palette[theme][3]+"25";c.lineWidth=1.3;
  line(c,[[3,340],[600,340]],palette[theme][3]+"44",1.2);
+ // Light and ground markings connect the operator and the concrete corner.
+ const floor=c.createLinearGradient(0,260,0,360);
+ floor.addColorStop(0,"#10223500");
+ floor.addColorStop(1,theme==="shinchan"?"#977d494b":palette[theme][2]+"99");
+ c.fillStyle=floor;
+ c.fillRect(0,260,600,100);
+ for (let x=80;x<705;x+=58) line(c,[[384,274],[x,359]],palette[theme][3]+"20");
  for(const [x,y] of [[65,280],[102,270],[145,286],[178,254],[212,273]]){
   line(c,[[x-12,y],[x,y-5],[x+10,y]],palette[theme][3]+"29",1);
  }
  c.restore();
  if(theme==="shinchan")crewLayer(c,img);
+ c.save();
+ c.translate(85,65);
+ c.scale(.84,.84);
  const geometry=texturedBuilding(c,theme,16);
  showDisplacement(c,theme,geometry);
+ c.restore();
 }
 
 function inspectionScene(c, theme, index, source) {
@@ -225,9 +236,14 @@ function inspectionScene(c, theme, index, source) {
  else {
   const ground = c.createLinearGradient(0, 0, 600, 360);
   ground.addColorStop(0, "#102235");
-  ground.addColorStop(1, palette[theme][2]);
+  ground.addColorStop(1, {pokemon:"#504e43",digimon:"#164963",marvel:"#563443"}[theme]);
   c.fillStyle = ground;
   c.fillRect(0, 0, 600, 360);
+  const lamp=c.createRadialGradient(365,146,10,365,146,260);
+  lamp.addColorStop(0,palette[theme][3]+"54");
+  lamp.addColorStop(1,palette[theme][3]+"00");
+  c.fillStyle=lamp;
+  c.fillRect(92,0,508,360);
   for (let x = 210; x < 600; x += 36) line(c, [[x, 35], [x, 342]], "#e2edf015");
   for (let y = 54; y < 342; y += 36) line(c, [[190, y], [596, y]], "#e2edf015");
  }
@@ -276,17 +292,13 @@ function inspectionScene(c, theme, index, source) {
     c.fillRect(x, y - (x - 459) * .18, 3, 3);
    }
   }
-  line(c, [[267, 247], [439, 216]], "#172a34", 21);
-  line(c, [[269, 247], [399, 223]], "#cf9c52", 16);
-  line(c, [[282, 243], [362, 229]], "#f5dba5", 4);
-  line(c, [[403, 222], [439, 216]], "#e1eef1", 6);
   poly(c, [[231, 275], [330, 258], [354, 313], [250, 332]], "#284351", accent, 2);
   line(c, [[254, 286], [318, 275]], "#b4d7dc", 2);
   line(c, [[258, 296], [323, 285]], "#b4d7dc", 2);
  } else {
   // The instrument sights the shared base point of the building corner.
   c.setLineDash([5, 7]);
-  line(c, [[296, 208], [471, 342]], accent, 2);
+  line(c, [[296, 208], [481, 352]], accent, 2);
   c.setLineDash([]);
   for (const x of [235, 279, 322]) {
    line(c, [[276, 227], [x, 339]], "#a77d4e", 7);
@@ -294,6 +306,47 @@ function inspectionScene(c, theme, index, source) {
   }
   poly(c, [[251, 191], [296, 188], [302, 222], [252, 228]], "#cfa451", "#f8df9e", 2);
   poly(c, [[263, 196], [286, 194], [288, 211], [264, 215]], "#254b5a", accent, 2);
+ }
+ c.restore();
+}
+
+
+function drawWorkForeground(c,theme,index){
+ const accent=palette[theme][3];
+ c.save();
+ c.lineJoin="round";
+ c.lineCap="round";
+ c.shadowColor="#050f1caa";
+ c.shadowBlur=9;
+ c.shadowOffsetY=4;
+ if(index===0){
+  // Camera sits across the character's foreground and sights the wall.
+  poly(c,[[137,220],[163,220],[172,209],[203,209],[212,221],[239,221],[239,264],[137,264]],"#253c48",accent,2);
+  c.beginPath();c.arc(215,243,16,0,Math.PI*2);c.fillStyle="#142639";c.fill();c.strokeStyle=accent;c.lineWidth=2;c.stroke();
+  c.beginPath();c.arc(216,242,8,0,Math.PI*2);c.fillStyle="#7ab3c4";c.fill();
+  line(c,[[233,240],[329,199],[476,175]],accent+"88",2);
+ }else if(index===1){
+  // Lower work surface obscures the portrait edge, as an operator at a desk.
+  poly(c,[[76,304],[270,275],[401,319],[378,358],[68,358]],"#513e37",accent,2);
+  poly(c,[[114,307],[266,285],[339,318],[171,340]],"#f0e0b6","#9e8969",2);
+  line(c,[[147,309],[257,293],[304,316],[181,331],[147,309]],"#3e6268",2);
+  line(c,[[206,302],[242,323],[251,305]],"#3e6268",2);
+  line(c,[[156,272],[202,315]],"#2d3031",8);
+  line(c,[[156,272],[199,312]],accent,4);
+ }else if(index===2){
+  // The handle crosses the operator silhouette and contacts the concrete.
+  line(c,[[151,274],[439,216]],"#142c39",17);
+  line(c,[[156,272],[397,224]],"#c89753",11);
+  line(c,[[163,269],[229,256]],"#f0d39a",3);
+  line(c,[[399,224],[439,216]],"#e4ecdf",5);
+  poly(c,[[143,270],[179,262],[190,293],[159,300]],"#314e59",accent,2);
+ }else{
+  // Record book in front of the operator ties the crew to the tripod.
+  poly(c,[[150,268],[212,249],[236,309],[168,328]],"#685041",accent,2);
+  poly(c,[[158,270],[207,255],[228,305],[172,321]],"#eeddb9","#a98b68",2);
+  line(c,[[170,280],[206,269]],"#536b70",2);
+  line(c,[[176,292],[212,281]],"#536b70",2);
+  line(c,[[181,304],[215,294]],"#536b70",2);
  }
  c.restore();
 }
@@ -334,12 +387,27 @@ async function cardArt(card,theme,i,source){
  const c=canvas.getContext("2d",{alpha:true});
  if(theme!=="shinchan")inspectionScene(c,theme,i,source);
  else if(i===0)field(c,source,theme);
- else if(i===3)tilt(c,source,theme);
+ else if(i===3)inspectionScene(c,theme,i,source);
  else redrawTile(c,source,i);
  const image=await actorImage(theme,i);
  if(document.body.dataset.theme!==theme||wrap.dataset.theme!==theme||!wrap.isConnected)return;
  wrap.replaceChildren(canvas);
- if(image){const el=document.createElement("img");el.className="sarch-v214-actor "+theme;el.alt="";el.draggable=false;el.src=image;wrap.append(el)}
+ if(image){
+  const el=document.createElement("img");
+  el.className="sarch-v214-actor "+theme;
+  el.alt="";
+  el.draggable=false;
+  el.src=image;
+  wrap.append(el);
+ }
+ if(theme!=="shinchan"||i===3){
+  const foreground=document.createElement("canvas");
+  foreground.width=600;
+  foreground.height=360;
+  foreground.className="sarch-v214-canvas sarch-scene-foreground";
+  drawWorkForeground(foreground.getContext("2d"),theme,i);
+  wrap.append(foreground);
+ }
  card.dataset.sarchSceneVersion=theme+"-214";card.classList.add("sarch-v214-ready");
  card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene,.sarch-v211-scene").forEach(n=>n.remove());
 }
@@ -415,7 +483,9 @@ function updateModuleBadge(theme){
  if(theme!=="shinchan"){
   pic.width=600;
   pic.height=360;
-  inspectionScene(pic.getContext("2d"),theme,index,null);
+  const context=pic.getContext("2d");
+  inspectionScene(context,theme,index,null);
+  drawWorkForeground(context,theme,index);
   actorImage(theme,index).then(src=>{
    if(!src||!slot.isConnected||document.body.dataset.theme!==theme)return;
    const actor=document.createElement("img");
