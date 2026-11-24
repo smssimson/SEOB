@@ -375,6 +375,7 @@ function actorImage(theme,i){
  }).catch(()=>null));
  return actorCache.get(key);
 }
+function hasIllustratedScene(theme){return theme==="shinchan"||theme==="pokemon"}
 async function cardArt(card,theme,i,source){
  if(card.dataset.sarchSceneVersion===theme+"-214"&&card.querySelector(".sarch-v214-scene")){
   card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene").forEach(el=>el.remove());
@@ -385,11 +386,9 @@ async function cardArt(card,theme,i,source){
  wrap.dataset.theme=theme;
  const canvas=document.createElement("canvas");canvas.width=600;canvas.height=360;canvas.className="sarch-v214-canvas";
  const c=canvas.getContext("2d",{alpha:true});
- if(theme!=="shinchan")inspectionScene(c,theme,i,source);
- else if(i===0)field(c,source,theme);
- else if(i===3)inspectionScene(c,theme,i,source);
- else redrawTile(c,source,i);
- const image=await actorImage(theme,i);
+ if(hasIllustratedScene(theme))redrawTile(c,source,i);
+ else inspectionScene(c,theme,i,source);
+ const image=hasIllustratedScene(theme)?null:await actorImage(theme,i);
  if(document.body.dataset.theme!==theme||wrap.dataset.theme!==theme||!wrap.isConnected)return;
  wrap.replaceChildren(canvas);
  if(image){
@@ -400,7 +399,7 @@ async function cardArt(card,theme,i,source){
   el.src=image;
   wrap.append(el);
  }
- if(theme!=="shinchan"||i===3){
+ if(!hasIllustratedScene(theme)){
   const foreground=document.createElement("canvas");
   foreground.width=600;
   foreground.height=360;
@@ -518,7 +517,7 @@ function repaint(){
   return;
  }
  if(document.documentElement.dataset.module==="home"){
-  const source=theme==="shinchan"?atlas(theme):Promise.resolve(null);
+  const source=hasIllustratedScene(theme)?atlas(theme):Promise.resolve(null);
   source.then(img=>{
    if(document.body.dataset.theme!==theme)return;
    cards.forEach((card,i)=>{if(i<4)cardArt(card,theme,i,img).catch(console.warn)});
