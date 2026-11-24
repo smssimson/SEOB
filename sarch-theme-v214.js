@@ -390,6 +390,22 @@ async function cardArt(card,theme,i,source){
   const illustration=await load("sarch-shinchan-tilt-survey.jpg");
   canvas.height=Math.round(canvas.width*illustration.naturalHeight/illustration.naturalWidth);
   c.drawImage(illustration,0,0,canvas.width,canvas.height);
+  // Feather in image coordinates so the fade follows the artwork at every card size.
+  c.save();
+  c.globalCompositeOperation="destination-in";
+  const leftFade=c.createLinearGradient(0,0,canvas.width*.29,0);
+  leftFade.addColorStop(0,"transparent");
+  leftFade.addColorStop(.23,"rgba(0,0,0,.13)");
+  leftFade.addColorStop(.72,"rgba(0,0,0,.87)");
+  leftFade.addColorStop(1,"black");
+  c.fillStyle=leftFade;
+  c.fillRect(0,0,canvas.width,canvas.height);
+  const skyFade=c.createLinearGradient(0,0,0,canvas.height*.12);
+  skyFade.addColorStop(0,"transparent");
+  skyFade.addColorStop(1,"black");
+  c.fillStyle=skyFade;
+  c.fillRect(0,0,canvas.width,canvas.height);
+  c.restore();
  }else if(hasIllustratedScene(theme))redrawTile(c,source,i);
  else inspectionScene(c,theme,i,source);
  const image=hasIllustratedScene(theme)?null:await actorImage(theme,i);
