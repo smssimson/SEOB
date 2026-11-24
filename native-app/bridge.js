@@ -94,8 +94,7 @@ if (Capacitor.isNativePlatform()) {
       busy=false;
       input.dispatchEvent(new Event('input',{bubbles:true}));
       input.dispatchEvent(new Event('change',{bubbles:true}));
-      if(photo.saved===true) notice('기기 앨범에 저장되었습니다.');
-      else notice('앨범 저장이 확인되지 않았습니다. 사진 권한을 확인해 주세요.');
+      if(photo.saved!==true) notice('앨범 저장이 확인되지 않았습니다. 사진 권한을 확인해 주세요.');
     } catch(e) {
       if(!/cancel|cancelled|canceled|취소/i.test(String(e?.message||e)))
         notice('촬영 실패: '+String(e?.message||e));
