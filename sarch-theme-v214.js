@@ -495,39 +495,108 @@ function workImage(theme,i){
  if(!workCache.has(k))workCache.set(k,load("data:image/svg+xml;charset=utf-8,"+encodeURIComponent(workFigure(theme,i))));
  return workCache.get(k);
 }
-async function paintWorkingScene(c,theme,i,source){
- // Retain the existing scene/background and remove only the old portrait.
- if(theme==="pokemon"&&source){
-  const crops=[[138,0,342,320],[480,0,390,320],[120,320,360,320],[566,320,394,320]];
-  c.drawImage(source,...crops[i],0,0,600,360);
- }else inspectionScene(c,theme,i,null);
- const ox=87,oy=105;
- if(i===2){
-  // Rebound hammer axis meets the concrete surface, grips are on the shaft.
-  c.save();c.lineCap="round";
-  line(c,[[ox+132,oy+135],[412,220]],"#182e38",20);
-  line(c,[[ox+132,oy+135],[412,220]],"#b98a51",13);
-  line(c,[[ox+140,oy+131],[405,217]],"#f1d49a",3);
-  line(c,[[410,220],[439,217]],"#e3e8e0",6);
-  c.restore();
- }else if(i===3&&theme==="pokemon"){
-  // Use the same tripod coordinates as the other themes, on the existing
-  // survey background. Never enlarge or crop the operator to fill a card.
-  c.save();c.lineCap="round";
-  for(const x of [235,279,322])line(c,[[276,227],[x,339]],"#d5b47d",5);
-  poly(c,[[251,191],[296,188],[302,222],[252,228]],"#cfa451","#f8df9e",2);
-  poly(c,[[263,196],[286,194],[288,211],[264,215]],"#254b5a","#f8df9e",2);
-  c.restore();
- }
- const im=await workImage(theme,i);
- c.save();c.shadowColor="#07152188";c.shadowBlur=6;c.shadowOffsetY=3;
- c.drawImage(im,ox-8,oy-10,236,260);c.restore();
- // Fade only the unoccupied far-left background, not any part of the actor.
- c.save();c.globalCompositeOperation="destination-in";
- const fade=c.createLinearGradient(0,0,65,0);fade.addColorStop(0,"transparent");fade.addColorStop(1,"black");
- c.fillStyle=fade;c.fillRect(0,0,600,360);c.restore();
-}
 
+/* v224: existing illustrated environments and original character artwork.
+ * All layers are rendered into a single safely framed decorative canvas. */
+let detailAtlas;
+const getDetailAtlas=()=>detailAtlas||(detailAtlas=load("sarch-v214-pokemon-background.webp"));
+const originalFiles={pokemon:["sarch-theme-pokemon-0.png",null,"sarch-theme-pokemon-5.png",null],digimon:["sarch-theme-digimon-0.png","sarch-theme-digimon-1.png",null,"sarch-theme-digimon-3.png"],marvel:[null,null,null,null]};
+const originalCache=new Map();
+function originalCutout(theme,i){
+ const path=originalFiles[theme][i];if(!path)return Promise.resolve(null);
+ if(!originalCache.has(path))originalCache.set(path,load(path).then(im=>{
+  const a=document.createElement("canvas");a.width=im.naturalWidth;a.height=im.naturalHeight;
+  const c=a.getContext("2d",{willReadFrequently:true});c.drawImage(im,0,0);
+  const w=a.width,h=a.height,d=c.getImageData(0,0,w,h),p=d.data,v=new Uint8Array(w*h),q=new Int32Array(w*h);let f=0,l=0,trans=0;
+  for(let k=3;k<p.length;k+=4)if(p[k]<16)trans++;
+  const black=theme==="pokemon"&&trans<w*h*.015;
+  function visit(k){if(k<0||k>=w*h||v[k])return;v[k]=1;const j=k*4;if(p[j+3]<16||(p[j]>238&&p[j+1]>238&&p[j+2]>238)||(black&&p[j]<16&&p[j+1]<16&&p[j+2]<16)){p[j+3]=0;q[l++]=k}}
+  for(let x=0;x<w;x++){visit(x);visit((h-1)*w+x)}for(let y=0;y<h;y++){visit(y*w);visit(y*w+w-1)}
+  while(f<l){let k=q[f++];if(k%w)visit(k-1);if(k%w<w-1)visit(k+1);if(k>=w)visit(k-w);if(k<(h-1)*w)visit(k+w)}
+  c.putImageData(d,0,0);
+  let x0=w,y0=h,x1=0,y1=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(p[(y*w+x)*4+3]>24){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
+  if(x1<=x0||y1<=y0)return null;
+  const out=document.createElement("canvas");out.width=x1-x0+9;out.height=y1-y0+9;
+  out.getContext("2d").drawImage(a,x0,y0,x1-x0+1,y1-y0+1,4,4,x1-x0+1,y1-y0+1);return out;
+ }).catch(()=>null));return originalCache.get(path);
+}
+function rr(c,x,y,w,h,r,fill,stroke,lw=1){
+ c.beginPath();c.roundRect(x,y,w,h,r);c.fillStyle=fill;c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=lw;c.stroke()}
+}
+function photoTile(c,im,i){
+ const w=im.naturalWidth/2,h=im.naturalHeight/2;c.drawImage(im,i%2*w,Math.floor(i/2)*h,w,h,30,0,540,360);
+}
+function detailedBackground(c,im,theme,i){
+ c.fillStyle="#102235";c.fillRect(0,0,600,360);
+ if(!im){inspectionScene(c,theme,i,null);return}
+ const w=im.naturalWidth/2,h=im.naturalHeight/2;
+ if(i===2){
+  // The old atlas hammer rests on the ground. Reuse only its concrete texture
+  // and workbench background, then place an actual contact hammer in front.
+  c.drawImage(im,0,h,w,h*.47,30,0,540,226);
+  c.drawImage(im,0,h+h*.08,w*.43,h*.39,350,35,220,270);
+  const g=c.createLinearGradient(0,185,0,360);g.addColorStop(0,"#35434b00");g.addColorStop(.4,"#30414a");g.addColorStop(1,"#142638");c.fillStyle=g;c.fillRect(0,185,600,175);
+  c.save();c.globalAlpha=.43;for(let x=350;x<550;x+=34)line(c,[[x,110],[x,260]],"#f0e2c6",1);for(let y=110;y<260;y+=34)line(c,[[350,y],[550,y]],"#f0e2c6",1);c.restore();
+  rr(c,444,196,48,50,5,"#a4a49a","#e6d8bd",1.3);c.fillStyle="#465158";c.fillRect(456,216,6,6);
+ }else photoTile(c,im,i);
+ if(theme!=="pokemon"){c.save();c.globalCompositeOperation="soft-light";c.globalAlpha=.22;c.fillStyle=theme==="digimon"?"#4493b9":"#a15c59";c.fillRect(30,0,540,360);c.restore()}
+ const light=c.createRadialGradient(430,145,10,430,145,250);light.addColorStop(0,theme==="digimon"?"#60c9f438":"#eac68b30");light.addColorStop(1,"#10223500");c.fillStyle=light;c.fillRect(0,0,600,360);
+ // Blend background edges only; the operator never gets masked.
+ for(const [x,w,rev] of [[0,96,false],[558,42,true]]){const g=c.createLinearGradient(x,0,x+w,0);g.addColorStop(0,rev?"#10223500":"#102235");g.addColorStop(1,rev?"#102235":"#10223500");c.fillStyle=g;c.fillRect(x,0,w,360)}
+ const top=c.createLinearGradient(0,0,0,24);top.addColorStop(0,"#10223590");top.addColorStop(1,"#10223500");c.fillStyle=top;c.fillRect(0,0,600,24);
+ const floor=c.createLinearGradient(0,335,0,360);floor.addColorStop(0,"#10223500");floor.addColorStop(1,"#102235a0");c.fillStyle=floor;c.fillRect(0,335,600,25);
+}
+function rasterActor(c,im,x,bottom,mw,mh,mirror,theme){
+ const scale=Math.min(mw/im.width,mh/im.height),w=im.width*scale,h=im.height*scale,y=bottom-h;
+ c.save();c.fillStyle="#08142299";c.beginPath();c.ellipse(x+w*.52,bottom-4,w*.4,9,0,0,Math.PI*2);c.fill();
+ c.translate(x+(mirror?w:0),y);c.scale(mirror?-1:1,1);c.shadowColor="#071522dd";c.shadowBlur=10;c.shadowOffsetY=5;c.filter="saturate(.96) contrast(1.04)";c.drawImage(im,0,0,w,h);c.restore();return {x,y,w,h};
+}
+function poseActor(c,im,x,y,z){c.save();c.shadowColor="#081422d0";c.shadowBlur=11;c.shadowOffsetY=6;c.filter="saturate(1.08) contrast(1.05)";c.drawImage(im,x-8*z,y-10*z,236*z,260*z);c.restore()}
+function hand(c,x,y,theme,i,rx=9,ry=7){const [b,s,l]=WORK_COLORS[theme][i];const g=c.createRadialGradient(x-3,y-4,1,x,y,rx+3);g.addColorStop(0,l);g.addColorStop(.5,b);g.addColorStop(1,s);c.beginPath();c.ellipse(x,y,rx,ry,-.2,0,Math.PI*2);c.fillStyle=g;c.fill();c.strokeStyle="#293440";c.lineWidth=1.2;c.stroke()}
+function cameraProp(c,x,y){
+ c.save();c.shadowColor="#071524bd";c.shadowBlur=7;c.shadowOffsetY=3;const g=c.createLinearGradient(x,y,x,y+39);g.addColorStop(0,"#819099");g.addColorStop(.28,"#374b56");g.addColorStop(1,"#152631");
+ rr(c,x,y+8,61,33,5,g,"#b1bab8",1.5);rr(c,x+9,y+1,23,11,3,"#425664","#a8b4b3",1);rr(c,x+6,y+13,10,7,2,"#e4e9de","#5a6b71",.8);
+ rr(c,x+40,y+12,28,24,5,g,"#d3d6cb",1.3);c.beginPath();c.ellipse(x+67,y+24,7,11,0,0,Math.PI*2);c.fillStyle="#1a3548";c.fill();c.strokeStyle="#a1b8bf";c.stroke();c.beginPath();c.ellipse(x+68,y+23,3.5,6,0,0,Math.PI*2);c.fillStyle="#88cbd7";c.fill();c.restore();
+}
+function hammerProp(c,x,y,contact){
+ c.save();c.shadowColor="#061420b0";c.shadowBlur=8;c.shadowOffsetY=4;
+ const g=c.createLinearGradient(x,y-17,x,y+17);for(const [p,col] of [[0,"#eef1e6"],[.16,"#a1afb0"],[.38,"#586c78"],[.55,"#dce1d8"],[.8,"#546671"],[1,"#253742"]])g.addColorStop(p,col);
+ rr(c,x,y-16,contact-x-28,32,13,g,"#d6d5c5",1.4);rr(c,x-4,y-17,45,34,10,"#293641","#788991",1.2);
+ for(let j=3;j<40;j+=5)line(c,[[x+j,y-12],[x+j,y+12]],"#7d8b9577",1.3);
+ rr(c,x+48,y-11,54,16,3,"#263d49","#b6c3c1",1.2);rr(c,x+53,y-8,34,10,1,"#83cbd5","#5b818f",.6);
+ for(let j=0;j<5;j++){c.fillStyle="#e7eed2";c.fillRect(x+57+j*5,y-5,2,5)}
+ rr(c,contact-37,y-11,12,22,2,"#9b8b69","#e5d8b1",1);rr(c,contact-26,y-5,26,10,4,g,"#d6e0df",1);c.restore();
+}
+function paperProp(c,x,y){
+ c.save();c.shadowColor="#0c1726c0";c.shadowOffsetY=4;c.shadowBlur=7;poly(c,[[x,y],[x+139,y-25],[x+170,y+21],[x+23,y+49]],"#e9ddc2","#7e6d54",1.8);c.shadowBlur=0;c.shadowOffsetY=0;
+ line(c,[[x+19,y+5],[x+126,y-14],[x+146,y+14],[x+32,y+35],[x+19,y+5]],"#3b626f",2.6);line(c,[[x+65,y-3],[x+72,y+27],[x+139,y+15]],"#3b626f",2);line(c,[[x+101,y-9],[x+110,y+18]],"#3b626f",2);
+ poly(c,[[x+43,y+39],[x+148,y+18],[x+151,y+25],[x+47,y+46]],"#efbc5e","#a18046",1.2);for(let j=0;j<9;j++)line(c,[[x+55+j*10,y+40-j*2],[x+55+j*10,y+43-j*2]],"#745a3c",.8);
+ line(c,[[x+48,y-21],[x+80,y+14]],"#172a36",6);line(c,[[x+48,y-21],[x+77,y+11]],"#d3a44e",3.6);poly(c,[[x+77,y+11],[x+80,y+14],[x+75,y+13]],"#2b3341",null);c.restore();
+}
+function tripodFront(c,im){
+ if(!im)return;const t=540/(im.naturalWidth/2);
+ const pts=[[111,135],[124,126],[146,130],[151,142],[152,185],[145,193],[155,210],[192,309],[176,313],[141,226],[131,310],[116,310],[120,225],[94,310],[78,310],[107,213],[111,190]];
+ c.save();c.beginPath();pts.forEach(([x,y],j)=>j?c.lineTo(30+x*t,y*t):c.moveTo(30+x*t,y*t));c.closePath();c.clip();photoTile(c,im,3);c.restore();
+}
+async function paintWorkingScene(c,theme,i,source){
+ let bg=source;if(!bg)try{bg=await getDetailAtlas()}catch(_){}
+ detailedBackground(c,bg,theme,i);
+ const orig=await originalCutout(theme,i),pose=orig?null:await workImage(theme,i);
+ if(i===0){
+  if(orig){const q=rasterActor(c,orig,76,337,235,233,true,theme),x=q.x+q.w*.67,y=q.y+q.h*.48;cameraProp(c,x,y);hand(c,x+10,y+34,theme,i);hand(c,x+43,y+31,theme,i)}
+  else poseActor(c,pose,105,97,1);
+ }else if(i===1){
+  if(orig)rasterActor(c,orig,81,323,219,214,true,theme);else poseActor(c,pose,88,102,.99);
+  paperProp(c,210,270);if(orig)hand(c,259,257,theme,i,10,8);
+ }else if(i===2){
+  if(orig){const q=rasterActor(c,orig,80,336,235,228,true,theme),x=q.x+q.w*.56,y=219;hammerProp(c,x,y,459);hand(c,x+16,y+9,theme,i,12,8);hand(c,x+43,y+10,theme,i,11,8)}
+  else{hammerProp(c,216,238,459);poseActor(c,pose,75,105,1);c.save();c.beginPath();c.rect(274,217,190,43);c.clip();hammerProp(c,216,238,459);c.restore()}
+  c.save();c.translate(393,276);c.rotate(-.10);rr(c,0,0,99,62,5,"#786048","#dbbb83",1.5);rr(c,6,7,87,49,2,"#e5dac1","#a79b82",.8);rr(c,31,0,37,13,3,"#465766","#b9bfbb",1);for(let j=0;j<5;j++){c.fillStyle="#4f8290";c.fillRect(18+j*12,43-(j%3+1)*6,7,(j%3+1)*6)}line(c,[[13,47],[78,47]],"#788a87",1);c.restore();
+ }else{
+  if(orig)rasterActor(c,orig,51,334,202,224,false,theme);else poseActor(c,pose,45,100,.97);
+  tripodFront(c,bg);if(orig)hand(c,171,190,theme,i,9,8);
+ }
+}
 function hasIllustratedScene(theme){return theme==="shinchan"||theme==="pokemon"}
 async function paintPokemonCard(c,source,index){
  const crops=[[138,0,342,320],[480,0,390,320],[120,320,360,320],[566,320,394,320]];
@@ -554,7 +623,7 @@ async function paintPokemonCard(c,source,index){
  c.restore();
 }
 async function cardArt(card,theme,i,source){
- if(card.dataset.sarchSceneVersion===theme+"-223"&&card.querySelector(".sarch-v214-scene")){
+ if(card.dataset.sarchSceneVersion===theme+"-224"&&card.querySelector(".sarch-v214-scene")){
   card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene").forEach(el=>el.remove());
   return;
  }
@@ -588,7 +657,7 @@ async function cardArt(card,theme,i,source){
  if(document.body.dataset.theme!==theme||wrap.dataset.theme!==theme||!wrap.isConnected)return;
  wrap.replaceChildren(canvas);
  if(WORK_NAMES[theme])wrap.title=WORK_NAMES[theme][i];
- card.dataset.sarchSceneVersion=theme+"-223";card.classList.add("sarch-v214-ready");
+ card.dataset.sarchSceneVersion=theme+"-224";card.classList.add("sarch-v214-ready");
  card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene,.sarch-v211-scene").forEach(n=>n.remove());
 }
 const BUTTON_GLYPHS={
@@ -663,7 +732,7 @@ function updateModuleBadge(theme){
  if(theme!=="shinchan"){
   pic.width=600;pic.height=360;
   slot.title=WORK_NAMES[theme][index]+" · "+slot.title;
-  (theme==="pokemon"?atlas(theme).catch(()=>null):Promise.resolve(null)).then(source=>{
+  getDetailAtlas().catch(()=>null).then(source=>{
    if(!slot.isConnected||document.body.dataset.theme!==theme)return;
    return paintWorkingScene(pic.getContext("2d"),theme,index,source);
   }).catch(console.warn);
@@ -691,7 +760,7 @@ function repaint(){
   return;
  }
  if(document.documentElement.dataset.module==="home"){
-  const source=hasIllustratedScene(theme)?atlas(theme).catch(e=>{if(theme==="shinchan")throw e;return null}):Promise.resolve(null);
+  const source=theme==="shinchan"?atlas(theme):getDetailAtlas().catch(()=>null);
   source.then(img=>{
    if(document.body.dataset.theme!==theme)return;
    cards.forEach((card,i)=>{if(i<4)cardArt(card,theme,i,img).catch(console.warn)});
