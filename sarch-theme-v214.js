@@ -14,9 +14,9 @@ const actors={
  digimon:["sarch-theme-digimon-0.png","sarch-theme-digimon-1.png","sarch-theme-digimon-2.png","sarch-theme-digimon-3.png"],
  marvel:["sarch-theme-marvel-0.jpg","sarch-theme-marvel-1.jpg","sarch-theme-marvel-2.jpg","sarch-theme-marvel-3.jpg"]
 };
-const names=["FIELD","DRAW","TEST","TILT"],atlasCache=new Map(),actorCache=new Map();
+const atlasCache=new Map(),actorCache=new Map();
 function load(src){return new Promise((res,rej)=>{const im=new Image();im.decoding="async";im.onload=()=>res(im);im.onerror=()=>rej(new Error(src));im.src=new URL(src,root).href})}
-function atlas(theme){if(!atlasCache.has(theme))atlasCache.set(theme,load(theme==="pokemon"?"sarch-v214-pokemon-background.webp":"sarch-v204-"+theme+"-atlas.webp"));return atlasCache.get(theme)}
+function atlas(theme){if(!atlasCache.has(theme))atlasCache.set(theme,load("sarch-v204-"+theme+"-atlas.webp"));return atlasCache.get(theme)}
 function poly(c,p,fill,stroke,line=1){c.beginPath();p.forEach(([x,y],j)=>j?c.lineTo(x,y):c.moveTo(x,y));c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.lineWidth=line;c.strokeStyle=stroke;c.stroke()}}
 function line(c,p,color,w=1){c.beginPath();p.forEach(([x,y],j)=>j?c.lineTo(x,y):c.moveTo(x,y));c.strokeStyle=color;c.lineWidth=w;c.stroke()}
 function texturedBuilding(c,theme,lean=0){
@@ -121,23 +121,12 @@ function drawCrack(c,theme){
  for(const [x,y,dx,dy] of [[489,130,13,0],[489,130,0,13],[572,130,-13,0],[572,130,0,13],[489,197,13,0],[489,197,0,-13],[572,197,-13,0],[572,197,0,-13]]){c.moveTo(x+dx,y+dy);c.lineTo(x,y)}
  c.stroke();
 }
-function drawPokemonBackground(c,img,idx){
- const w=(img.naturalWidth||img.width)/2,h=(img.naturalHeight||img.height)/2;
- c.fillStyle="#102235";c.fillRect(0,0,600,360);
- // Exact 2×2 crop of the generated illustrated background, never a second building.
- c.drawImage(img,idx%2*w,Math.floor(idx/2)*h,w,h,0,0,600,360);
- // Blend the artwork into the navy text side of each card.
- const fade=c.createLinearGradient(0,0,170,0);
- fade.addColorStop(0,"#102235");fade.addColorStop(1,"#10223500");
- c.fillStyle=fade;c.fillRect(0,0,170,360);
-}
 function redrawTile(c,img,idx){c.drawImage(img,idx%2*600,Math.floor(idx/2)*360,600,360,0,0,600,360)}
-function maskForeground(c,img,theme){
+function maskForeground(c,img){
  // Preserve foreground workers, safety cone, case and dog without the old
  // curtain-wall tower that was part of the same atlas tile.
  c.save();c.beginPath();
- if(theme==="shinchan"){
-  const parts=[
+ const parts=[
    [[65,355],[72,279],[108,253],[143,257],[166,282],[171,354]],
    [[173,354],[177,263],[187,201],[209,166],[232,126],[272,111],[315,126],[349,166],[381,192],[391,222],[375,250],[397,271],[396,354]],
    [[344,355],[340,279],[438,279],[451,356]],
@@ -145,13 +134,6 @@ function maskForeground(c,img,theme){
    [[0,356],[0,340],[600,340],[600,356]]
   ];
   for(const polyPts of parts){polyPts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath()}
- }else{
-  const parts=[
-   [[0,357],[0,304],[90,278],[137,243],[183,245],[206,199],[244,155],[276,119],[314,121],[356,171],[370,225],[386,282],[430,352],[430,360]],
-   [[0,357],[0,336],[600,336],[600,360]]
-  ];
-  for(const polyPts of parts){polyPts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath()}
- }
  c.clip();redrawTile(c,img,0);c.restore();
 }
 function field(c,img,theme){
@@ -162,11 +144,11 @@ function field(c,img,theme){
  haze.addColorStop(1,"#10223500");
  c.fillStyle=haze;c.fillRect(0,0,600,360);
  // Preserve only clouds and left-side vegetation from the source background.
- if(theme==="shinchan"||theme==="pokemon"){
+ if(theme==="shinchan"){
   c.save();c.beginPath();c.rect(0,0,183,354);c.clip();redrawTile(c,img,0);c.restore();
  }
  texturedBuilding(c,theme,0);
- if(theme==="shinchan"||theme==="pokemon")maskForeground(c,img,theme);
+ if(theme==="shinchan")maskForeground(c,img);
  else{
   c.save();c.strokeStyle=palette[theme][3]+"33";c.lineWidth=1.2;
   for(let x=70;x<315;x+=37){c.beginPath();c.moveTo(x,295);c.lineTo(x,349);c.stroke()}
@@ -191,22 +173,6 @@ function crewLayer(c,img){
  g.fillStyle=fade;g.fillRect(0,0,600,360);
  g.globalCompositeOperation="source-over";
  c.drawImage(off,7,28,361,323);
-}
-function drawSurveyInstrument(c,theme){
- // A small illustrated digital total station with graduated tripod legs.
- const edge=palette[theme][3];c.save();c.lineJoin="round";c.lineCap="round";
- c.shadowColor="#051621aa";c.shadowBlur=8;c.shadowOffsetY=5;
- for(const [x,y] of [[150,339],[214,339],[180,338]]){
-  line(c,[[180,248],[x,y]],"#b99159",7);
-  line(c,[[180,248],[x,y]],"#e4bf7e",3.2);
- }
- poly(c,[[157,236],[203,236],[207,259],[153,259]],"#d5a44f","#f9d794",2);
- poly(c,[[165,200],[196,200],[200,238],[160,238]],"#c5984a","#f0ca72",2);
- poly(c,[[171,207],[190,207],[190,228],[171,228]],"#183c50","#f0cc85",1.6);
- c.fillStyle="#79c8dd";c.beginPath();c.arc(181,218,6,0,Math.PI*2);c.fill();
- line(c,[[178,197],[178,184],[193,178]],edge,3);
- poly(c,[[186,179],[209,179],[213,189],[189,191]],"#2d4655",edge,1);
- c.restore();
 }
 function showDisplacement(c,theme,edge){
  // The survey is anchored at the very lowest structural corner B.
@@ -248,11 +214,90 @@ function tilt(c,img,theme){
   line(c,[[x-12,y],[x,y-5],[x+10,y]],palette[theme][3]+"29",1);
  }
  c.restore();
- if(theme==="shinchan"||theme==="pokemon")crewLayer(c,img);
- else drawSurveyInstrument(c,theme);
+ if(theme==="shinchan")crewLayer(c,img);
  const geometry=texturedBuilding(c,theme,16);
  showDisplacement(c,theme,geometry);
 }
+
+function inspectionScene(c, theme, index, source) {
+ if (index === 0) field(c, source, theme);
+ else if (index === 3) tilt(c, source, theme);
+ else {
+  const ground = c.createLinearGradient(0, 0, 600, 360);
+  ground.addColorStop(0, "#102235");
+  ground.addColorStop(1, palette[theme][2]);
+  c.fillStyle = ground;
+  c.fillRect(0, 0, 600, 360);
+  for (let x = 210; x < 600; x += 36) line(c, [[x, 35], [x, 342]], "#e2edf015");
+  for (let y = 54; y < 342; y += 36) line(c, [[190, y], [596, y]], "#e2edf015");
+ }
+
+ const accent = palette[theme][3];
+ c.save();
+ c.lineJoin = "round";
+ c.lineCap = "round";
+ c.fillStyle = "#09192688";
+ c.beginPath();
+ c.ellipse(157, 339, 120, 12, 0, 0, Math.PI * 2);
+ c.fill();
+
+ if (index === 0) {
+  // The field log points to the crack detail on the building.
+  poly(c, [[212, 253], [294, 238], [312, 305], [225, 324]], "#675744", accent, 3);
+  poly(c, [[220, 257], [289, 244], [303, 299], [231, 314]], "#e3dcc7", "#a18e72", 2);
+  line(c, [[241, 270], [278, 262]], "#455a60", 3);
+  line(c, [[244, 283], [283, 275]], "#455a60", 3);
+  line(c, [[247, 295], [268, 291]], "#455a60", 3);
+  line(c, [[299, 247], [347, 219], [404, 219], [483, 169]], accent, 2);
+ } else if (index === 1) {
+  // A drafting surface with a floor plan, dimensions and straightedge.
+  poly(c, [[214, 121], [534, 100], [578, 307], [204, 329]], "#102e44", accent, 3);
+  poly(c, [[234, 142], [516, 123], [546, 284], [226, 303]], "#214e68", "#9bd1db", 2);
+  line(c, [[258, 165], [487, 151], [511, 258], [253, 276], [258, 165]], "#def6e9", 5);
+  line(c, [[366, 159], [370, 205], [498, 197]], "#def6e9", 4);
+  line(c, [[373, 228], [377, 266]], "#def6e9", 4);
+  line(c, [[257, 227], [320, 222], [320, 270]], "#def6e9", 4);
+  line(c, [[271, 291], [499, 275]], accent, 2);
+  line(c, [[271, 285], [271, 297]], accent, 2);
+  line(c, [[499, 269], [499, 281]], accent, 2);
+  poly(c, [[207, 286], [325, 253], [331, 270], [213, 303]], "#e3b76e", "#fff1b9", 1.5);
+  for (let x = 221; x < 322; x += 14) {
+   const y = 282 - (x - 221) * .28;
+   line(c, [[x, y], [x + 2, y + 6]], "#745638", 1.5);
+  }
+ } else if (index === 2) {
+  // A rebound hammer is shown against a concrete test surface.
+  poly(c, [[406, 109], [537, 89], [574, 114], [439, 139]], "#c9c6b6", accent, 2);
+  poly(c, [[406, 109], [439, 139], [439, 306], [406, 281]], "#738181", "#aeb4aa", 2);
+  poly(c, [[439, 139], [574, 114], [574, 281], [439, 306]], "#a5aaa1", "#d1d2bc", 2);
+  for (let x = 459; x < 565; x += 23) {
+   for (let y = 163; y < 280; y += 23) {
+    c.fillStyle = "#5a6c6b";
+    c.fillRect(x, y - (x - 459) * .18, 3, 3);
+   }
+  }
+  line(c, [[267, 247], [439, 216]], "#172a34", 21);
+  line(c, [[269, 247], [399, 223]], "#cf9c52", 16);
+  line(c, [[282, 243], [362, 229]], "#f5dba5", 4);
+  line(c, [[403, 222], [439, 216]], "#e1eef1", 6);
+  poly(c, [[231, 275], [330, 258], [354, 313], [250, 332]], "#284351", accent, 2);
+  line(c, [[254, 286], [318, 275]], "#b4d7dc", 2);
+  line(c, [[258, 296], [323, 285]], "#b4d7dc", 2);
+ } else {
+  // The instrument sights the shared base point of the building corner.
+  c.setLineDash([5, 7]);
+  line(c, [[296, 208], [471, 342]], accent, 2);
+  c.setLineDash([]);
+  for (const x of [235, 279, 322]) {
+   line(c, [[276, 227], [x, 339]], "#a77d4e", 7);
+   line(c, [[276, 227], [x, 339]], "#e2c492", 3);
+  }
+  poly(c, [[251, 191], [296, 188], [302, 222], [252, 228]], "#cfa451", "#f8df9e", 2);
+  poly(c, [[263, 196], [286, 194], [288, 211], [264, 215]], "#254b5a", accent, 2);
+ }
+ c.restore();
+}
+
 function actorImage(theme,i){
  const path=actors[theme]?.[i];if(!path)return Promise.resolve(null);
  const key=theme+i;
@@ -287,7 +332,7 @@ async function cardArt(card,theme,i,source){
  wrap.dataset.theme=theme;
  const canvas=document.createElement("canvas");canvas.width=600;canvas.height=360;canvas.className="sarch-v214-canvas";
  const c=canvas.getContext("2d",{alpha:true});
- if(theme==="pokemon"&&(source.naturalWidth||source.width)<1100)drawPokemonBackground(c,source,i);
+ if(theme!=="shinchan")inspectionScene(c,theme,i,source);
  else if(i===0)field(c,source,theme);
  else if(i===3)tilt(c,source,theme);
  else redrawTile(c,source,i);
@@ -367,6 +412,20 @@ function updateModuleBadge(theme){
  const slot=document.createElement("span");slot.className="sarch-v214-interior";slot.setAttribute("aria-hidden","true");
  slot.title=["현장조사 테마 장면","도면작성 테마 장면","장비조사 테마 장면","기울기 테마 장면"][index];
  const pic=document.createElement("canvas");pic.width=204;pic.height=118;slot.append(pic);head.append(slot);
+ if(theme!=="shinchan"){
+  pic.width=600;
+  pic.height=360;
+  inspectionScene(pic.getContext("2d"),theme,index,null);
+  actorImage(theme,index).then(src=>{
+   if(!src||!slot.isConnected||document.body.dataset.theme!==theme)return;
+   const actor=document.createElement("img");
+   actor.className="sarch-inspection-badge-actor "+theme;
+   actor.alt="";
+   actor.src=src;
+   slot.append(actor);
+  });
+  return;
+ }
  atlas(theme).then(im=>{
   if(!slot.isConnected||document.body.dataset.theme!==theme)return;
   const g=pic.getContext("2d");
@@ -389,7 +448,11 @@ function repaint(){
   return;
  }
  if(document.documentElement.dataset.module==="home"){
-  atlas(theme).then(img=>cards.forEach((card,i)=>{if(i<4)cardArt(card,theme,i,img).catch(console.warn)})).catch(console.warn);
+  const source=theme==="shinchan"?atlas(theme):Promise.resolve(null);
+  source.then(img=>{
+   if(document.body.dataset.theme!==theme)return;
+   cards.forEach((card,i)=>{if(i<4)cardArt(card,theme,i,img).catch(console.warn)});
+  }).catch(console.warn);
  }else{
   // Theme toolbar artwork and action-specific icons; never touch measurement canvases.
   document.querySelectorAll("[data-sarch214-pin]").forEach(btn=>delete btn.dataset.sarch214Pin);

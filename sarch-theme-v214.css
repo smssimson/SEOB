@@ -189,16 +189,34 @@ html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme=
 html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-v214-interior canvas{border-radius:10px}
 }
 
-/* v214: Premium Generation 1–3 Pokémon scene atlas, with readable card text. */
-@media screen{
-html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module>.sarch-v214-scene{width:70%!important;right:0!important;height:100%!important;overflow:hidden!important}
-html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module>.sarch-v214-scene .sarch-v214-canvas{width:100%!important;height:100%!important;object-fit:cover!important;object-position:right bottom!important}
-html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module>.sarch-v214-scene .sarch-v214-actor.pokemon{width:24%!important;height:54%!important;left:8%!important;bottom:2%!important;object-fit:contain!important;filter:drop-shadow(0 4px 7px #020a12aa)!important}
-html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module.orange>.sarch-v214-scene .sarch-v214-actor.pokemon{left:72%!important;bottom:8%!important;width:19%!important;height:43%!important}
-html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module.teal>.sarch-v214-scene .sarch-v214-actor.pokemon{left:8%!important;bottom:3%!important;width:24%!important;height:49%!important}
-html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module.violet>.sarch-v214-scene .sarch-v214-actor.pokemon{left:4%!important;bottom:3%!important;width:20%!important;height:44%!important}
-html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module>h2,
-html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module>p{max-width:42%!important}
-@media(max-width:760px){html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module>.sarch-v214-scene{width:68%!important}}
-@media(max-width:450px){html.sarch-native-brand[data-module="home"] body.sarch-home-v139[data-theme="pokemon"] .modules .module>.sarch-v214-scene{width:68%!important;height:92%!important}}
+
+/* Shared inspection scene layout for the three themes that use separate actor images. */
+@media screen {
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module>.sarch-v214-scene {
+ width:65%!important;
+ container-type:size;
+}
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139 .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-v214-actor {
+ width:min(35cqw,58.33cqh)!important;
+ height:min(67cqh,40.2cqw)!important;
+ left:auto!important;
+ right:min(60cqw,100cqh)!important;
+ bottom:min(7cqh,4.2cqw)!important;
+ object-fit:contain!important;
+ object-position:center bottom!important;
+ border-radius:0!important;
+}
+html.sarch-native-brand .sarch-v214-interior .sarch-inspection-badge-actor {
+ position:absolute;
+ width:31%;
+ height:65%;
+ left:8%;
+ bottom:7%;
+ object-fit:contain;
+ object-position:center bottom;
+ pointer-events:none;
+}
+html.sarch-native-brand .sarch-v214-interior .sarch-inspection-badge-actor.marvel {
+ mask-image:radial-gradient(ellipse,#000 45%,#0009 70%,transparent 100%);
+}
 }
