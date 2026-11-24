@@ -220,3 +220,17 @@ html.sarch-native-brand .sarch-v214-interior .sarch-inspection-badge-actor.marve
  mask-image:radial-gradient(ellipse,#000 45%,#0009 70%,transparent 100%);
 }
 }
+
+@media screen {
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139 .modules .module>.sarch-v214-scene[data-theme="marvel"] .sarch-v214-actor.marvel {
+ width:auto!important;
+ height:auto!important;
+ max-width:min(35cqw,58.33cqh)!important;
+ max-height:min(67cqh,40.2cqw)!important;
+ right:min(59cqw,98.33cqh)!important;
+ mask-image:radial-gradient(ellipse at 50% 49%,#000 46%,#000b 65%,transparent 100%)!important;
+}
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139 .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-v214-canvas {
+ mask-image:linear-gradient(90deg,transparent,#000 16%)!important;
+}
+}
