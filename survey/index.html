@@ -1574,7 +1574,29 @@ $('albumPrint').onclick=()=>{
  let pages=[`<section class="albumPage"><h2>시설물의 위치도</h2><div class="mapBlank"></div></section>`,albumPage('시설물의 전경사진',outside.map((v,i)=>albumCard(v.image,i+1,v.label))),...insidePages];
  for(let i=0;i<cards.length;i+=6)pages.push(albumPage('외관조사 사진첩',cards.slice(i,i+6)));
  const style=`@page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:Dotum,'돋움',sans-serif;color:#111;margin:0}.albumPage{width:186mm;height:273mm;break-after:page;page-break-after:always;overflow:hidden;padding:2mm}.albumPage:last-child{break-after:auto;page-break-after:auto}.albumPage h2{text-align:center;font-size:16pt;margin:2mm 0 6mm}.mapBlank{height:240mm;border:1px solid #333}.photoGrid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,77mm);gap:4mm 3mm}.photoCard{border:1px solid #333;min-height:0;display:flex;flex-direction:column;overflow:hidden}.photoImg{height:61mm;padding:2mm;display:flex;align-items:center;justify-content:center}.photoImg img{width:100%;height:100%;object-fit:cover}.photoFoot{height:16mm;display:grid;grid-template-columns:22mm 1fr;border-top:1px solid #333;font-size:9pt;text-align:center;align-items:center}.photoNum{height:100%;border-right:1px solid #333;display:flex;align-items:center;justify-content:center}.photoDesc{height:100%;min-width:0;padding:1mm 2mm;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal;overflow-wrap:anywhere;word-break:keep-all;line-height:1.35}@media screen{body{background:#e5e9ee}.albumPage{margin:15px auto;background:#fff;box-shadow:0 2px 8px #999}}`;
- let win=window.open('','_blank');if(!win){alert('팝업이 차단되어 있습니다. 팝업을 허용한 뒤 다시 시도해 주세요.');return}win.document.open();win.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>외관조사 사진첩</title><style>'+style+'</style></head><body>'+pages.join('')+'<script defer src="../recovery-v92.js?v=143"><\/script></body></html>');win.document.close();
+ let win=window.open('','_blank');if(!win){alert('팝업이 차단되어 있습니다. 팝업을 허용한 뒤 다시 시도해 주세요.');return}win.document.open();win.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>외관조사 사진첩</title><style>'+style+'</style></head><body>'+pages.join('')+'<script defer src="../recovery-v92.js?v=143"><\/script><link rel="stylesheet" href="../sarch-ink-v231.css"><script src="../sarch-ink-v231.js"></script><script>
+(function(){
+function launchSharedSurvey(edit){
+ const page=state.pages[state.activePage];
+ if(edit&&(!page||!page.sketch)){alert('현재 도면은 스케치 도면이 아닙니다.');return}
+ const index=edit?state.activePage:-1,originalPage=edit?page:null;
+ window.SARCHInk231.open({title:'현장 스케치',world:{x:0,y:0,w:1600,h:1100},strokes:edit?page.sketch.strokes||[]:[],
+ onSave(strokes){
+  if(index<0&&state.pages.length&&!confirm('새 스케치 도면을 현재 현장에 추가할까요? 기존 도면과 결함은 유지됩니다.'))return false;
+  if(index>=0&&state.pages[index]!==originalPage){alert('현재 도면이 변경되었습니다. 다시 열어 주세요.');return false}
+  let name=index<0?prompt('새 스케치 도면 이름을 입력하세요.','현장 스케치 '+(state.pages.length+1)):null;
+  if(index<0&&name===null)return false;
+  let image=window.SARCHInk231.image(strokes,1600,1100),sketch={strokes,width:1600,height:1100};
+  snapshot();
+  if(index>=0){Object.assign(state.pages[index],{image,sketch});state.activePage=index}
+  else{state.pages.push({name:name.trim()||'현장 스케치 '+(state.pages.length+1),image,sketch});state.activePage=state.pages.length-1}
+  selected=null;refreshPages();loadImage(image);refresh();persist();$('status').textContent='스케치 도면 저장됨';return true;
+ }});
+}
+function install(){if(!window.SARCHInk231)return;$('newSketch').onclick=()=>launchSharedSurvey(false);$('editSketch').onclick=()=>launchSharedSurvey(true)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+})();
+</script></body></html>');win.document.close();
 };
 
 // 사용자 제공 HWPX 원본 틀의 표/쪽 배치를 유지하여 편집 가능한 한글 파일 생성
