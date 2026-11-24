@@ -161,6 +161,13 @@ jobs:
           done
           touch _site/.nojekyll
 
+      - name: Prepare Android web-only update
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          python3 tools/native-web-bundle.py _site "$tmp/www" _site/native-update
+          rm -rf "$tmp"
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
