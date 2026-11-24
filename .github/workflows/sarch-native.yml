@@ -1,7 +1,7 @@
-name: SARCH v226 Android APK
+name: SARCH v227 Android APK
 on:
   push:
-    branches: [native-app-v226]
+    branches: [native-app-v227]
     paths:
       - 'native-app/**'
       - '.github/workflows/sarch-native.yml'
@@ -13,7 +13,7 @@ permissions:
   contents: write
 jobs:
   android:
-    if: github.ref == 'refs/heads/native-app-v226'
+    if: github.ref == 'refs/heads/native-app-v227'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -38,14 +38,15 @@ jobs:
           npx cap add android
           python ../permissions.py android
           npx cap sync android
+          cp ../android/*.java android/app/src/main/java/com/sarch/fieldwork/
           python - <<'PY'
           from pathlib import Path
           import re
           p=Path('android/app/build.gradle')
           s=p.read_text()
-          s,n=re.subn(r'\bversionCode\s+\d+', 'versionCode 226',s,count=1)
+          s,n=re.subn(r'\bversionCode\s+\d+', 'versionCode 227',s,count=1)
           assert n == 1, 'versionCode not found'
-          s,n=re.subn(r'\bversionName\s+[\"\'][^\"\']+[\"\']', 'versionName "1.0.226"',s,count=1)
+          s,n=re.subn(r'\bversionName\s+[\"\'][^\"\']+[\"\']', 'versionName "1.0.227"',s,count=1)
           assert n == 1, 'versionName not found'
           p.write_text(s)
           PY
@@ -55,20 +56,22 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
           mkdir -p "$GITHUB_WORKSPACE/native-app/artifacts"
-          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/native-app/artifacts/SARCH-v226.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/native-app/artifacts/SARCH-v227.apk"
       - name: Verify bundled APK startup paths and native camera
         run: |
           python - <<'PY'
           import zipfile,json
-          p='native-app/artifacts/SARCH-v226.apk'
+          p='native-app/artifacts/SARCH-v227.apk'
           with zipfile.ZipFile(p) as z:
               root='assets/public/'
               cfg=json.loads(z.read('assets/capacitor.config.json'))
-              assert cfg['server']['appStartPath']=='/SEOB/index.html'
+              assert 'appStartPath' not in cfg['server'] and cfg['server']['html5mode'] is False
               assert cfg['server']['hostname']=='localhost'
               assert cfg['appId']=='com.sarch.fieldwork'
               home=z.read(root+'SEOB/index.html').decode()
-              assert 'location.replace("/SEOB/index.html")' in z.read(root+'index.html').decode()
+              assert '<base href="/SEOB/">' in z.read(root+'index.html').decode()
+              assert 'class="module' in z.read(root+'index.html').decode()
+              assert 'location.replace("/SEOB/index.html")' not in z.read(root+'index.html').decode()
               for m in ('survey','drawing','schmidt','tilt'):
                   assert './'+m+'/index.html' in home, m
                   page=z.read(root+'SEOB/'+m+'/index.html').decode()
@@ -77,12 +80,31 @@ jobs:
               bridge=z.read(root+'native-bridge.js').decode()
               assert 'saveToGallery' in bridge
               assert 'SARCHNativeRegisterWorker' in bridge
+              assert 'SarchUpdate' in bridge
               print('APK startup path, four modules, native gallery bridge verified')
           PY
+      - name: Enable emulator hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          python -m pip install websocket-client
+      - name: Boot APK and verify actual Android WebView
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            adb install native-app/artifacts/SARCH-v227.apk
+            python native-app/android-smoke.py
       - uses: actions/upload-artifact@v4
         with:
-          name: SARCH-v226-Android
-          path: native-app/artifacts/SARCH-v226.apk
+          name: SARCH-v227-Android
+          path: native-app/artifacts/SARCH-v227.apk
           if-no-files-found: error
           retention-days: 30
       - name: Publish standalone APK test release
@@ -90,11 +112,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag=sarch-v226-android-test
-          file=native-app/artifacts/SARCH-v226.apk
+          tag=sarch-v227-android-test
+          file=native-app/artifacts/SARCH-v227.apk
           test -s "$file"
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$tag" "$file" --repo "$GITHUB_REPOSITORY" --clobber
           else
-            gh release create "$tag" "$file" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "S:ARCH v226 Android test" --notes "Android APK startup fix: direct bundled HTML paths, native gallery saving, retired Pokemon/Digimon/Marvel themes. Back up existing projects before installation. Debug signing may differ from earlier APK; native OTA is not implemented." --prerelease
+            gh release create "$tag" "$file" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "S:ARCH v227 Android test" --notes "Android APK startup recovery and automatic web bundle updates. Native camera gallery saving is retained. Back up existing projects before installation. Debug signing may differ from earlier APK; Web-only updates are staged for the next launch; native code changes still require a new APK." --prerelease
           fi
