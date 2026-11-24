@@ -1,7 +1,7 @@
-name: SARCH v228 Android APK
+name: SARCH v229 Android APK
 on:
   push:
-    branches: [native-app-v228]
+    branches: [native-app-v229]
     paths:
       - 'native-app/**'
       - '.github/workflows/sarch-native.yml'
@@ -13,7 +13,7 @@ permissions:
   contents: write
 jobs:
   android:
-    if: github.ref == 'refs/heads/native-app-v228'
+    if: github.ref == 'refs/heads/native-app-v229'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -31,9 +31,12 @@ jobs:
       - name: Prepare bundled web app and install dependencies
         run: |
           python -m pip install pillow
+          git fetch --depth=1 origin c1b9512f2cf0251994024b7271228cd607641e69
+          git checkout FETCH_HEAD -- index.html survey/index.html drawing/index.html schmidt/index.html tilt/index.html seob-sw.js survey/sw.js drawing/sw.js schmidt/sw.js tilt/sw.js version.json
           python native-app/prepare.py
           cd native-app/build
           npm install --no-audit --no-fund
+          python ../patch_camera_gallery.py
           npm run bundle
           npx cap add android
           python ../permissions.py android
@@ -44,9 +47,9 @@ jobs:
           import re
           p=Path('android/app/build.gradle')
           s=p.read_text()
-          s,n=re.subn(r'\bversionCode\s+\d+', 'versionCode 228',s,count=1)
+          s,n=re.subn(r'\bversionCode\s+\d+', 'versionCode 229',s,count=1)
           assert n == 1, 'versionCode not found'
-          s,n=re.subn(r'\bversionName\s+[\"\'][^\"\']+[\"\']', 'versionName "1.0.228"',s,count=1)
+          s,n=re.subn(r'\bversionName\s+[\"\'][^\"\']+[\"\']', 'versionName "1.0.229"',s,count=1)
           assert n == 1, 'versionName not found'
           p.write_text(s)
           PY
@@ -56,12 +59,12 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
           mkdir -p "$GITHUB_WORKSPACE/native-app/artifacts"
-          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/native-app/artifacts/SARCH-v228.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/native-app/artifacts/SARCH-v229.apk"
       - name: Verify bundled APK startup paths and native camera
         run: |
           python - <<'PY'
           import zipfile,json
-          p='native-app/artifacts/SARCH-v228.apk'
+          p='native-app/artifacts/SARCH-v229.apk'
           with zipfile.ZipFile(p) as z:
               root='assets/public/'
               cfg=json.loads(z.read('assets/capacitor.config.json'))
@@ -79,14 +82,17 @@ jobs:
                   assert '/native-bridge.js' in page,m
               bridge=z.read(root+'native-bridge.js').decode()
               assert 'saveToGallery' in bridge
+              assert '기기 앨범에 저장되었습니다.' not in bridge
+              assert 'object-fit letterboxing' in z.read(root+'SEOB/survey/index.html').decode()
+              assert json.loads(z.read(root+'SEOB/version.json'))['version']==229
               assert 'SARCHNativeRegisterWorker' in bridge
               assert 'SarchUpdate' in bridge
               print('APK startup path, four modules, native gallery bridge verified')
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: SARCH-v228-Android
-          path: native-app/artifacts/SARCH-v228.apk
+          name: SARCH-v229-Android
+          path: native-app/artifacts/SARCH-v229.apk
           if-no-files-found: error
           retention-days: 30
       - name: Publish standalone APK test release
@@ -94,13 +100,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag=sarch-v228-android-test
-          file=native-app/artifacts/SARCH-v228.apk
+          tag=sarch-v229-android-test
+          file=native-app/artifacts/SARCH-v229.apk
           test -s "$file"
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$tag" "$file" --repo "$GITHUB_REPOSITORY" --clobber
           else
-            gh release create "$tag" "$file" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "S:ARCH v228 Android test" --notes "INSTALLABLE TEST APK: restore original branded dark launch screen, hide normal startup messages, preserve recovery and automatic web bundle updates. Full module runtime verification pending. Native camera gallery saving is retained. Back up existing projects before installation. Debug signing may differ from earlier APK; Web-only updates are staged for the next launch; native code changes still require a new APK." --prerelease
+            gh release create "$tag" "$file" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "S:ARCH v229 Android test" --notes "INSTALLABLE TEST APK: field sketch pointer alignment, silent photo success, atomic dated gallery photo, restored branded launch screen, automatic web updates. Full module runtime verification pending. Native camera gallery saving is retained. Back up existing projects before installation. Debug signing may differ from earlier APK; Web-only updates are staged for the next launch; native code changes still require a new APK." --prerelease
           fi
 
       - name: Enable emulator hardware acceleration
@@ -119,5 +125,5 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
-            adb install native-app/artifacts/SARCH-v228.apk
+            adb install native-app/artifacts/SARCH-v229.apk
             python native-app/android-smoke.py || { adb logcat -d -t 1800; exit 1; }
