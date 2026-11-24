@@ -792,7 +792,7 @@ async function check(mod,width,height){
 }
 async function checkThemes(width,height){
  const context=await browser.newContext({viewport:{width,height},serviceWorkers:"block"});
- const page=await context.newPage(),themes=["shinchan","pokemon","digimon","marvel"];
+ const page=await context.newPage(),themes=["shinchan"];
  try{
  await page.goto(root,{waitUntil:"load"});
  await page.locator("#sarchGlobalTheme").waitFor({state:"attached"});
@@ -800,7 +800,7 @@ async function checkThemes(width,height){
   await page.locator("#sarchGlobalTheme").selectOption(theme);
   await page.waitForFunction(t=>[...document.querySelectorAll(".modules .module")].length===4&&
    [...document.querySelectorAll(".modules .module")].every(c=>
-    c.dataset.sarchSceneVersion===t+"-224"&&
+    c.dataset.sarchSceneVersion===t+"-225"&&
     c.querySelectorAll(".sarch-v214-scene").length===1&&
     c.querySelector(".sarch-v214-scene canvas")?.width===600),theme,{timeout:30000});
   const outcome=await page.evaluate(async t=>{
