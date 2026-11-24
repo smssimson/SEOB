@@ -337,3 +337,16 @@ html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="pokemon"]
  }
 }
 }
+
+/* v224: illustrated scene remains inside card boundaries; preserve all limbs, labels and controls. */
+@media screen{
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]){
+ width:64%!important;height:calc(100% - 16px)!important;right:8px!important;bottom:8px!important;
+}
+html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .sarch-v214-canvas{
+ object-fit:contain!important;object-position:right bottom!important;mask-image:none!important;-webkit-mask-image:none!important;
+}
+@media(max-width:450px){
+ html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]){width:62%!important;height:calc(88% - 14px)!important;right:5px!important;bottom:7px!important}
+}
+}
