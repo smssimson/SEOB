@@ -3,7 +3,32 @@ import { Camera, CameraResultType, CameraSource, CameraDirection } from '@capaci
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 
+// APK assets are already installed locally; web-only service worker registrations
+// must not intercept the native start page. Preserve all project databases.
+window.SARCHNativeRegisterWorker = async () => {
+  throw new Error('PWA registration skipped in native package');
+};
 if (Capacitor.isNativePlatform()) {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs =>
+      Promise.allSettled(regs.filter(r => {
+        try {const u=new URL(r.scope); return u.origin===location.origin&&u.pathname.startsWith('/SEOB/');}
+        catch (_) {return false;}
+      }).map(r=>r.unregister()))
+    ).catch(()=>{});
+  }
+  // Only normalize local app page links. Leave attachments and project file URLs untouched.
+  document.addEventListener('click',e=>{
+    const a=e.target?.closest?.('a[href]');
+    if(!a||a.hasAttribute('download'))return;
+    try {
+      const u=new URL(a.getAttribute('href'),location.href);
+      if(u.origin===location.origin&&/^\/SEOB\/(?:survey\/|drawing\/|schmidt\/|tilt\/)?$/.test(u.pathname)){
+        u.pathname+='index.html';a.href=u.href;
+      }
+    } catch (_) {}
+  },true);
+
   window.SARCHNative = { enabled: true };
   let busy = false;
   const photoInput = el => el instanceof HTMLInputElement &&
