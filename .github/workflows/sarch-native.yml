@@ -83,24 +83,6 @@ jobs:
               assert 'SarchUpdate' in bridge
               print('APK startup path, four modules, native gallery bridge verified')
           PY
-      - name: Enable emulator hardware acceleration
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-          python -m pip install websocket-client
-      - name: Boot APK and verify actual Android WebView
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          target: google_apis
-          arch: x86_64
-          profile: pixel_6
-          disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
-            adb install native-app/artifacts/SARCH-v227.apk
-            python native-app/android-smoke.py
       - uses: actions/upload-artifact@v4
         with:
           name: SARCH-v227-Android
@@ -118,5 +100,24 @@ jobs:
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$tag" "$file" --repo "$GITHUB_REPOSITORY" --clobber
           else
-            gh release create "$tag" "$file" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "S:ARCH v227 Android test" --notes "Android APK startup recovery and automatic web bundle updates. Native camera gallery saving is retained. Back up existing projects before installation. Debug signing may differ from earlier APK; Web-only updates are staged for the next launch; native code changes still require a new APK." --prerelease
+            gh release create "$tag" "$file" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "S:ARCH v227 Android test" --notes "INSTALLABLE TEST APK: startup recovery and automatic web bundle updates. Full module runtime verification pending. Native camera gallery saving is retained. Back up existing projects before installation. Debug signing may differ from earlier APK; Web-only updates are staged for the next launch; native code changes still require a new APK." --prerelease
           fi
+
+      - name: Enable emulator hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          python -m pip install websocket-client
+      - name: Boot APK and verify actual Android WebView
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            adb install native-app/artifacts/SARCH-v227.apk
+            python native-app/android-smoke.py || { adb logcat -d -t 1800; exit 1; }
