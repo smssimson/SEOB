@@ -386,7 +386,11 @@ async function cardArt(card,theme,i,source){
  wrap.dataset.theme=theme;
  const canvas=document.createElement("canvas");canvas.width=600;canvas.height=360;canvas.className="sarch-v214-canvas";
  const c=canvas.getContext("2d",{alpha:true});
- if(hasIllustratedScene(theme))redrawTile(c,source,i);
+ if(theme==="shinchan"&&i===3){
+  const illustration=await load("sarch-shinchan-tilt-survey.jpg");
+  canvas.height=Math.round(canvas.width*illustration.naturalHeight/illustration.naturalWidth);
+  c.drawImage(illustration,0,0,canvas.width,canvas.height);
+ }else if(hasIllustratedScene(theme))redrawTile(c,source,i);
  else inspectionScene(c,theme,i,source);
  const image=hasIllustratedScene(theme)?null:await actorImage(theme,i);
  if(document.body.dataset.theme!==theme||wrap.dataset.theme!==theme||!wrap.isConnected)return;
