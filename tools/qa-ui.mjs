@@ -800,7 +800,7 @@ async function checkThemes(width,height){
   await page.locator("#sarchGlobalTheme").selectOption(theme);
   await page.waitForFunction(t=>[...document.querySelectorAll(".modules .module")].length===4&&
    [...document.querySelectorAll(".modules .module")].every(c=>
-    c.dataset.sarchSceneVersion===t+"-214"&&
+    c.dataset.sarchSceneVersion===t+"-224"&&
     c.querySelectorAll(".sarch-v214-scene").length===1&&
     c.querySelector(".sarch-v214-scene canvas")?.width===600),theme,{timeout:30000});
   const outcome=await page.evaluate(async t=>{
@@ -808,7 +808,7 @@ async function checkThemes(width,height){
    const canvases=cards.map(c=>c.querySelector(".sarch-v214-scene canvas"));
    const actors=cards.flatMap(c=>[...c.querySelectorAll(".sarch-v214-actor")]);
    const actorOK=(await Promise.all(actors.map(async x=>{try{await x.decode()}catch(_){}return x.naturalWidth>0}))).every(Boolean);
-   const expectedActors=["shinchan","pokemon"].includes(t)?0:4;
+   const expectedActors=0;
    const count=cards.every(c=>c.querySelectorAll("h2").length===1&&c.querySelectorAll("p").length===1&&
     c.querySelectorAll(".sarch-v214-scene").length===1);
    const noDuplicate=cards.every(c=>[...c.querySelectorAll(".sarch-v206-scene,.sarch-v203-scene")]
