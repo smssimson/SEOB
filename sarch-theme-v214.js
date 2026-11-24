@@ -375,6 +375,159 @@ function actorImage(theme,i){
  }).catch(()=>null));
  return actorCache.get(key);
 }
+
+/* v223: Full-body, task-specific vector illustrations, composited in scene
+   coordinates. No portrait cropping, external image dependency or edge mask. */
+const WORK_NAMES={pokemon:["피카츄","파이리","꼬부기","나옹"],digimon:["아구몬","파피몬","텐타몬","가트몬"],marvel:["아이언맨","캡틴 아메리카","스파이더맨","헐크"]};
+const WORK_COLORS={
+ pokemon:[["#ffda4c","#e8a72a","#fff0a0"],["#f89446","#d96835","#ffdb9a"],["#6fcbd6","#348ca8","#fae2a0"],["#f0d7a0","#b48d5a","#fff0cf"]],
+ digimon:[["#f9bd45","#d58b2c","#ffe2a1"],["#f7d35c","#bc8b39","#fff1b5"],["#d64e43","#9a2b41","#f9b1a3"],["#f1eee6","#b8b3c5","#ffffff"]],
+ marvel:[["#d34a42","#852d36","#f1c56c"],["#3d79af","#25466f","#a6c9e4"],["#d84b50","#9e283e","#fa8a79"],["#88b951","#4b783c","#b7df77"]]
+};
+function workFigure(theme,i){
+ const [base,shade,light]=WORK_COLORS[theme][i], ink="#202b37";
+ const human=theme==="marvel", green=human&&i===3;
+ const id=theme+i;
+ const grad="url(#body"+id+")";
+ let parts=[];
+ const path=(d,f=grad,w=2.1,st=ink)=>'<path d="'+d+'" fill="'+f+'" stroke="'+st+'" stroke-width="'+w+'" stroke-linejoin="round" stroke-linecap="round"/>';
+ const ell=(x,y,rx,ry,f=grad,w=2,st=ink)=>'<ellipse cx="'+x+'" cy="'+y+'" rx="'+rx+'" ry="'+ry+'" fill="'+f+'" stroke="'+st+'" stroke-width="'+w+'"/>';
+ const stroke=(d,f=ink,w=2)=>path(d,"none",w,f);
+ const circle=(x,y,r,f,w=1.5,st=ink)=>ell(x,y,r,r,f,w,st);
+ const limb=(d,w,f=base)=>stroke(d,ink,w+4)+stroke(d,shade,w)+stroke(d,f,Math.max(2,w-5));
+ const eye=(x,y,rx=5,ry=8,f="#26313b")=>ell(x,y,rx,ry,f,1)+circle(x+1,y-3,2,"#fff",0,"none");
+ const add=(...v)=>parts.push(...v);
+ // Ground shadow and rear appendages are behind the working silhouette.
+ add(ell(99,222,60,8,"#0b1625",0,"none"));
+ if(theme==="pokemon"){
+  if(i===0)add(path("M63 160L29 145 39 119 16 103 33 70 69 91 56 116 81 132Z",grad,2.7),path("M63 160L48 153 59 135 81 132Z","#935d38"));
+  if(i===1)add(path("M67 173Q24 204 23 153Q24 137 38 132L42 153Q42 176 66 151Z",grad),path("M25 153Q8 137 25 117L28 130 44 107Q52 132 40 151Z","#ef7e3a"),path("M26 150Q20 137 32 130Q43 142 35 151Z","#ffde63"));
+  if(i===2)add(ell(67,141,38,48,"#855a45"),ell(65,140,31,39,"#b37d52"),stroke("M37 132Q66 112 96 133M39 153Q64 171 95 153M65 101V180","#644735",2),path("M49 165Q9 168 19 190Q31 200 48 184Q52 178 43 176",grad));
+  if(i===3)add(path("M62 176Q22 187 24 150Q26 137 39 144Q50 156 34 162Q35 170 65 161Z",grad),path("M31 145Q43 141 43 153Q42 161 34 160Z","#9b6d46"));
+ }else if(theme==="digimon"){
+  if(i===0)add(path("M73 165Q25 177 17 155L34 144Q40 157 64 146Z",grad));
+  if(i===1)add(path("M62 174Q23 202 17 171L32 151 59 153Z","#7ea4d5"),stroke("M28 168L46 178","#325eaa",7));
+  if(i===2)add(path("M68 103Q5 104 24 164Q47 170 71 142Z","#a9d4e4"),path("M106 105Q167 102 153 163Q133 170 110 141Z","#b4deec"),stroke("M31 119L61 144M144 121L121 145","#517d9b",2));
+  if(i===3)add(path("M68 177Q15 204 18 162Q20 145 31 145Q49 150 40 164Q33 170 31 164Q31 181 69 161Z","#edece6"),stroke("M22 151L37 158","#8b7cb5",7),circle(20,174,8,"#d3ad53"));
+ }else if(i===1){
+  add(circle(54,143,37,"#b13d49"),circle(54,143,29,"#f3eee2"),circle(54,143,21,"#b13d49"),circle(54,143,13,"#3b6d9e"));
+ }
+ // Articulated legs: the draftsman kneels, the surveyor bends to the scope.
+ const hip=human?155:160;
+ const knee=i===1?[67,184,124,198]:i===3?[59,191,130,183]:[70,191,121,195];
+ const foot=i===1?[44,215,145,216]:[60,214,132,214];
+ const legColor=human?(green?"#52416d":i===2?"#375b99":i===1?"#386694":shade):base;
+ add(limb("M83 "+hip+"Q80 174 "+knee[0]+" "+knee[1]+"L"+foot[0]+" "+foot[1],human?22:19,legColor),
+     limb("M112 "+hip+"Q117 176 "+knee[2]+" "+knee[3]+"L"+foot[2]+" "+foot[3],human?22:19,legColor));
+ const shoe=human?(green?base:i===1?"#a83d45":i===2?"#c93c48":"#bd3b3c"):i===3&&theme==="digimon"?"#d8b749":base;
+ add(ell(foot[0]+7,216,human?18:17,8,shoe),ell(foot[2]+7,216,human?18:17,8,shoe));
+ if(theme==="digimon"&&i===0)for(const x of [foot[0]+3,foot[0]+12,foot[2]+3,foot[2]+12])add(path("M"+x+" 214l5 8 5 -7Z","#fff0d1",1));
+ // Body angles reflect the job (forward lean for theodolite, low drafting posture).
+ const tilt=i===3?15:i===1?10:0;
+ const ty=i===1?8:0;
+ const bx=96+tilt,by=121+ty;
+ if(human){
+  add(path("M"+(bx-35)+" "+(by-30)+"Q"+bx+" "+(by-50)+" "+(bx+35)+" "+(by-29)+"L"+(bx+25)+" "+(by+39)+"Q"+bx+" "+(by+48)+" "+(bx-23)+" "+(by+38)+"Z",grad,2.7));
+  if(i===0)add(path("M"+(bx-25)+" "+(by-23)+"L"+(bx-12)+" "+(by+4)+" "+(bx-18)+" "+(by+31)+"L"+(bx+18)+" "+(by+31)+" "+(bx+13)+" "+(by+4)+" "+(bx+25)+" "+(by-23), "none",3,"#edba67"),circle(bx,by-8,12,"#d5faff",2,"#73bed8"),circle(bx,by-8,6,"#fff",0,"none"));
+  if(i===1)add(path("M"+(bx-23)+" "+(by+16)+"H"+(bx+23)+"L"+(bx+20)+" "+(by+35)+"H"+(bx-20)+"Z","#e5dfd8"),stroke("M"+(bx-11)+" "+(by+18)+"v15M"+(bx+10)+" "+(by+18)+"v15","#af3d48",8),path("M"+bx+" "+(by-24)+"l4 12 13 0 -10 8 4 12 -11 -8 -11 8 4 -12 -10 -8 13 0Z","#f3f1e9",1));
+  if(i===2)add(path("M"+(bx-33)+" "+(by+1)+"L"+(bx-16)+" "+(by+8)+"L"+(bx-18)+" "+(by+37)+"H"+(bx+18)+"L"+(bx+16)+" "+(by+8)+"L"+(bx+33)+" "+(by+1)+"L"+(bx+26)+" "+(by+39)+"H"+(bx-26)+"Z","#31598d"),stroke("M"+bx+" "+(by-13)+"v24m-9 -19 18 14m-18 0 18 -14","#26313d",2.8),ell(bx,by-3,4,7,"#26313d",0,"none"));
+  if(i===3)add(stroke("M"+(bx-26)+" "+(by-14)+"Q"+bx+" "+(by-1)+" "+(bx+27)+" "+(by-14)+"M"+bx+" "+(by-3)+"V"+(by+23),"#477143",2),path("M"+(bx-26)+" "+(by+29)+"H"+(bx+26)+"L"+(bx+27)+" "+(by+46)+"l-17 -2 -10 4 -10 -5 -17 3Z","#614677"));
+ }else{
+  add(ell(bx,by+11,theme==="digimon"&&i===2?32:30,42,grad,2.5));
+  if(theme==="pokemon"&&i===2)add(ell(bx+7,by+14,24,35,light),stroke("M"+(bx-12)+" "+(by+5)+"h39m-36 14h34m-18 -40v63","#a78c67",1.8));
+  else if(theme==="digimon"&&i===1)add(ell(bx,by+8,25,34,"#fff0b2"),path("M"+(bx-11)+" "+(by-10)+"l22 1 -9 11 9 10 -22 0 8 -10Z","#6d9ed8",1.4));
+  else if(theme==="digimon"&&i===2)add(ell(bx,by+7,24,35,"#343b49"),stroke("M"+(bx-18)+" "+(by+4)+"h36m-32 13h28","#8496a3",2));
+  else add(ell(bx+4,by+16,18,27,light,0,"none"));
+ }
+ // Head and distinctive franchise details.
+ const hx=102+(i===3?25:i===1?12:0),hy=64+(i===3?19:i===1?14:0);
+ const hstart=parts.length;
+ if(theme==="pokemon"&&i===0){
+  add(path("M-25 -15Q-51 -39 -46 -62Q-28 -52 -15 -24Z"),path("M14 -24Q26 -54 43 -64Q46 -39 28 -12Z"),path("M-46 -62Q-51 -49 -40 -39L-28 -45Z","#303039"),path("M43 -64Q47 -50 38 -38L25 -44Z","#303039"),ell(0,0,36,30),ell(-22,10,9,8,"#e84942",1),ell(25,10,9,8,"#e84942",1),eye(-11,-5),eye(14,-5),path("M-1 3l5 0 -2 3Z","#2d2d34",1),stroke("M-5 12q7 7 14 0"));
+ }else if(theme==="pokemon"&&i===1){
+  add(path("M-35 5Q-43 -24 -12 -30Q23 -37 36 -12L47 5Q43 20 19 26Q-15 31 -34 12Z"),ell(21,11,23,12,light,1.4),eye(3,-6,6,11,"#356579"),eye(25,-8,5,10,"#356579"),stroke("M16 16q13 5 24 -2"),circle(34,3,1.4,ink,0,"none"));
+ }else if(theme==="pokemon"&&i===2){
+  add(ell(0,0,37,33),ell(17,12,25,17,base,1.5),eye(-7,-6,7,12,"#8c3447"),eye(21,-7,7,12,"#8c3447"),stroke("M7 16Q24 23 37 12"),circle(25,4,1.2,ink,0,"none"));
+ }else if(theme==="pokemon"&&i===3){
+  add(path("M-31 -15L-33 -51 -5 -32Q4 -35 16 -30L37 -49 34 -12Q47 9 27 26Q0 39 -29 25Q-47 6 -31 -15Z"),path("M-29 -40L-11 -28 -29 -21Z","#a7756d",1),path("M31 -39L18 -25 32 -20Z","#a7756d",1),ell(5,-28,10,14,"#e1b44b"),stroke("M2 -34h6m-7 5h8m-8 5h6","#9c6d38",1.5),eye(-13,-3,6,11),eye(17,-3,6,11),stroke("M-3 10q7 8 14 0M-29 6l-15 -4m15 10 -16 4m42 -11 15 -4m-15 11 15 4"));
+ }else if(theme==="digimon"&&i===0){
+  add(path("M-38 -4Q-43 -30 -14 -34Q25 -39 40 -14L49 7Q43 25 19 29Q-21 33 -38 13Z"),ell(20,13,27,15,light,1.5),eye(-5,-8,7,11,"#55934c"),eye(25,-8,6,10,"#55934c"),stroke("M4 17Q27 24 44 12"),path("M28 20l5 -6 4 6Z","#fff5d9",1),circle(37,4,1.5,ink,0,"none"));
+ }else if(theme==="digimon"&&i===1){
+  add(path("M-31 -9L-45 -42 -13 -24 0 -27 13 -56 21 -24 42 -36 37 -4Q49 24 20 29Q-18 36 -38 17Z","#8bb0de"),stroke("M-37 -31l13 15m54 -11 -12 13","#395b9c",6),path("M7 -26L15 -57 22 -24Z","#e9c485"),ell(0,5,29,25,grad),ell(16,15,22,13,light,1),eye(-8,-5,5,9,"#9c3b46"),eye(18,-5,5,9,"#9c3b46"),stroke("M9 17q13 6 24 -2"));
+ }else if(theme==="digimon"&&i===2){
+  add(path("M-18 -20Q-28 -45 -42 -43M15 -22Q23 -46 39 -44","none",4),circle(-43,-43,4,light),circle(39,-44,4,light),ell(0,0,36,28,grad),ell(-16,-2,12,17,"#a3d4a1"),ell(15,-2,12,17,"#a3d4a1"),eye(-14,-1,3,7),eye(16,-1,3,7),path("M-14 15L-5 29 1 17 9 28 19 14Z","#ebc96a"));
+ }else if(theme==="digimon"&&i===3){
+  add(path("M-31 -14L-39 -49 -10 -29Q5 -35 18 -29L40 -49 35 -12Q49 17 22 28Q-8 38 -32 20Q-44 7 -31 -14Z",grad),path("M-34 -41L-15 -27 -30 -22Z","#8873b0"),path("M35 -41L21 -27 32 -20Z","#8873b0"),eye(-12,-4,7,11,"#467baa"),eye(18,-4,7,11,"#467baa"),stroke("M-2 10q7 8 14 0"),circle(6,8,2,"#b77786",0,"none"));
+ }else if(theme==="marvel"&&i===0){
+  add(path("M-31 -23L-13 -34H14L31 -22 34 14 19 34H-18L-34 13Z",grad,2.7),path("M-23 -20L-12 -24 -8 -15H9L14 -24 25 -20 24 13 13 28H-13L-24 13Z","#f2c565"),path("M-20 -5L-5 -3 -7 3 -20 2ZM7 -3L21 -5 21 2 8 3Z","#d5fbff",1.1,"#5f8495"),stroke("M-13 18H13M-22 9l9 7m35 -7 -9 7","#977044",1.5));
+ }else if(theme==="marvel"&&i===1){
+  add(ell(0,0,31,33,"#386b9d"),path("M-28 4L-20 0 -10 5H10L20 0 28 4 24 21Q0 39 -24 21Z","#efbe94"),path("M-6 -25L0 -13 6 -25M-4 -18H4","none",3,"#f9f8f1"),eye(-11,0,4,4),eye(12,0,4,4),stroke("M-7 19q7 3 14 0"));
+ }else if(theme==="marvel"&&i===2){
+  add(ell(0,0,31,35,grad),stroke("M0 -33V33M-17 -29L-9 30M17 -29L9 30M-30 -16Q0 -5 30 -16M-31 0Q0 10 31 0M-27 16Q0 23 27 16","#542d3e",1.4),path("M-25 -13Q-10 -15 -4 5Q-16 13 -25 -2Z","#f7fbff",2.8),path("M25 -13Q10 -15 4 5Q16 13 25 -2Z","#f7fbff",2.8));
+ }else{
+  add(path("M-33 -19Q-24 -39 1 -35Q28 -38 36 -19L29 15 18 31H-17L-31 15Z",grad,2.7),path("M-34 -12L-37 -28 -25 -35 -17 -41 -7 -36 3 -42 16 -35 24 -38 37 -26 34 -10 23 -22 13 -16 1 -24 -12 -19 -23 -23Z","#303938"),eye(-11,1,5,5),eye(14,1,5,5),stroke("M-21 -8l15 4m15 0 15 -4M-10 19q11 -5 22 0","#304c35",2.8));
+ }
+ const head=parts.splice(hstart).join("");
+ add('<g transform="translate('+hx+' '+hy+') rotate('+(i===3?11:i===1?9:3)+')">'+head+'</g>');
+ // Hands go to the same real working points as the tools, rather than
+ // merely putting a generic portrait next to an illustration.
+ const grips=[[[142,84],[174,91]],[[148,165],[179,181]],[[147,133],[178,129]],[[162,108],[177,117]]][i];
+ const shoulders=[[bx-22,by-16],[bx+23,by-15]];
+ const armColor=theme==="marvel"&&i===1?"#426f9f":theme==="digimon"&&i===3?"#e8e4dd":base;
+ for(let k=0;k<2;k++){
+  const [sx,sy]=shoulders[k],[gx,gy]=grips[k];
+  const ex=(sx+gx)/2+(k?7:-8),ey=(sy+gy)/2+12;
+  add(limb("M"+sx+" "+sy+"Q"+ex+" "+ey+" "+gx+" "+gy,human?(green?23:15):12,armColor));
+ }
+ // Camera raised toward concrete; pencil touching plan; physical grips over
+ // Schmidt hammer shaft; hand on focus/azimuth adjustment at theodolite.
+ if(i===0){
+  add(path("M140 73h10l5 -7h14l5 7h13v27h-47Z","#253b4b",2.3),ell(177,86,9,9,"#86b7d0",2),ell(177,86,4,4,"#193a4d",1),path("M145 78h9v5h-9Z","#d8e5e6",1));
+ }else if(i===1){
+  add(path("M130 178l63 -19 23 33 -65 23Z","#eee4c9",1.8),stroke("M147 184l38 -12 16 16 -39 13Z M166 179l10 17m-12 -6 28 -9","#426579",1.6),stroke("M171 163l18 20","#252e35",5),stroke("M171 163l16 18","#e6af4f",3),path("M187 181l3 4 -5 -2Z","#31343a",1));
+ }
+ for(const [x,y] of grips)add(ell(x,y,human?8:7,human?7:6,theme==="digimon"&&i===3?"#e5c66a":armColor,1.6));
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="220" height="240" viewBox="0 0 220 240"><defs><linearGradient id="body'+id+'" x1="0" y1="0" x2=".82" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="'+light+'"/><stop offset=".34" stop-color="'+base+'"/><stop offset="1" stop-color="'+shade+'"/></linearGradient></defs>'+parts.join("")+'</svg>';
+}
+const workCache=new Map();
+function workImage(theme,i){
+ const k=theme+i;
+ if(!workCache.has(k))workCache.set(k,load("data:image/svg+xml;charset=utf-8,"+encodeURIComponent(workFigure(theme,i))));
+ return workCache.get(k);
+}
+async function paintWorkingScene(c,theme,i,source){
+ // Retain the existing scene/background and remove only the old portrait.
+ if(theme==="pokemon"&&source){
+  const crops=[[138,0,342,320],[480,0,390,320],[120,320,360,320],[566,320,394,320]];
+  c.drawImage(source,...crops[i],0,0,600,360);
+ }else inspectionScene(c,theme,i,null);
+ const ox=87,oy=105;
+ if(i===2){
+  // Rebound hammer axis meets the concrete surface, grips are on the shaft.
+  c.save();c.lineCap="round";
+  line(c,[[ox+132,oy+135],[412,220]],"#182e38",20);
+  line(c,[[ox+132,oy+135],[412,220]],"#b98a51",13);
+  line(c,[[ox+140,oy+131],[405,217]],"#f1d49a",3);
+  line(c,[[410,220],[439,217]],"#e3e8e0",6);
+  c.restore();
+ }else if(i===3&&theme==="pokemon"){
+  // Use the same tripod coordinates as the other themes, on the existing
+  // survey background. Never enlarge or crop the operator to fill a card.
+  c.save();c.lineCap="round";
+  for(const x of [235,279,322])line(c,[[276,227],[x,339]],"#d5b47d",5);
+  poly(c,[[251,191],[296,188],[302,222],[252,228]],"#cfa451","#f8df9e",2);
+  poly(c,[[263,196],[286,194],[288,211],[264,215]],"#254b5a","#f8df9e",2);
+  c.restore();
+ }
+ const im=await workImage(theme,i);
+ c.save();c.shadowColor="#07152188";c.shadowBlur=6;c.shadowOffsetY=3;
+ c.drawImage(im,ox,oy,220,240);c.restore();
+ // Fade only the unoccupied far-left background, not any part of the actor.
+ c.save();c.globalCompositeOperation="destination-in";
+ const fade=c.createLinearGradient(0,0,65,0);fade.addColorStop(0,"transparent");fade.addColorStop(1,"black");
+ c.fillStyle=fade;c.fillRect(0,0,600,360);c.restore();
+}
+
 function hasIllustratedScene(theme){return theme==="shinchan"||theme==="pokemon"}
 async function paintPokemonCard(c,source,index){
  const crops=[[138,0,342,320],[480,0,390,320],[120,320,360,320],[566,320,394,320]];
@@ -401,7 +554,7 @@ async function paintPokemonCard(c,source,index){
  c.restore();
 }
 async function cardArt(card,theme,i,source){
- if(card.dataset.sarchSceneVersion===theme+"-214"&&card.querySelector(".sarch-v214-scene")){
+ if(card.dataset.sarchSceneVersion===theme+"-223"&&card.querySelector(".sarch-v214-scene")){
   card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene").forEach(el=>el.remove());
   return;
  }
@@ -430,29 +583,12 @@ async function cardArt(card,theme,i,source){
   c.fillStyle=skyFade;
   c.fillRect(0,0,canvas.width,canvas.height);
   c.restore();
- }else if(theme==="pokemon")await paintPokemonCard(c,source,i);
- else if(hasIllustratedScene(theme))redrawTile(c,source,i);
- else inspectionScene(c,theme,i,source);
- const image=hasIllustratedScene(theme)?null:await actorImage(theme,i);
+ }else if(theme==="shinchan")redrawTile(c,source,i);
+ else await paintWorkingScene(c,theme,i,source);
  if(document.body.dataset.theme!==theme||wrap.dataset.theme!==theme||!wrap.isConnected)return;
  wrap.replaceChildren(canvas);
- if(image){
-  const el=document.createElement("img");
-  el.className="sarch-v214-actor "+theme;
-  el.alt="";
-  el.draggable=false;
-  el.src=image;
-  wrap.append(el);
- }
- if(!hasIllustratedScene(theme)){
-  const foreground=document.createElement("canvas");
-  foreground.width=600;
-  foreground.height=360;
-  foreground.className="sarch-v214-canvas sarch-scene-foreground";
-  drawWorkForeground(foreground.getContext("2d"),theme,i);
-  wrap.append(foreground);
- }
- card.dataset.sarchSceneVersion=theme+"-214";card.classList.add("sarch-v214-ready");
+ if(WORK_NAMES[theme])wrap.title=WORK_NAMES[theme][i];
+ card.dataset.sarchSceneVersion=theme+"-223";card.classList.add("sarch-v214-ready");
  card.querySelectorAll(".sarch-theme-card-character,.sarch-v206-scene,.sarch-v211-scene").forEach(n=>n.remove());
 }
 const BUTTON_GLYPHS={
@@ -525,19 +661,12 @@ function updateModuleBadge(theme){
  slot.title=["현장조사 테마 장면","도면작성 테마 장면","장비조사 테마 장면","기울기 테마 장면"][index];
  const pic=document.createElement("canvas");pic.width=204;pic.height=118;slot.append(pic);head.append(slot);
  if(theme!=="shinchan"){
-  pic.width=600;
-  pic.height=360;
-  const context=pic.getContext("2d");
-  inspectionScene(context,theme,index,null);
-  drawWorkForeground(context,theme,index);
-  actorImage(theme,index).then(src=>{
-   if(!src||!slot.isConnected||document.body.dataset.theme!==theme)return;
-   const actor=document.createElement("img");
-   actor.className="sarch-inspection-badge-actor "+theme;
-   actor.alt="";
-   actor.src=src;
-   slot.append(actor);
-  });
+  pic.width=600;pic.height=360;
+  slot.title=WORK_NAMES[theme][index]+" · "+slot.title;
+  (theme==="pokemon"?atlas(theme).catch(()=>null):Promise.resolve(null)).then(source=>{
+   if(!slot.isConnected||document.body.dataset.theme!==theme)return;
+   return paintWorkingScene(pic.getContext("2d"),theme,index,source);
+  }).catch(console.warn);
   return;
  }
  atlas(theme).then(im=>{
@@ -562,7 +691,7 @@ function repaint(){
   return;
  }
  if(document.documentElement.dataset.module==="home"){
-  const source=hasIllustratedScene(theme)?atlas(theme):Promise.resolve(null);
+  const source=hasIllustratedScene(theme)?atlas(theme).catch(e=>{if(theme==="shinchan")throw e;return null}):Promise.resolve(null);
   source.then(img=>{
    if(document.body.dataset.theme!==theme)return;
    cards.forEach((card,i)=>{if(i<4)cardArt(card,theme,i,img).catch(console.warn)});
