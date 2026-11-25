@@ -106,7 +106,14 @@ body[data-theme="graphite"] .theme-picker select{color:#fff!important}
 .front-photo-card .front-photo-preview{height:160px;border:1px dashed var(--line);border-radius:9px;background:var(--board);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted);font-size:13px;text-align:center}
 .front-photo-preview img{width:100%;height:100%;object-fit:cover}
 .front-photo-card label.front-label{display:block;font-size:12px;font-weight:700;color:var(--ink)}
-.front-photo-card label.front-label input{display:block;margin-top:6px;width:100%;min-width:0;padding:9px}
+.front-photo-card label.front-label input,.front-photo-card .front-label select{display:block;margin-top:6px;width:100%;min-width:0;padding:9px;font-size:12px}
+.front-description-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr) auto;gap:6px;align-items:start}
+.front-description-fields>div{min-width:0}
+.front-photo-card .front-label .front-fixed{display:flex;align-items:center;justify-content:center;min-height:34px;margin-top:6px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--field);color:var(--ink);white-space:nowrap;font-size:12px}
+.front-photo-card .front-label .front-fixed.road{justify-content:flex-start}
+.front-photo-card .front-label input[hidden]{display:none!important}
+.front-photo-card .front-caption-preview{margin-top:5px;color:var(--muted);font-weight:400;overflow-wrap:anywhere;min-height:1.35em}
+.front-photo-card .front-legacy{font-size:11px;color:var(--muted);margin-top:4px}
 .front-photo-actions{display:flex;gap:7px;flex-wrap:wrap}
 .front-photo-actions label,.front-photo-actions button{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:1;min-width:90px;font-size:12px;padding:9px 7px!important;text-align:center;border:1px solid var(--line);border-radius:9px;background:var(--field);color:var(--ink)}
 .front-photo-actions label:hover{border-color:var(--accent);background:var(--surface-soft)}
@@ -363,8 +370,8 @@ window.SM47Export={
 <button id="moveBtn" class="sm-hidden-control">이동</button>
 <button id="zoomIn" class="sm-hidden-control">확대</button><button id="zoomOut" class="sm-hidden-control">축소</button><button id="fit" class="sm-hidden-control">화면 맞춤</button><div class="pagebar sm65-floorbar"><button id="prevPage">◀ 이전</button><select id="pageSelect" aria-label="도면 페이지"></select><button type="button" id="sm69Reorder" title="길게 눌러도 순서를 바꿀 수 있습니다">↕ 도면 순서</button><button type="button" id="sm63Rotate" title="현재 도면만 90도 회전">⟳ 회전 0°</button><button id="nextPage">다음 ▶</button><span id="pageCounter" class="muted"></span><label style="margin:0">도면명 <input id="pageLabel" placeholder="예: 지상 10층"></label><button id="renamePage" hidden aria-hidden="true">이름 적용</button><button id="sm46AddBlank" type="button">＋ 새 도면</button><button id="removePage" class="danger">현재 도면 삭제</button></div><h3 class="sarch-work-area-title" style="margin:10px 0 8px;font-size:15px">현장조사 위치도</h3><div id="board" class="board"><canvas id="canvas"></canvas><button id="smBoardOpen" type="button" class="sm-board-open" aria-label="도면 또는 사진 불러오기">＋ 도면 또는 사진을 열어주세요</button></div><div class="hint">번호 찍기: 도면 터치 · 균열선: 펜으로 선 그리기(끝점에 번호 생성) · 손가락 한 개로 이동 · 두 손가락으로 이동/확대/축소 · 결함 번호 터치: 상세정보 편집 · <strong>결함 표시 ON 상태에서 글씨만 손가락/마우스로 끌어서 이동</strong> (번호는 고정, 위치는 현장별 자동 저장)</div><div class="row"><label style="flex:2">현장명<input id="projectName" placeholder="예: ○○ 공동주택 신축공사"></label><label>도면명<input id="drawingName" placeholder="예: 지하 1층 평면도"></label></div><section class="panel front-workspace" id="frontPhotoWorkspace" aria-label="전경사진 등록">
 <div class="front-heading"><div><div class="front-eyebrow">사진첩 자료 준비</div><h2>📷 시설물 전경사진 등록</h2><p>결함사진과 별도로 관리합니다. 이곳에 전경사진을 등록하고, 결함별 사진은 기존 결함 상세정보에서 추가하세요. 최종 사진첩은 오른쪽 「사진첩 한글(HWPX)」 버튼으로 한 번에 다운로드합니다.</p></div></div>
-<div class="front-group"><div class="front-group-title"><h3>① 외부 전경 <span class="front-count" id="frontOutsideCount">0 / 4장</span></h3><span>사진첩 2쪽 · 정면 / 좌측면 / 배면 / 우측면</span></div><div id="frontOutside" class="front-photo-grid"></div></div>
-<div class="front-group"><div class="front-group-title"><h3>② 내부 전경 <span class="front-count" id="frontInsideCount">0 / 12장</span></h3><span>사진첩 3~4쪽 · 내부 전경 6장당 1쪽 · 층과 촬영 위치를 사진 설명에 입력하세요</span></div><div id="frontInside" class="front-photo-grid"></div></div>
+<div class="front-group"><div class="front-group-title"><h3>① 외부 전경 <span class="front-count" id="frontOutsideCount">0 / 6장</span></h3><span>사진첩 2쪽 · 건물 외부 6장 / 외부 도로 2장</span></div><div id="frontOutside" class="front-photo-grid"></div></div>
+<div class="front-group"><div class="front-group-title"><h3>② 내부 전경 <span class="front-count" id="frontInsideCount">0 / 12장</span></h3><span>사진첩 · 내부 전경 6장당 1쪽 · 층과 발생 위치를 선택하세요</span></div><div id="frontInside" class="front-photo-grid"></div></div>
 <p class="front-note">※ 사진 설명은 예: 「지상1층 복도 전경」처럼 수정할 수 있습니다. 사진은 현장별로 기기에 자동 저장되므로 다른 기기에서 사용하려면 프로젝트 JSON을 내보내서 불러오세요.</p>
 </section></section><aside class="panel"><div class="title">결함 목록 <span id="count" class="muted">0건</span></div><div id="list" class="list"></div><div id="sm192GroupBar" hidden style="margin:8px 0"><div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button id="sm163MergeToggle" type="button">통합</button><button id="sm163MergeRemove" type="button">해제</button></div><div class="row" style="justify-content:space-between;margin-top:6px"><span id="sm163MergeStatus" role="status" aria-live="polite"></span><button id="sm192SelectCancel" type="button">선택 취소</button></div></div><hr style="border:0;border-top:1px solid #e4e9ef;margin:14px 0"><div id="editor"><div class="muted">도면을 터치해 결함을 추가하거나 목록에서 결함을 선택하세요.</div></div><hr style="border:0;border-top:1px solid #e4e9ef;margin:14px 0"><div class="title">자료 저장 및 출력</div><div class="row" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch"><button id="export">프로젝트 내보내기</button><label class="button" style="margin:0;text-align:center;display:flex;align-items:center;justify-content:center;font-size:12px;min-height:40px;white-space:nowrap">프로젝트 불러오기<input id="import" type="file" accept=".json,application/json" hidden></label></div><div class="row" style="margin-top:8px"><button id="png">외관조사망도 PNG</button><button id="sm192AllPng">전체 층 외관조사망도 ZIP</button><button id="csv">결함 현황표 엑셀</button><button id="repairReport">보수물량·공사비</button><button id="albumHwpx">사진첩 한글(HWPX)</button></div><button id="print" class="hidden" aria-hidden="true" tabindex="-1">인쇄/PDF</button><div class="hint">현장별로 자동 저장됩니다(현재 기기). 다른 기기로 옮길 때는 현장별 프로젝트 내보내기(.json)를 사용하세요. 앱 삭제·브라우저 데이터 정리 전 반드시 백업하세요.</div></aside></main><div id="sketchModal" role="dialog" aria-modal="true" aria-label="현장 스케치 편집기"><div class="sketchWindow"><div class="row" style="justify-content:space-between"><strong>✏️ 현장 도면 스케치 편집기</strong><button id="sketchClose">닫기</button></div><div class="sketchTools"><button data-sktool="pen" class="active">자유 그리기</button><button data-sktool="line">직선</button><button data-sktool="rect">사각형</button><button data-sktool="erase">지우개</button><span class="sketchPalette" id="sketchPalette" aria-label="펜 색상"></span><label>선 굵기 <input id="sketchWidth" type="number" min="1" max="30" value="3"></label><button id="sketchUndo">↶ 한 획 취소</button><button id="sketchClear" class="danger">전체 지우기</button></div><div class="sketchTip">자유 그리기: 선을 그은 뒤 끝점에서 약 0.6초 멈추면 직선으로 변환됩니다. 색상은 펜·직선·사각형에 적용됩니다.</div><canvas id="sketchCanvas" width="1600" height="1100"></canvas><div class="row"><span class="muted" style="flex:3">스케치는 이 창에서만 수정됩니다. 도면에 적용한 뒤에는 결함 번호와 균열선만 추가할 수 있습니다.</span><button id="sketchSave" class="primary">✓ 도면에 적용 / 저장</button></div></div></div><div id="albumModal" role="dialog" aria-modal="true" aria-label="외관조사 사진첩" style="display:none;position:fixed;inset:0;background:#0009;z-index:1200;overflow:auto;padding:18px"><div style="max-width:850px;margin:auto;background:white;padding:22px;border-radius:12px"><div class="row"><h2 style="flex:3">외관조사 사진첩 · 자료 준비</h2><button id="albumClose">닫기</button></div><p class="hint">제공한 한글 양식의 구성에 따라 1쪽 위치도 공란, 2쪽 외부 전경, 3쪽부터 내부 전경(6장당 1쪽), 이후 지하층→지상층→옥탑층 결함사진을 배치합니다. 한글(HWPX) 다운로드 버튼을 누르면 제공한 원본 한글 틀에 사진·결함 설명을 채웁니다. 첫 장 위치도는 공란이며 한글에서 수정할 수 있습니다.</p><h3>2쪽 · 시설물 전경사진 (외부 4장)</h3><div id="albumOutside"></div><h3>3~4쪽 · 시설물 부위별 사진 (내부 최대 12장)</h3><div id="albumInside"></div><div class="row" style="margin-top:15px"><button id="albumPrint" class="hidden" aria-hidden="true" tabindex="-1">인쇄/PDF</button><button id="albumHwpxInside" class="primary">한글(HWPX) 다운로드</button></div></div></div><div id="repairModal" role="dialog" aria-modal="true" aria-label="보수물량 및 개략공사비"><div class="repairWindow"><div class="row" style="justify-content:space-between"><h2>보수·보강 물량 및 개략공사비 <small style="font-size:12px;font-weight:400;color:#9eb4cd" id="sm185CostBuild">v185 · 미확인 단가 자동 추정</small></h2><button id="repairClose">✕ 닫기</button></div><div class="repairNote">기준: <b>2026년 건설공사 표준품셈(유지관리 1-3-1~1-3-6)과 2026년 하반기 건설업 임금실태조사(2026.9.1 적용)</b>. 검증된 공종의 자동 금액은 <b>노무비만 반영한 참고값</b>이며 자재비·부대비·방청비 등을 포함한 완성 단가가 아닙니다. <b>보수물량 단위는 ㎡</b>로 통일합니다. 균열은 입력한 균열폭을 면적 환산 폭에 자동 반영합니다. 이는 임시 면적이며 실제 보수 시공 폭이 아니므로, 확정 공사비 산정 전 실제 시공 폭으로 수정해야 합니다. 보수공법과 현장조건이 명확하지 않은 결함도 유사공법 개략 추정 단가를 노무·재료·장비 항목별로 자동 입력하며, 근거에는 반드시 추정임을 표시합니다.  표면처리·단면복구 등의 표준품셈은 노무량 기준으로, 자재 단가와 실제 보수두께·시공범위·비계·장비·폐기물·소규모 할증 등은 현장별 별도 확인이 필요합니다. 자재·장비·기타 직접비의 기본 추정액은 공식 확정 단가가 아니라 유사공법 가정값입니다.  자동 노무비와 별도로 보수재비·장비비 등 직접비를 천원/㎡ 단위로 입력할 수 있으며, 기존 버전에서 직접 입력한 단가는 원 입력값을 보존하므로 노무비·자재비 중복 포함 여부를 확인해야 합니다. 입력값은 현재 현장에 저장되고 엑셀 합산 단가에 반영됩니다. 세 항목 중 미입력 금액이 있으면 ‘부분산정’으로 표시합니다. 모든 금액은 천원 단위입니다.</div><div class="repairTools"><label style="margin:0">제경비율 (%) <input id="overhead" type="number" min="0" max="300" step="1" value="60" style="width:85px"></label><button id="repairCsv">엑셀(XLSX) 다운로드</button><button id="repairPrint">표 인쇄 / PDF</button></div><h3>5.4 보수·보강 물량 및 우선순위</h3><div class="repairScroll"><table class="repairTable"><thead><tr><th>층/도면</th><th>손상명</th><th>구분</th><th>적용공법</th><th>보수물량</th><th>단위</th><th>우선순위</th></tr></thead><tbody id="repairQtyRows"></tbody></table></div><h3>5.5 개략공사비</h3><div class="repairNote" id="sm182YearNotice">2026년 하반기 공식 노임을 바탕으로 유사공법 추정 단가를 자동 적용합니다. 새 연도 공식자료 미확인 시 전년도 근거에 가정 상승률을 적용한 추정액입니다.</div><div class="repairScroll"><table class="repairTable sm180CostTable"><thead><tr><th>층/도면</th><th>손상명</th><th>적용공법</th><th>보수물량</th><th>단위</th><th>노무비 / 기존 입력단가 (천원/㎡)</th><th>보수재비 (천원/㎡)</th><th>장비·기타 직접비 (천원/㎡)</th><th>단가 산정 근거</th><th>공사비 (천원)</th><th>우선순위</th></tr></thead><tbody id="repairCostRows"></tbody></table></div><div class="repairSummary" id="repairSummary"></div><div class="repairNote">확인 가능한 2026년 품셈·노임을 이용한 <b>자동 노무비</b>와 현장에서 입력한 보수재비·장비비·기타 직접비를 구분하여 집계합니다. 2026년 표준품셈은 일당 시공량 등의 기준이지 완성 공사비 단가표가 아닙니다. 재료비, 장비비, 고소작업, 방청처리, 폐기물, 부가세 및 공사조건을 확인하여 추가 적용해야 하며 자동값만으로 최종 공사비를 확정해서는 안 됩니다. 미입력 비용은 합계에 포함되지 않으므로 ‘부분산정’ 표시를 반드시 확인하세요. 제경비율은 사용자 입력 가정치이며 공식 일률 값이 아닙니다.</div></div></div><footer>현장 점검 기록 도구 · 다중 현장 관리 버전 · 보수물량·우선순위·개략공사비 산출 지원 · 실제 수량 및 단가 확인 필요</footer><script>
 // v21 테마: 기기별 로컬 저장 (현장 데이터와 별도)
@@ -380,6 +387,7 @@ window.SM47Export={
  if(media)media.addEventListener('change',()=>{if(sel.value==='system')apply('system')});
 })();
 </script><script src="./jszip.min.js"></script><script src="./estimate-rates-v182.js?v=182"></script><script>
+const FRONT_SPACES=['계단실','기계실','전기실','창고','복도','공실','화장실','주차장','로비','옥상'];
 const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d'),board=$('board');let state={project:'',drawingName:'',image:null,pages:[],activePage:0,defects:[],nextId:1},img=null,selected=null,mode='pin',zoom=1,pan={x:0,y:0},drag=null,preview=null,undoStack=[],siteId=null,siteList=[],db=null,saveTimer=null;const TYPE_GROUPS=[
 {label:'① 구조체 · 주요 결함',items:['구조체 균열','구조체 망상균열','철근노출','구조체 누수흔적','구조체 누수','구조체 백태(백화)','박리','박락·파손','재료분리','구조체 천공','구조체 부식','구조체 변형·처짐','구조체 침하·변위','구조체 기타 손상']},
 {label:'② 비구조체 · 마감 결함',items:['비구조체 균열','마감재 열화','비구조체 누수흔적','비구조체 백태(백화)','비구조체 천공','비구조체 표면손상·파손','줄눈 손상','비구조체 변형·처짐','비구조체 부식','비구조체 기타 손상']}
@@ -1112,7 +1120,7 @@ function fillPreset(id,vals,unit){let sel=$(id);if(!sel)return;sel.innerHTML='<o
 let sm71Raw=String(d.location||'').trim(),sm71Match=sm71Members.find(m=>sm71Raw===m||sm71Raw.endsWith(' '+m));
 let sm71Base=sm71Match?(sm71Raw===sm71Match?'':sm71Raw.slice(0,-sm71Match.length).trim()):sm71Raw;
 $('locationMember').value=sm71Match||'';$('location').value=sm71Base;
-const spaces=['계단실','기계실','전기실','창고','복도','공실','화장실','주차장','로비','옥상'];
+const spaces=FRONT_SPACES;
 const locationPreset=$('sm192LocationPreset'),locationInput=$('location');
 locationPreset.innerHTML='<option value="">공간 선택 (선택 안 함)</option>'+spaces.map(v=>'<option value="'+v+'">'+v+'</option>').join('')+'<option value="__custom__">직접 입력</option>';
 const customLocation=!!sm71Base&&!spaces.includes(sm71Base);
@@ -1492,10 +1500,20 @@ function sketchButtonState(){let p=state.pages[state.activePage];$('editSketch')
 const oldRefreshPages=refreshPages;refreshPages=function(){oldRefreshPages();sketchButtonState()};
 
 // 외관조사 사진첩: 현장별 외부·내부 전경 및 결함 사진 자동 배치
-const ALBUM_OUT=['정면 전경','좌측면 전경','배면 전경','우측면 전경'];
+const FRONT_FLOORS=['지하3층','지하2층','지하1층',...Array.from({length:10},(_,i)=>'지상'+(i+1)+'층'),'옥탑층'];
+const FRONT_DIRECTIONS=['정면 전경','좌측면 전경','배면 전경','우측면 전경'];
+const ALBUM_OUT=[...FRONT_DIRECTIONS,'외부 도로 전경','외부 도로 전경'];
 const ALBUM_IN=['지상층 복도 전경','지상층 계단실 전경','옥탑층 옥상 전경','옥탑층 기계실 전경','지하층 전경','기타 내부 전경','지하층 복도 전경','지하층 계단실 전경','지하주차장 전경','지상층 실내 전경','옥탑층 내부 전경','기타 내부 전경 (추가)'];
-function albumSlot(kind,i){const a=state.albumPhotos[kind]||[];return a[i]||{label:(kind==='outside'?ALBUM_OUT:ALBUM_IN)[i],image:''}}
+function albumSlot(kind,i){const a=state.albumPhotos[kind]||[],slot=a[i]||{label:(kind==='outside'?ALBUM_OUT:ALBUM_IN)[i],image:''};return kind==='outside'&&i>=4?{...slot,label:'외부 도로 전경'}:slot}
 // 메인 화면 전경사진 공간: 결함 사진과 분리해 현장별 albumPhotos에 보관합니다.
+function frontFloorSpace(slot){
+ // Parse saved captions only for initial UI. Never rewrite legacy labels until edited.
+ if(typeof slot.floor==='string'||typeof slot.space==='string')return {floor:slot.floor||'',space:slot.space||''};
+ const label=String(slot.label||'').trim(),m=label.match(/^(지하\s*\d+\s*층|지상\s*\d+\s*층|옥탑층|지상층|지하층|옥상층|\d+\s*층)\s*/);
+ const floor=m?m[0].trim().replace(/\s+/g,''):'',space=(m?label.slice(m[0].length):label).replace(/\s*전경(?:\s*\(추가\))?\s*$/,'').trim();
+ return {floor:/^\d+층$/.test(floor)?'지상'+floor:floor,space};
+}
+function frontCaption(floor,space){return [String(floor||'').trim().replace(/\s+/g,''),String(space||'').trim().replace(/\s*전경$/,''),'전경'].filter(Boolean).join(' ')}
 function renderFrontPhotoWorkspace(){
  normalizeState();
  for(const [kind,labels,targetId,countId] of [
@@ -1503,38 +1521,72 @@ function renderFrontPhotoWorkspace(){
   ['inside',ALBUM_IN,'frontInside','frontInsideCount']
  ]){
   const root=$(targetId);if(!root)continue;
-  root.replaceChildren();
-  let registered=0;
+  root.replaceChildren();let registered=0;
   labels.forEach((defaultLabel,i)=>{
-   const slot=albumSlot(kind,i);if(slot.image)registered++;
+   const slot=albumSlot(kind,i),saved=state.albumPhotos[kind][i],road=kind==='outside'&&i>=4,owner=state,ownerSite=siteId;
+   if(slot.image)registered++;
    const card=document.createElement('div');card.className='front-photo-card';
-   const slotName=document.createElement('div');slotName.className='front-slot-name';slotName.textContent=`${i+1}번 · ${kind==='outside'?'외부':'내부'} 전경`;
+   const slotName=document.createElement('div');slotName.className='front-slot-name';slotName.textContent=road?i+1+'번 · 외부 도로 전경 '+(i-3):i+1+'번 · '+(kind==='outside'?'외부':'내부')+' 전경';
    const preview=document.createElement('div');preview.className='front-photo-preview';
    if(slot.image){const image=document.createElement('img');image.src=slot.image;image.alt=slot.label||defaultLabel;image.loading='lazy';preview.appendChild(image)}
    else preview.textContent='사진을 촬영하거나 업로드하세요';
-   const title=document.createElement('label');title.className='front-label';title.textContent='사진 설명 / 층·위치';
-   const name=document.createElement('input');name.type='text';name.value=slot.label??defaultLabel;name.placeholder=defaultLabel;name.setAttribute('aria-label',`${kind==='outside'?'외부':'내부'} ${i+1}번 전경 설명`);
-   name.addEventListener('change',()=>{
+   const title=document.createElement('div');title.className='front-label';title.setAttribute('role','group');title.setAttribute('aria-label','사진 설명 / 층·위치');title.textContent='사진 설명 / 층·위치';
+   let caption=road?'외부 도로 전경':String(saved?.label||defaultLabel),camera=null,parts=null;
+   function store(patch={}){
+    if(state!==owner||siteId!==ownerSite)return false;
     while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});
-    state.albumPhotos[kind][i]={...state.albumPhotos[kind][i],label:name.value.trim()||defaultLabel};persist();
-    if($('albumModal').style.display==='block')albumEditor(kind);
-   });
-   title.appendChild(name);
+    state.albumPhotos[kind][i]={...state.albumPhotos[kind][i],label:caption,...(parts||{}),...patch};
+    persist();return true;
+   }
+   function select(items,value,placeholder,aria,legacy=false){
+    const el=document.createElement('select');el.setAttribute('aria-label',aria);
+    if(placeholder)el.add(new Option(placeholder,''));
+    items.forEach(v=>el.add(new Option(v,v)));
+    if(legacy&&value&&!items.includes(value))el.add(new Option(value+' (기존 설명)',value));
+    el.value=value||'';return el;
+   }
+   if(road){
+    const fixed=document.createElement('div');fixed.className='front-fixed road';fixed.textContent='외부 도로 전경';title.append(fixed);
+   }else if(kind==='outside'){
+    const value=saved?.label||'';
+    const direction=select(FRONT_DIRECTIONS,value,'방향 선택 · 촬영',i+1+'번 외부 전경 방향',true);
+    title.append(direction);
+    direction.addEventListener('change',()=>{
+     if(!direction.value)return;
+     caption=direction.value;if(!store())return;
+     if(camera){camera.value='';camera.click()}
+    });
+   }else{
+    const previous=saved?.label?frontFloorSpace(saved):{floor:'',space:''};
+    parts={floor:previous.floor,space:previous.space};
+    const fields=document.createElement('div');fields.className='front-description-fields';
+    const output=document.createElement('div');output.className='front-caption-preview';output.textContent=saved?.label||'층과 위치를 선택하세요';
+    function setCaption(){caption=frontCaption(parts.floor,parts.space);output.textContent=caption;store()}
+    function field(key,items,placeholder){
+     const wrap=document.createElement('div'),value=parts[key],custom=!!value&&!items.includes(value);
+     const sel=select(items,custom?'':value,placeholder,i+1+'번 '+placeholder);
+     sel.add(new Option('직접 입력','__custom__'));if(custom)sel.value='__custom__';
+     const input=document.createElement('input');input.type='text';input.value=custom?value:'';input.hidden=!custom;input.placeholder=key==='floor'?'층 직접 입력':'위치 직접 입력';input.setAttribute('aria-label',i+1+'번 '+input.placeholder);
+     sel.onchange=()=>{const useCustom=sel.value==='__custom__';input.hidden=!useCustom;if(useCustom){input.focus();return}parts[key]=sel.value;setCaption()};
+     input.onchange=()=>{parts[key]=input.value.trim();setCaption()};
+     wrap.append(sel,input);return wrap;
+    }
+    const fixed=document.createElement('div');fixed.className='front-fixed';fixed.textContent='전경';
+    fields.append(field('floor',FRONT_FLOORS,'층 선택'),field('space',FRONT_SPACES,'위치 선택'),fixed);title.append(fields,output);
+   }
    const actions=document.createElement('div');actions.className='front-photo-actions';
    function photoInput(text,capture){
     const control=document.createElement('label');control.textContent=text;
     const file=document.createElement('input');file.type='file';file.accept='image/*';
-    if(capture)file.setAttribute('capture','environment');
-    file.setAttribute('aria-label',`${name.value} ${text}`);
+    if(capture){file.setAttribute('capture','environment');camera=file}
+    file.setAttribute('aria-label',i+1+'번 '+(kind==='outside'?'외부':'내부')+' 전경 '+text);
     file.addEventListener('change',async()=>{
      const chosen=file.files?.[0];if(!chosen)return;
-     const label=name.value.trim()||defaultLabel;
      control.style.opacity='.5';
      try{
       const image=await compressed(await fileToData(chosen),1600);
-      while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});
-      state.albumPhotos[kind][i]={...state.albumPhotos[kind][i],label,image};
-      persist();renderFrontPhotoWorkspace();
+      if(!store({image})){alert('촬영 중 현장이 변경되어 현재 현장에는 사진을 등록하지 않았습니다. 원래 현장에서 다시 선택해 주세요.');return}
+      renderFrontPhotoWorkspace();
       if($('albumModal').style.display==='block')albumEditor(kind);
      }catch(e){alert('사진을 등록하지 못했습니다: '+e.message);control.style.opacity='1'}
     });
@@ -1544,20 +1596,17 @@ function renderFrontPhotoWorkspace(){
    const remove=document.createElement('button');remove.type='button';remove.textContent='삭제';remove.disabled=!slot.image;
    remove.addEventListener('click',()=>{
     if(!confirm('이 전경사진을 삭제할까요?'))return;
-    state.albumPhotos[kind][i]={label:name.value.trim()||defaultLabel,image:''};
-    persist();renderFrontPhotoWorkspace();
+    if(!store({image:''}))return;renderFrontPhotoWorkspace();
     if($('albumModal').style.display==='block')albumEditor(kind);
    });
    actions.appendChild(remove);card.append(slotName,preview,title,actions);root.appendChild(card);
   });
-  $(countId).textContent=`${registered} / ${labels.length}장`;
+  $(countId).textContent=registered+' / '+labels.length+'장';
  }
- const uploaded=ALBUM_OUT.filter((_,i)=>!!albumSlot('outside',i).image).length+ALBUM_IN.filter((_,i)=>!!albumSlot('inside',i).image).length;
- // 등록 사진 개수는 위쪽 전경사진 영역의 개별 카운터에 표시합니다.
 }
 
 
-function albumEditor(kind){const root=$(kind==='outside'?'albumOutside':'albumInside');const labels=kind==='outside'?ALBUM_OUT:ALBUM_IN;root.innerHTML='';labels.forEach((label,i)=>{const slot=albumSlot(kind,i);let div=document.createElement('div');div.style.cssText='display:grid;grid-template-columns:1fr 1.5fr auto;gap:8px;align-items:center;margin:7px 0';let input=document.createElement('input');input.value=slot.label||label;input.setAttribute('aria-label','사진 이름');input.onchange=()=>{while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});state.albumPhotos[kind][i]={...state.albumPhotos[kind][i],label:input.value};persist();renderFrontPhotoWorkspace()};let file=document.createElement('input');file.type='file';file.accept='image/*';file.setAttribute('aria-label',label+' 사진 선택');file.onchange=async()=>{if(!file.files[0])return;let data=await compressed(await fileToData(file.files[0]),1600);while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});state.albumPhotos[kind][i]={label:input.value,image:data};persist();albumEditor(kind);renderFrontPhotoWorkspace()};let del=document.createElement('button');del.textContent=slot.image?'사진 삭제':'미등록';del.disabled=!slot.image;del.onclick=()=>{state.albumPhotos[kind][i]={label:input.value,image:''};persist();albumEditor(kind);renderFrontPhotoWorkspace()};div.append(input,file,del);if(slot.image){let preview=document.createElement('img');preview.src=slot.image;preview.style.cssText='width:95px;height:60px;object-fit:cover';div.append(preview)}root.append(div)})}
+function albumEditor(kind){const root=$(kind==='outside'?'albumOutside':'albumInside');const labels=kind==='outside'?ALBUM_OUT:ALBUM_IN;root.innerHTML='';labels.forEach((label,i)=>{const slot=albumSlot(kind,i);let div=document.createElement('div');div.style.cssText='display:grid;grid-template-columns:1fr 1.5fr auto;gap:8px;align-items:center;margin:7px 0';let input=document.createElement('input');input.value=kind==='outside'&&i>=4?'외부 도로 전경':slot.label||label;input.readOnly=kind==='outside'&&i>=4;input.setAttribute('aria-label','사진 이름');input.onchange=()=>{while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});state.albumPhotos[kind][i]={label:kind==='outside'&&i>=4?'외부 도로 전경':input.value,image:albumSlot(kind,i).image||''};persist();renderFrontPhotoWorkspace()};let file=document.createElement('input');file.type='file';file.accept='image/*';file.setAttribute('aria-label',label+' 사진 선택');file.onchange=async()=>{if(!file.files[0])return;let data=await compressed(await fileToData(file.files[0]),1600);while(state.albumPhotos[kind].length<=i)state.albumPhotos[kind].push({});state.albumPhotos[kind][i]={label:input.value,image:data};persist();albumEditor(kind);renderFrontPhotoWorkspace()};let del=document.createElement('button');del.textContent=slot.image?'사진 삭제':'미등록';del.disabled=!slot.image;del.onclick=()=>{state.albumPhotos[kind][i]={label:input.value,image:''};persist();albumEditor(kind);renderFrontPhotoWorkspace()};div.append(input,file,del);if(slot.image){let preview=document.createElement('img');preview.src=slot.image;preview.style.cssText='width:95px;height:60px;object-fit:cover';div.append(preview)}root.append(div)})}
 
 $('albumClose').onclick=()=>$('albumModal').style.display='none';
 function albumFloor(name){name=String(name||'').replace(/\s/g,'');let m=name.match(/(?:지하|B)(\d+)/i);if(m)return -Number(m[1]);m=name.match(/(?:지상|지상층|)(\d+)층/);if(m)return Number(m[1]);if(/옥탑|옥상|ROOF/i.test(name))return 1000;return 500}
@@ -1601,7 +1650,37 @@ async function exportAlbumHwpx(){
   return ps.some(p=>pText(p)===insideDefaults[0])&&ps.some(p=>pText(p)===insideDefaults[5]);
  });
  const originalAlbumPics=[...doc.getElementsByTagNameNS(hpNS,'pic')];
- const extraInteriorImages=[];
+ const extraInteriorImages=[],extraExteriorImages=[];
+ // The supplied template contains three exterior pictures, not four.
+ // Reuse its editable six-picture overview grid for the exterior table.
+ if(!indoorTable)throw Error('전경사진 6장용 원본 표를 찾지 못했습니다.');
+ function ancestor(el,local){while(el&&el.localName!==local)el=el.parentNode;return el}
+ const oldExterior=ancestor(originalAlbumPics[1],'tbl');
+ const sameExterior=oldExterior&&[1,2,3].every(i=>ancestor(originalAlbumPics[i],'tbl')===oldExterior)&&oldExterior.getElementsByTagNameNS(hpNS,'pic').length===3;
+ const newExterior=indoorTable.cloneNode(true);
+ const newPics=[...newExterior.getElementsByTagNameNS(hpNS,'pic')];
+ if(newPics.length!==6)throw Error('외부 전경사진 표 6칸을 만들지 못했습니다.');
+ const ids=[...doc.getElementsByTagName('*')].map(e=>e.getAttribute('id')).filter(v=>/^\d+$/.test(v||'')).map(Number);
+ let exteriorId=ids.reduce((max,id)=>Math.max(max,id),1000000)+1;
+ [newExterior,...newExterior.getElementsByTagName('*')].forEach(e=>{if(/^\d+$/.test(e.getAttribute('id')||''))e.setAttribute('id',String(exteriorId++))});
+ const exteriorParas=[...newExterior.getElementsByTagNameNS(hpNS,'p')];
+ const captionNodes=insideDefaults.map(old=>exteriorParas.find(p=>pText(p)===old));
+ if(captionNodes.some(p=>!p))throw Error('외부 전경 설명 셀을 확인할 수 없습니다.');
+ if(sameExterior){
+  captionNodes.forEach((p,i)=>setPara(p,albumSlot('outside',i).label||ALBUM_OUT[i]));
+  oldExterior.parentNode.replaceChild(newExterior,oldExterior);
+  newPics.forEach((pic,i)=>extraExteriorImages.push({pic,src:albumSlot('outside',i).image||null}));
+ }else{
+  // If a different original template separates its exterior pictures across
+  // tables, retain the existing three and add the remaining three safely.
+  const lastTable=ancestor(originalAlbumPics[3],'tbl'),lastPara=ancestor(lastTable,'p');
+  if(!lastPara?.parentNode)throw Error('외부 전경사진 표 위치를 찾지 못했습니다.');
+  const holder=lastPara.cloneNode(false);holder.setAttribute('pageBreak','1');if(/^\d+$/.test(holder.getAttribute('id')||''))holder.setAttribute('id',String(exteriorId++));
+  const run=doc.createElementNS(hpNS,'hp:run');run.setAttribute('charPrIDRef','0');run.appendChild(newExterior);holder.appendChild(run);
+  lastPara.parentNode.insertBefore(holder,lastPara.nextSibling);
+  captionNodes.forEach((p,i)=>setPara(p,i<3?albumSlot('outside',i+3).label:'-'));
+  newPics.forEach((pic,i)=>extraExteriorImages.push({pic,src:i<3?albumSlot('outside',i+3).image||null:null}));
+ }
  if(indoorTable){
   const ps=[...indoorTable.getElementsByTagNameNS(hpNS,'p')];
   insideDefaults.forEach((old,i)=>{
@@ -1627,10 +1706,8 @@ async function exportAlbumHwpx(){
   if(extraPics.length!==6)throw Error('원본 양식 내부 전경 그림 개수가 6개가 아니므로 추가 페이지를 안전하게 만들 수 없습니다.');
   // Preserve the six original slots while supplying individually named images 7–12.
   const extraPs=[...extraTable.getElementsByTagNameNS(hpNS,'p')];
-  insideDefaults.forEach((old,i)=>{
-   const target=extraPs.find(p=>pText(p)===old || pText(p)===(albumSlot('inside',i).label||ALBUM_IN[i]));
-   if(target)setPara(target,albumSlot('inside',i+6).label||ALBUM_IN[i+6]);
-  });
+  const originalCaptionNodes=insideDefaults.map((old,i)=>extraPs.find(p=>pText(p)===old || pText(p)===(albumSlot('inside',i).label||ALBUM_IN[i])));
+  originalCaptionNodes.forEach((target,i)=>{if(target)setPara(target,albumSlot('inside',i+6).label||ALBUM_IN[i+6])});
   // The inherited layout stays editable; a break places the copied table on a separate page.
   tablePara.parentNode.insertBefore(extraPara,tablePara.nextSibling);
   extraPics.forEach((pic,i)=>extraInteriorImages.push({pic,src:albumSlot('inside',i+6).image||null}));
@@ -1715,6 +1792,7 @@ async function exportAlbumHwpx(){
  const manifest=[...hpfDoc.getElementsByTagName('*')].find(e=>e.localName==='manifest');
  const itemExample=[...hpfDoc.getElementsByTagName('*')].find(e=>e.localName==='item'&&e.getAttribute('id')==='image17');
  for(let i=1;i<pics.length;i++){
+  if(sameExterior&&i<=3)continue;
   const img=[...pics[i].getElementsByTagName('*')].find(e=>e.localName==='img'&&e.hasAttribute('binaryItemIDRef'));
   if(!img)continue;
   const key='albumPhoto'+i;
@@ -1722,6 +1800,15 @@ async function exportAlbumHwpx(){
   const el=itemExample.cloneNode(true);el.setAttribute('id',key);el.setAttribute('href','BinData/'+key+'.jpg');el.setAttribute('media-type','image/jpeg');manifest.appendChild(el);
   const src=i<=3?out[i-1]?.image:i<=9?inside[i-4]?.image:(entries[i-10]?.image||emptyPhoto);
   zip.file('BinData/'+key+'.jpg',await jpegBytes(src),{base64:true});
+ }
+ for(let i=0;i<extraExteriorImages.length;i++){
+  const {pic,src}=extraExteriorImages[i];
+  const img=[...pic.getElementsByTagName('*')].find(e=>e.localName==='img'&&e.hasAttribute('binaryItemIDRef'));
+  if(!img)throw Error('외부 전경 그림의 HWPX 연결 정보를 찾지 못했습니다.');
+  const key='albumExterior'+(i+1);
+  img.setAttribute('binaryItemIDRef',key);
+  const el=itemExample.cloneNode(true);el.setAttribute('id',key);el.setAttribute('href','BinData/'+key+'.jpg');el.setAttribute('media-type','image/jpeg');manifest.appendChild(el);
+  zip.file('BinData/'+key+'.jpg',await jpegBytes(src||emptyPhoto),{base64:true});
  }
  for(let i=0;i<extraInteriorImages.length;i++){
   const {pic,src}=extraInteriorImages[i];
@@ -1767,7 +1854,7 @@ function init(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
-</script><script id="smetric-v57-survey-undo">(function(){function ready(){const field=document.querySelector('#smFieldGroup .sm-field-actions');const original=document.getElementById('undo');if(!field||!original)return;const proxy=document.createElement('button');proxy.type='button';proxy.className='sm57-undo';proxy.textContent='↶ 실행 취소';proxy.title='마지막 작업 되돌리기';proxy.onclick=()=>original.click();field.appendChild(proxy);const sync=()=>{proxy.disabled=original.disabled;proxy.title=original.title||'마지막 작업 되돌리기'};new MutationObserver(sync).observe(original,{attributes:true,attributeFilter:['disabled','title']});sync()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready()})();</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=233',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
+</script><script id="smetric-v57-survey-undo">(function(){function ready(){const field=document.querySelector('#smFieldGroup .sm-field-actions');const original=document.getElementById('undo');if(!field||!original)return;const proxy=document.createElement('button');proxy.type='button';proxy.className='sm57-undo';proxy.textContent='↶ 실행 취소';proxy.title='마지막 작업 되돌리기';proxy.onclick=()=>original.click();field.appendChild(proxy);const sync=()=>{proxy.disabled=original.disabled;proxy.title=original.title||'마지막 작업 되돌리기'};new MutationObserver(sync).observe(original,{attributes:true,attributeFilter:['disabled','title']});sync()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready()})();</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=234',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
 #smetric-v66-update{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(16px);z-index:2147483646;max-width:min(90vw,370px);padding:9px 14px;border-radius:11px;background:rgba(24,47,63,.91);color:#e9fff5;box-shadow:0 6px 24px rgba(0,0,0,.16);font:500 12px/1.5 system-ui,sans-serif;text-align:center;pointer-events:none;opacity:0;transition:opacity .3s,transform .3s}
 #smetric-v66-update.visible{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
