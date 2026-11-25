@@ -200,3 +200,18 @@ body.sarch-drawing-v148.sarch-light-142 #sarchEraseOptions148>label.eraserSize{c
  body.sarch-drawing-v148 #sarchEraseOptions148 #eraseSize{width:84px!important}
  body.sarch-drawing-v148 #side .sarch-draw-export-grid-v144>button{min-height:44px!important}
 }
+
+/* v238: site-survey plan workflow, large labelled tabs and contextual controls. */
+body.sarch-drawing-v144 #sarchDrawTabs144{grid-template-columns:repeat(6,minmax(0,1fr)) 70px!important}
+body.sarch-drawing-v144 #sarchDrawTabs144 .sarch-draw-tab-v144{background:var(--sa-panel,#203349)!important;color:var(--sa-text,#fff)!important;border-color:var(--sa-line,#42617e)!important;min-height:44px!important;font-size:13px!important}
+body.sarch-drawing-v144 #sarchDrawTabs144 .sarch-draw-tab-v144[aria-selected=true]{background:var(--sa-soft,#287fbe)!important;border:2px solid var(--sa-accent,#79c2e9)!important;color:var(--sa-text,#fff)!important}
+body.sarch-drawing-v144 #sarchDrawSurface144{background:var(--sa-panel,#1d344d)!important;border-color:var(--sa-line,#35536f)!important}
+body.sarch-drawing-v144 .sarch-plan-quick{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 8px}
+body.sarch-drawing-v144 .sarch-plan-quick button{min-height:40px;border-radius:8px}
+body.sarch-drawing-v144 .sarch-plan-field{display:inline-flex!important;align-items:center;gap:6px;white-space:nowrap;font-weight:700;font-size:12px;color:var(--sa-text,#fff)}
+body.sarch-drawing-v144 .sarch-plan-field input{width:88px!important;margin:0!important}
+body.sarch-drawing-v144 .sarch-plan-field select{width:auto!important;margin:0!important}
+body.sarch-drawing-v144 .sarch-plan-hint{flex-basis:100%;font-size:12px;color:var(--sa-muted,#b8cde0);line-height:1.5}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 button.active{outline:2px solid var(--sa-accent,#65c5ff);outline-offset:-2px}
+body.sarch-drawing-v144 .sarch-draw-pane-v144 .toolbar[hidden]{display:none!important}
+@media(max-width:800px){body.sarch-drawing-v144 #sarchDrawTabs144{grid-template-columns:repeat(3,minmax(0,1fr))!important}body.sarch-drawing-v144 #sarchDrawTabs144 #sm52FixedCamera{width:100%!important;max-width:none!important;grid-column:1/-1;height:36px!important;min-height:36px!important}}

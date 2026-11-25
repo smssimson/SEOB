@@ -38,9 +38,12 @@ function init(){
  const surface=document.createElement("div");
  surface.id="sarchDrawSurface144";surface.className="sarch-draw-surface-v144";
  const kinds=[
-  {key:"draw",label:"그리기",symbol:"✎"},
-  {key:"member",label:"벽체·부재",symbol:"▦"},
-  {key:"edit",label:"편집",symbol:"⌁"}
+  {key:"outer",label:"외벽",symbol:"①"},
+  {key:"wall",label:"내부 벽체",symbol:"②"},
+  {key:"member",label:"기둥·보",symbol:"③"},
+  {key:"door",label:"문",symbol:"④"},
+  {key:"edit",label:"편집",symbol:"⑤"},
+  {key:"export",label:"저장·출력",symbol:"⑥"}
  ];
  const panes={};const tabs={};
  for(const {key,label,symbol} of kinds){
@@ -67,7 +70,7 @@ function init(){
    into(node,eraseOptions);
   }else if(["modeFree","modePoints"].includes(id)||/closeShape\(\)/.test(click)||
            node.querySelector?.("#penColor,#penOnly")){
-   into(node,panes.draw);
+   into(node,panes.outer);
   }else if(["modeSelect","modeErase","repeatToggle","sm57UndoField"].includes(id)||
            /undo\(\)/.test(click)){
    into(node,panes.edit);
@@ -78,6 +81,43 @@ function init(){
    into(node,panes.edit);
   }
  }
+ // Field workflow: move live controls, preserve their original handlers.
+ const get=id=>document.getElementById(id);
+ const move=(id,dest)=>{const el=get(id);if(el)dest.append(el);return el};
+ const make=(tag,attrs,text)=>{const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs||{}))e.setAttribute(k,v);if(text)e.textContent=text;return e};
+ const label=(caption,el,dest)=>{const wrap=make("label",{class:"sarch-plan-field"});wrap.append(caption,el);dest.append(wrap)};
+ const number=(id,value,min=1)=>make("input",{id,type:"number",min:String(min),value:String(value),inputmode:"decimal"});
+ const select=(id,choices)=>{const e=make("select",{id});for(const [v,t] of choices)e.add(new Option(t,v));return e};
+ const note=(dest,t)=>dest.append(make("div",{class:"sarch-plan-hint"},t));
+ const command=(dest,id,name,fn)=>{const b=make("button",{id,type:"button"},name);b.onclick=fn;dest.append(b);return b};
+ const outer=panes.outer,wall=panes.wall,member=panes.member,door=panes.door,edit=panes.edit,exp=panes.export;
+ label("외벽 두께 (mm)",number("sarchOuterThickness",200),outer);
+ label("기준",select("sarchOuterAlign",[["inside","외곽선 → 안쪽"],["center","중심선"],["outside","내곽선 → 바깥쪽"]]),outer);
+ for(const id of ["modeRect","modeLshape","modeUshape","modePoints"])move(id,outer);
+ const close=outer.querySelector('button[onclick*="closeShape"]');if(close){close.textContent="외벽 완성";outer.append(close)}
+ note(outer,"형상 드래그 또는 모서리를 차례로 찍어 외벽을 완성하세요. 첫 실측 치수로 축척을 보정하세요.");
+ const thickness=get("defaultThickness");if(thickness){thickness.value=150;const wrap=thickness.closest("label");if(wrap)wrap.remove();label("내벽 두께 (mm)",thickness,wall)}
+ label("선 기준",select("sarchInnerAlign",[["center","벽 중심선"],["left","진행 방향 왼쪽"],["right","진행 방향 오른쪽"]]),wall);
+ move("modeWall",wall);command(wall,"sarchConvertWall","선 → 벽체",()=>convertSelectedWall());
+ note(wall,"두 끝점을 펜으로 드래그하거나 선택·이동에서 기존 선을 선택한 뒤 벽체로 변환하세요.");
+ for(const id of ["modeColumn","modeSteel","modeBeam","modeSmallbeam","modeSteelbeam"])move(id,member);
+ note(member,"기둥은 위치를 찍고, 큰보는 두 기둥을 선택하세요. 상세 치수는 선택 항목에서 변경합니다.");
+ label("문 폭 (mm)",number("sarchQuickDoorWidth",900),door);
+ label("경첩 위치",select("sarchQuickDoorHinge",[["start","선 시작쪽"],["end","선 끝쪽"]]),door);
+ label("열림 방향",select("sarchQuickDoorSide",[["left","경첩 기준 왼쪽"],["right","경첩 기준 오른쪽"]]),door);
+ command(door,"modeDoor","문 위치 찍기",()=>mode("door"));
+ note(door,"벽 위를 찍으면 해당 위치에 문 개구부와 열림 기호를 만듭니다. 정확한 거리 입력은 선택 항목에서 가능합니다.");
+ move("modeFree",edit);for(const id of ["penColor","penOnly"]){const el=get(id);if(el?.closest("label"))edit.append(el.closest("label"))}
+ const quick=make("div",{class:"sarch-plan-quick"});nav.after(quick);
+ move("modeSelect",quick);
+ const undo=[...edit.querySelectorAll("button")].find(b=>b.id==="sm57UndoField"||/undo\(\)/.test(b.getAttribute("onclick")||""));
+ if(undo)quick.append(undo);else command(quick,"sarchQuickUndo","↶ 실행 취소",()=>window.undo());
+ command(quick,"sarchQuickDXF","CAD (DXF)",()=>exportDXF());
+ label("축척 mm/단위",number("sarchPlanScale",20,.01),exp);get("sarchPlanScale").step="any";
+ command(exp,"sarchSetScale","축척 적용",()=>setPlanScale());
+ note(exp,"실측 치수로 축척을 맞춘 뒤 CAD(DXF) 또는 이미지/PDF로 출력하세요.");
+ // Empty original tool containers must not consume space.
+ for(const e of member.querySelectorAll(".toolbar"))if(!e.querySelector("button,input,select"))e.hidden=true;
  const eraser=document.getElementById("modeErase");
  if(eraser){
   const group=document.createElement("span");
@@ -127,6 +167,7 @@ function init(){
   if(!row.children.length)row.remove();
  }
  output.insertBefore(actionGrid,output.firstChild);
+ for(const original of actionGrid.querySelectorAll('button'))command(exp,'',original.textContent,()=>original.click());
  const help=document.createElement("details");help.className="sarch-draw-output-help-v144";
  const helpTitle=document.createElement("summary");helpTitle.textContent="저장·백업 안내";
  help.appendChild(helpTitle);
@@ -138,7 +179,8 @@ function init(){
  parked.append(oldTabs,oldDeck);
  root.appendChild(parked);
  root.insertBefore(nav,root.firstChild);
- root.insertBefore(surface,nav.nextSibling);
+ root.insertBefore(quick,nav.nextSibling);
+ root.insertBefore(surface,quick.nextSibling);
 
  function activate(key,focus=false){
   for(const type of kinds){
@@ -162,7 +204,7 @@ function init(){
   });
  }
  ready=true;document.body.classList.add("sarch-drawing-v144","sarch-drawing-v148");
- activate("draw");
+ activate("outer");
 }
 if(document.readyState==="complete")setTimeout(init,80);
 else window.addEventListener("load",()=>setTimeout(init,80),{once:true});

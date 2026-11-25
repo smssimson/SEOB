@@ -227,26 +227,68 @@ function repeatAt(p){if(!lastCreated){msg('반복할 이전 작업이 없습니�
 function beginJoin(){if(!selected||!['edge','vertex'].includes(selected.type))return msg('먼저 연결할 선을 선택하세요.');joinFirst=selected.pi;repeatOn=false;$('repeatToggle').classList.remove('active');$('repeatToggle').textContent='⧉ 이전 작업 반복 OFF';msg('JOIN: 연결할 다른 열린 선을 선택하세요.')}
 function joinWith(pi){let ai=joinFirst;joinFirst=null;if(ai===pi)return msg('서로 다른 두 선을 선택하세요.');let a=paths[ai],b=paths[pi];if(!a||!b||a.closed||b.closed||a.pts.length<2||b.pts.length<2)return msg('JOIN은 서로 다른 열린 선 2개에 사용할 수 있습니다.');let combos=[{d:distance(a.pts.at(-1),b.pts[0]),av:false,bv:false},{d:distance(a.pts.at(-1),b.pts.at(-1)),av:false,bv:true},{d:distance(a.pts[0],b.pts[0]),av:true,bv:false},{d:distance(a.pts[0],b.pts.at(-1)),av:true,bv:true}].sort((x,y)=>x.d-y.d),best=combos[0];snapshot();let ap=best.av?[...a.pts].reverse():[...a.pts],bp=best.bv?[...b.pts].reverse():[...b.pts];let joined=[...ap,...bp];if(distance(ap.at(-1),bp[0])<2)joined.splice(ap.length,1);paths[ai]={...a,pts:joined,closed:false};paths.splice(pi,1);selected={type:'edge',pi:pi<ai?ai-1:ai,i:0};render();autosave();msg('JOIN 완료: 두 열린 선을 하나로 연결했습니다.')}
 function filletSelected(){if(!selected||!['edge','vertex'].includes(selected.type))return msg('먼저 모서리나 선분을 선택하세요.');let pi=selected.pi,p=paths[pi],n=p.pts.length;if(n<3)return msg('모깎기에는 연결된 선 2개 이상이 필요합니다.');let idx=selected.type==='vertex'?selected.i:selected.i+1;if(p.closed)idx%=n;else if(idx<=0||idx>=n-1)return msg('열린 선의 양끝은 모깎기할 수 없습니다.');let prev=p.pts[(idx-1+n)%n],v=p.pts[idx],next=p.pts[(idx+1)%n],l1=distance(prev,v),l2=distance(v,next),r=Number($('filletRadius').value)/unitScale;if(!(r>0))return msg('반지름을 입력하세요.');let ux=(prev.x-v.x)/l1,uy=(prev.y-v.y)/l1,vx=(next.x-v.x)/l2,vy=(next.y-v.y)/l2,theta=Math.acos(Math.max(-1,Math.min(1,ux*vx+uy*vy)));if(theta<.03||Math.PI-theta<.03)return msg('두 선의 각도가 모깎기에 적합하지 않습니다.');let t=r/Math.tan(theta/2);if(t>=Math.min(l1,l2)*.95)return msg('반지름이 너무 큽니다. 작은 값을 입력하세요.');let a={x:v.x+ux*t,y:v.y+uy*t},b={x:v.x+vx*t,y:v.y+vy*t};let bis={x:ux+vx,y:uy+vy},bl=Math.hypot(bis.x,bis.y),center={x:v.x+bis.x/bl*r/Math.sin(theta/2),y:v.y+bis.y/bl*r/Math.sin(theta/2)};let start=Math.atan2(a.y-center.y,a.x-center.x),end=Math.atan2(b.y-center.y,b.x-center.x),delta=((end-start+Math.PI*3)%(Math.PI*2))-Math.PI;let arc=Array.from({length:13},(_,i)=>({x:center.x+r*Math.cos(start+delta*i/12),y:center.y+r*Math.sin(start+delta*i/12)}));snapshot();p.pts.splice(idx,1,...arc);selected=null;render();autosave();msg('FILLET: 반지름 '+Math.round(r*unitScale)+'mm 모깎기를 적용했습니다.')}
-function mode(m){if(m!=='points'&&m!=='select')sm58OpenPath=-1;if(m!=='erase'){$('eraserCursor').setAttribute('visibility','hidden');$('eraserCursor').setAttribute('cx',-100)}tool=m;selected=null;beamStart=null;['select','points','free','erase','rect','lshape','ushape','wall','column','steel','beam','smallbeam','steelbeam'].forEach(k=>{let b=$('mode'+k[0].toUpperCase()+k.slice(1));if(b)b.classList.toggle('active',m===k)});render()}
+function mode(m){if(m!=='points'&&m!=='select')sm58OpenPath=-1;if(m!=='erase'){$('eraserCursor').setAttribute('visibility','hidden');$('eraserCursor').setAttribute('cx',-100)}tool=m;selected=null;beamStart=null;['select','points','free','erase','rect','lshape','ushape','wall','column','steel','beam','smallbeam','steelbeam','door'].forEach(k=>{let b=$('mode'+k[0].toUpperCase()+k.slice(1));if(b)b.classList.toggle('active',m===k)});render()}
 function msg(s){$('message').textContent=s}
 function resetAll(){if((paths.length||members.length)&&!confirm('현재 도면을 지우고 새로 시작할까요?'))return;snapshot();paths=[];members=[];doors=[];unitScale=1;measured=false;selected=null;render();autosave()}
 function currentOpen(){return sm58OpenPath>=0&&paths[sm58OpenPath]?.kind==='polygon'&&!paths[sm58OpenPath].closed?sm58OpenPath:-1}
-function closeShape(){let i=currentOpen();if(i<0||paths[i].pts.length<3){msg('닫을 외곽의 모서리 3개 이상이 필요합니다.');return}snapshot();paths[i].closed=true;sm58OpenPath=-1;mode('select');autosave();msg('외곽을 닫았습니다.')}
+function closeShape(){let i=currentOpen();if(i<0||paths[i].pts.length<3){msg('닫을 외곽의 모서리 3개 이상이 필요합니다.');return}snapshot();paths[i].closed=true;if(paths[i].exteriorDraft){Object.assign(paths[i],wallOptions(true,paths[i].pts));delete paths[i].exteriorDraft}sm58OpenPath=-1;mode('select');autosave();msg('외벽을 완성했습니다.')}
 function point(e){let p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
 function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
 function seg(p,i){return[p.pts[i],p.pts[(i+1)%p.pts.length]]}
 function segLen(p,i){return distance(...seg(p,i))*unitScale}
 function svgEl(tag,attrs,parent=shape){let e=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));parent.appendChild(e);return e}
-function render(){updateGridBackdrop();shape.innerHTML='';doorsLayer.innerHTML='';overlays.innerHTML='';const currentSheet=sheets.find(x=>x.id===sheetId);if(currentSheet?.background){svgEl('image',{href:currentSheet.background,x:0,y:0,width:900,height:650,preserveAspectRatio:'xMidYMid meet',transform:'rotate('+((currentSheet.rotation||0)%360)+' 450 325)','pointer-events':'none'});} paths.forEach((path,pi)=>{let pts=path.pts;if(!pts.length)return;if(path.kind==='annotation'){renderSarchAnnotation(path);return}let coords=pts.map(p=>`${p.x},${p.y}`).join(' '),isPoly=path.kind==='polygon';if(path.kind==='wall'){
- const t=Math.max(1,(path.thickness||200)/unitScale);
- for(let wi=0;wi<pts.length-1;wi++){
-  const a=pts[wi],b=pts[wi+1],len=Math.hypot(b.x-a.x,b.y-a.y);
-  if(len<0.001)continue;
-  const nx=-(b.y-a.y)/len*t/2,ny=(b.x-a.x)/len*t/2;
-  const corners=[[a.x+nx,a.y+ny],[b.x+nx,b.y+ny],[b.x-nx,b.y-ny],[a.x-nx,a.y-ny]];
-  svgEl('polygon',{points:corners.map(c=>c.join(',')).join(' '),fill:'none',stroke:path.color||'#2563eb','stroke-width':2,'stroke-linejoin':'miter','pointer-events':'none'});
+// Wall reference points remain editable and are shared by screen and DXF.
+function wallOffsets(p){
+ const t=Math.max(0.01,Number(p.thickness)||200)/Math.max(.0001,unitScale);
+ return p.wallAlign==='left'?[t,0]:p.wallAlign==='right'?[0,-t]:[t/2,-t/2];
+}
+function wallNormal(a,b){const l=distance(a,b);return l>.00001?{x:-(b.y-a.y)/l,y:(b.x-a.x)/l}:null}
+function wallLoops(p){
+ let pts=p.pts.filter((v,i,a)=>!i||distance(v,a[i-1])>.00001);
+ if(p.closed&&pts.length>2&&distance(pts[0],pts.at(-1))<.00001)pts.pop();
+ if(pts.length<2)return [];
+ const n=pts.length,closed=!!p.closed&&n>=3;
+ function offset(d){return pts.map((v,i)=>{
+  const a=(closed||i>0)?wallNormal(pts[(i+n-1)%n],v):null,b=(closed||i<n-1)?wallNormal(v,pts[(i+1)%n]):null;
+  let z=a||b||{x:0,y:0},f=d;
+  if(a&&b){const dot=a.x*b.x+a.y*b.y;if(1+dot>.12){z={x:a.x+b.x,y:a.y+b.y};f=d/(1+dot)}else z=b}
+  return {x:v.x+z.x*f,y:v.y+z.y*f};
+ })}
+ const [l,r]=wallOffsets(p),left=offset(l),right=offset(r);
+ return closed?[left,right]:[left.concat(right.reverse())];
+}
+function wallOptions(exterior,pts){
+ const n=Number($(exterior?'sarchOuterThickness':'defaultThickness')?.value);
+ let align=$(exterior?'sarchOuterAlign':'sarchInnerAlign')?.value||'center';
+ if(align==='inside'||align==='outside'){
+  const area=pts.reduce((a,v,i)=>{const w=pts[(i+1)%pts.length];return a+v.x*w.y-w.x*v.y},0);
+  align=(area>=0)===(align==='inside')?'left':'right';
  }
-}else svgEl(isPoly&&path.closed?'polygon':'polyline',{points:coords,fill:'none',stroke:path.color||'#2563eb','stroke-width':path.inkWidth||3,'stroke-opacity':path.inkOpacity??1,'data-sarch-ink':path.sarchInk?'1':'0','stroke-linejoin':path.sarchInk?'round':'miter','stroke-linecap':path.sarchInk?'round':'butt','pointer-events':'none'});let n=path.closed?pts.length:pts.length-1;for(let i=0;i<n;i++){let [a,b]=seg(path,i);svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'transparent','stroke-width':Math.max(16,path.kind==='wall'?(path.thickness||200)/unitScale+10:16),'data-path':pi,'data-edge':i});if(selected?.type==='edge'&&selected.pi===pi&&selected.i===i)svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#f59e0b','stroke-width':4,'pointer-events':'none'});if(measured&&selected?.pi===pi){let t=svgEl('text',{x:(a.x+b.x)/2,y:(a.y+b.y)/2-9,'font-size':13,'text-anchor':'middle',fill:'#334155','paint-order':'stroke',stroke:'#fff','stroke-width':4,'pointer-events':'none'});t.textContent=Math.round(segLen(path,i)).toLocaleString('ko-KR')}}if(isPoly&&(selected?.pi===pi||(tool==='points'&&pi===currentOpen())))pts.forEach((p,i)=>svgEl('circle',{cx:p.x,cy:p.y,r:6,fill:selected?.type==='vertex'&&selected.i===i?'#f59e0b':'white',stroke:'#2563eb','stroke-width':2.5,'data-path':pi,'data-vertex':i}));});renderMembers();renderDoors();if(preview&&preview.length>1)svgEl('polyline',{points:preview.map(p=>`${p.x},${p.y}`).join(' '),stroke:$('penColor').value,'stroke-width':2,'stroke-dasharray':'7 5',fill:'none','pointer-events':'none'},overlays);if(free.length>1)svgEl('polyline',{points:free.map(p=>`${p.x},${p.y}`).join(' '),stroke:$('penColor').value,'stroke-width':3,fill:'none','pointer-events':'none'},overlays);updatePanel();$('side').classList.toggle('visible',!!selected);$('status').textContent=tool==='free'?'펜을 0.65초 멈춰 직선 보정 후, 펜을 떼지 말고 움직여 각도를 조절하세요.':tool==='erase'?'회색 원이 지워지는 범위입니다.':tool==='beam'?'첫 번째 기둥과 두 번째 기둥을 차례로 터치하면 큰보가 연결됩니다.':tool==='points'?'빈 공간을 눌러 새 외곽을 그립니다. 기존 모서리는 잡고 이동할 수 있습니다. 시작점을 다시 누르면 닫힙니다.':tool==='select'?'선이나 부재를 선택하면 오른쪽 편집창이 열립니다.':'그리기를 마치면 자동으로 선택 모드로 돌아갑니다.'}
+ return {kind:'wall',thickness:n>0?n:200,wallAlign:align,wallRole:exterior?'exterior':'interior'};
+}
+function ensurePlanScale(){if(!measured&&unitScale===1&&!paths.length&&!members.length&&!doors.length)unitScale=20}
+function convertSelectedWall(){const p=getSelected();if(!p||p.pts.length<2||p.kind==='annotation')return msg('먼저 선택·이동으로 벽체로 바꿀 선을 선택하세요.');snapshot();const ext=!!p.closed;Object.assign(p,wallOptions(ext,p.pts));delete p.sarchInk;delete p.inkOpacity;delete p.exteriorDraft;render();autosave();msg('선에 벽 두께와 기준을 적용했습니다.')}
+function setPlanScale(){const n=Number($('sarchPlanScale')?.value);if(!(n>0))return msg('축척은 0보다 커야 합니다.');snapshot();unitScale=n;measured=true;render();autosave();msg('도면 축척을 설정했습니다.')}
+function placeDoorAt(p){
+ let best=null;
+ paths.forEach((v,pi)=>{if(v.kind!=='wall'||v.wallRole==='beam')return;const count=v.closed?v.pts.length:v.pts.length-1;
+ for(let i=0;i<count;i++){const [a,b]=seg(v,i),len=distance(a,b);if(len<.001)continue;const [l,r]=wallOffsets(v),n=wallNormal(a,b),m=(l+r)/2;
+ const aa={x:a.x+n.x*m,y:a.y+n.y*m},bb={x:b.x+n.x*m,y:b.y+n.y*m},d=distanceLine(p,aa,bb);
+ if(d<=Math.max(12,(l-r)/2+8)&&(!best||d<best.d)){const t=Math.max(0,Math.min(1,((p.x-a.x)*(b.x-a.x)+(p.y-a.y)*(b.y-a.y))/(len*len)));best={pi,i,len,t,d}}}
+ });
+ if(!best)return msg('문을 설치할 벽체를 눌러 주세요.');
+ const width=Number($('sarchQuickDoorWidth').value),length=best.len*unitScale;
+ if(!(width>0)||width>length)return msg('문 폭이 벽 길이보다 큽니다.');
+ selected={type:'edge',pi:best.pi,i:best.i};
+ const reverse=$('sarchQuickDoorHinge').value==='end';
+ $('doorReference').value=reverse?'end':'start';$('doorWidth').value=width;
+ const start=Math.max(0,Math.min(length-width,best.t*length-width/2));
+ $('doorOffset').value=reverse?length-start-width:start;
+ $('doorSide').value=$('sarchQuickDoorSide').value;addDoor();
+}
+function render(){updateGridBackdrop();shape.innerHTML='';doorsLayer.innerHTML='';overlays.innerHTML='';const currentSheet=sheets.find(x=>x.id===sheetId);if(currentSheet?.background){svgEl('image',{href:currentSheet.background,x:0,y:0,width:900,height:650,preserveAspectRatio:'xMidYMid meet',transform:'rotate('+((currentSheet.rotation||0)%360)+' 450 325)','pointer-events':'none'});} paths.forEach((path,pi)=>{let pts=path.pts;if(!pts.length)return;if(path.kind==='annotation'){renderSarchAnnotation(path);return}let coords=pts.map(p=>`${p.x},${p.y}`).join(' '),isPoly=path.kind==='polygon'||(path.kind==='wall'&&path.pts.length>=3);if(path.kind==='wall'){
+ for(const loop of wallLoops(path))svgEl('polygon',{points:loop.map(v=>v.x+','+v.y).join(' '),fill:'none',stroke:path.color||'#2563eb','stroke-width':2,'stroke-linejoin':'miter','pointer-events':'none'});
+}else svgEl(isPoly&&path.closed?'polygon':'polyline',{points:coords,fill:'none',stroke:path.color||'#2563eb','stroke-width':path.inkWidth||3,'stroke-opacity':path.inkOpacity??1,'data-sarch-ink':path.sarchInk?'1':'0','stroke-linejoin':path.sarchInk?'round':'miter','stroke-linecap':path.sarchInk?'round':'butt','pointer-events':'none'});let n=path.closed?pts.length:pts.length-1;for(let i=0;i<n;i++){let [a,b]=seg(path,i);let mid=0;if(path.kind==='wall'){const [l,r]=wallOffsets(path);mid=(l+r)/2}const normal=wallNormal(a,b)||{x:0,y:0};svgEl('line',{x1:a.x+normal.x*mid,y1:a.y+normal.y*mid,x2:b.x+normal.x*mid,y2:b.y+normal.y*mid,stroke:'transparent','stroke-width':Math.max(16,path.kind==='wall'?(path.thickness||200)/unitScale+10:16),'data-path':pi,'data-edge':i});if(selected?.type==='edge'&&selected.pi===pi&&selected.i===i)svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#f59e0b','stroke-width':4,'pointer-events':'none'});if(measured&&selected?.pi===pi){let t=svgEl('text',{x:(a.x+b.x)/2,y:(a.y+b.y)/2-9,'font-size':13,'text-anchor':'middle',fill:'#334155','paint-order':'stroke',stroke:'#fff','stroke-width':4,'pointer-events':'none'});t.textContent=Math.round(segLen(path,i)).toLocaleString('ko-KR')}}if(isPoly&&(selected?.pi===pi||(tool==='points'&&pi===currentOpen())))pts.forEach((p,i)=>svgEl('circle',{cx:p.x,cy:p.y,r:6,fill:selected?.type==='vertex'&&selected.i===i?'#f59e0b':'white',stroke:'#2563eb','stroke-width':2.5,'data-path':pi,'data-vertex':i}));});renderMembers();renderDoors();if(preview&&preview.length>1)svgEl('polyline',{points:preview.map(p=>`${p.x},${p.y}`).join(' '),stroke:$('penColor').value,'stroke-width':2,'stroke-dasharray':'7 5',fill:'none','pointer-events':'none'},overlays);if(free.length>1)svgEl('polyline',{points:free.map(p=>`${p.x},${p.y}`).join(' '),stroke:$('penColor').value,'stroke-width':3,fill:'none','pointer-events':'none'},overlays);updatePanel();$('side').classList.toggle('visible',!!selected);$('status').textContent=tool==='free'?'펜을 0.65초 멈춰 직선 보정 후, 펜을 떼지 말고 움직여 각도를 조절하세요.':tool==='erase'?'회색 원이 지워지는 범위입니다.':tool==='beam'?'첫 번째 기둥과 두 번째 기둥을 차례로 터치하면 큰보가 연결됩니다.':tool==='points'?'빈 공간을 눌러 새 외곽을 그립니다. 기존 모서리는 잡고 이동할 수 있습니다. 시작점을 다시 누르면 닫힙니다.':tool==='door'?'문 폭과 열림 방향을 설정한 후 설치할 벽을 누르세요.':tool==='select'?'선이나 부재를 선택하면 오른쪽 편집창이 열립니다.':'그리기를 마치면 자동으로 선택 모드로 돌아갑니다.'}
 function renderSarchAnnotation(path){
  const p=path.pts[0],f=path.inkFormat||{},n=Number(f.size)||22,x=p.x+(Number(f.indent)||0)*n;
  const t=svgEl('text',{x,y:p.y,'dominant-baseline':'hanging','font-family':'Dotum,Arial,sans-serif','font-size':n,'font-weight':f.bold?'bold':'normal','font-style':f.italic?'italic':'normal','text-decoration':[f.underline?'underline':'',f.strike?'line-through':''].join(' ').trim()||'none','text-anchor':f.align==='center'?'middle':f.align==='right'?'end':'start',fill:path.color||'#26394a','pointer-events':'none','data-sarch-ink':'1'});
@@ -271,7 +313,7 @@ function addDoor(){
  if(!Number.isFinite(offset)||offset<0||!Number.isFinite(width)||width<=0||offset+width>length+1e-7)return msg(`이 선의 길이는 ${Math.round(length)}mm입니다. 거리와 문 폭의 합이 선 길이를 넘지 않게 입력하세요.`);
  let reverse=$('doorReference').value==='end',start=reverse?length-offset-width:offset;
  let q0=lerp(a,b,start/length),q1=lerp(a,b,(start+width)/length);
- let hinge=reverse?q1:q0,other=reverse?q0:q1,dx=(other.x-hinge.x),dy=(other.y-hinge.y),side=$('doorSide').value==='left'?1:-1;
+ let hinge=reverse?q1:q0,other=reverse?q0:q1,side=$('doorSide').value==='left'?1:-1;if(p.kind==='wall'){const [l,r]=wallOffsets(p),n=wallNormal(a,b)||{x:0,y:0},m=(l+r)/2;hinge={x:hinge.x+n.x*m,y:hinge.y+n.y*m};other={x:other.x+n.x*m,y:other.y+n.y*m}}
  snapshot();
  // Cut opening while preserving all remaining edges, including closed polygons.
  if(p.closed){let rest=[q1];for(let j=1;j<=p.pts.length;j++)rest.push(p.pts[(edge+j)%p.pts.length]);rest.push(q0);paths.splice(pi,1,{...p,closed:false,pts:rest});}
@@ -282,7 +324,7 @@ function addDoor(){
 function doorGeometry(d){let h=d.hinge,o=d.other,dx=o.x-h.x,dy=o.y-h.y,r=Math.hypot(dx,dy);if(r<.001)return[];let vx=dx/r,vy=dy/r,side=d.side||1;let out=[];for(let i=0;i<=18;i++){let t=i/18*Math.PI/2;out.push({x:h.x+r*(vx*Math.cos(t)-side*vy*Math.sin(t)),y:h.y+r*(vy*Math.cos(t)+side*vx*Math.sin(t))})}return out}
 function renderDoors(){for(let d of doors){let arc=doorGeometry(d);if(!arc.length)continue;let leaf=arc.at(-1);d.leaf=leaf;svgEl('line',{x1:d.hinge.x,y1:d.hinge.y,x2:leaf.x,y2:leaf.y,stroke:d.color||'#334155','stroke-width':2.4,'pointer-events':'none'},doorsLayer);svgEl('polyline',{points:arc.map(p=>`${p.x},${p.y}`).join(' '),fill:'none',stroke:d.color||'#334155','stroke-width':1.3,'stroke-dasharray':'5 3','pointer-events':'none'},doorsLayer);svgEl('circle',{cx:d.hinge.x,cy:d.hinge.y,r:2.5,fill:d.color||'#334155','pointer-events':'none'},doorsLayer)}}
 function renderMembers(){members.forEach((m,i)=>{let w=m.w/unitScale,h=m.h/unitScale,active=selected?.type==='member'&&selected.i===i;let g=svgEl('g',{'data-member':i,transform:`translate(${m.x} ${m.y}) rotate(${m.angle||0})`});if(m.kind==='steel'){let tf=(m.tf||Math.max(8,m.h*.055))/unitScale,tw=(m.tw||Math.max(6,m.w*.035))/unitScale;let pts=[[-w/2,-h/2],[w/2,-h/2],[w/2,-h/2+tf],[tw/2,-h/2+tf],[tw/2,h/2-tf],[w/2,h/2-tf],[w/2,h/2],[-w/2,h/2],[-w/2,h/2-tf],[-tw/2,h/2-tf],[-tw/2,-h/2+tf],[-w/2,-h/2+tf]];svgEl('polygon',{points:pts.map(p=>p.join(',')).join(' '),fill:'#94a3b822',stroke:active?'#f59e0b':'#334155','stroke-width':active?3:2,'data-member':i},g)}else{svgEl('rect',{x:-w/2,y:-h/2,width:w,height:h,fill:'none',stroke:active?'#f59e0b':'#334155','stroke-width':active?3:2,'data-member':i},g)}svgEl('rect',{x:-w/2-7,y:-h/2-7,width:w+14,height:h+14,fill:'transparent','data-member':i},g);if(active){let t=svgEl('text',{x:0,y:-h/2-13,'text-anchor':'middle','font-size':12,fill:'#334155','pointer-events':'none'},g);t.textContent=`${Math.round(m.w)}×${Math.round(m.h)} mm`}})}
-function applyWallThickness(){let p=getSelected(),n=+$('wallThickness').value;if(p?.kind!=='wall'||!(n>0))return; snapshot();p.thickness=n;render();msg('벽체 두께를 적용했습니다.')}
+function applyWallThickness(){let p=getSelected(),n=+$('wallThickness').value;if(p?.kind!=='wall'||!(n>0))return; snapshot();p.thickness=n;render();autosave();msg('벽체 두께를 적용했습니다.')}
 function applyMember(){if(selected?.type!=='member')return;let w=+$('memberW').value,h=+$('memberH').value;if(!(w>0&&h>0))return msg('치수는 0보다 커야 합니다.');snapshot();Object.assign(members[selected.i],{w,h,kind:$('memberKind').value,angle:+$('memberAngle').value||0,tw:+$('memberWeb').value||0,tf:+$('memberFlange').value||0});render()}
 function copyMember(){if(selected?.type!=='member')return;snapshot();let m=deep(members[selected.i]);m.x+=20;m.y+=20;members.push(m);selected={type:'member',i:members.length-1};render();msg('구조부재를 복사했습니다.')}
 function deleteMember(){if(selected?.type!=='member')return;snapshot();members.splice(selected.i,1);selected=null;render();msg('구조부재를 삭제했습니다.')}
@@ -300,7 +342,7 @@ let changed=false,next=[];for(let path of paths){let pathChanged=false;let n=pat
 function color(){return $('penColor').value}
 function presetPoints(kind,a,b){let x=Math.min(a.x,b.x),y=Math.min(a.y,b.y),w=Math.max(8,Math.abs(b.x-a.x)),h=Math.max(8,Math.abs(b.y-a.y));if(kind==='rect')return [{x,y},{x:x+w,y},{x:x+w,y:y+h},{x,y:y+h}];if(kind==='lshape')return [{x,y},{x:x+w,y},{x:x+w,y:y+h*.48},{x:x+w*.48,y:y+h*.48},{x:x+w*.48,y:y+h},{x,y:y+h}];return [{x,y},{x:x+w,y},{x:x+w,y:y+h},{x:x+w*.7,y:y+h},{x:x+w*.7,y:y+h*.35},{x:x+w*.3,y:y+h*.35},{x:x+w*.3,y:y+h},{x,y:y+h}]}
 function clearPress(){if(pressTimer){clearTimeout(pressTimer);pressTimer=null}}
-function onDown(e){if(e.pointerType==='touch')return;if(e.pointerType==='touch'&&e.isPrimary===false)return;let p=point(e);
+function onDown(e){if(e.pointerType==='touch')return;if(e.pointerType==='touch'&&e.isPrimary===false)return;let p=point(e);if(['points','rect','lshape','ushape','wall','column','steel','beam','smallbeam','steelbeam'].includes(tool))ensurePlanScale();if(tool==='door'){placeDoorAt(p);return}
  if(repeatOn&&tool==='select'){repeatAt(p);return}
  if(tool==='points'){
   const hitVertex=e.target.closest('[data-vertex][data-path]');
@@ -315,12 +357,12 @@ function onDown(e){if(e.pointerType==='touch')return;if(e.pointerType==='touch'&
   let pi=currentOpen();
   if(pi>=0&&paths[pi].pts.length>=3&&distance(p,paths[pi].pts[0])<15){closeShape();return}
   snapshot();
-  if(pi<0){paths.push({kind:'polygon',closed:false,pts:[p],color:color()});sm58OpenPath=paths.length-1;}
+  if(pi<0){paths.push({kind:'polygon',closed:false,pts:[p],color:color(),exteriorDraft:true});sm58OpenPath=paths.length-1;}
   else {let q=paths[pi].pts;q.push(snap(p,q.at(-1)))}
   selected={type:'vertex',pi:sm58OpenPath,i:paths[sm58OpenPath].pts.length-1};
   render();autosave();return;
  }
- if(tool==='beam'){let hit=e.target.closest('[data-member]');if(!hit){msg('큰보는 기둥 중심을 차례로 터치하세요.');return}let i=+hit.getAttribute('data-member');if(beamStart===null){beamStart=i;msg('연결할 두 번째 기둥을 터치하세요.');return}if(i===beamStart)return;let a=members[beamStart],b=members[i];snapshot();paths.push({kind:'wall',closed:false,pts:[{x:a.x,y:a.y},{x:b.x,y:b.y}],thickness:300,color:color()});beamStart=null;mode('select');autosave();msg('기둥 사이 큰보를 연결했습니다.');return}
+ if(tool==='beam'){let hit=e.target.closest('[data-member]');if(!hit){msg('큰보는 기둥 중심을 차례로 터치하세요.');return}let i=+hit.getAttribute('data-member');if(beamStart===null){beamStart=i;msg('연결할 두 번째 기둥을 터치하세요.');return}if(i===beamStart)return;let a=members[beamStart],b=members[i];snapshot();paths.push({kind:'wall',closed:false,pts:[{x:a.x,y:a.y},{x:b.x,y:b.y}],thickness:300,wallRole:'beam',wallAlign:'center',color:color()});beamStart=null;mode('select');autosave();msg('기둥 사이 큰보를 연결했습니다.');return}
  if(['column','steel','steelbeam'].includes(tool)){snapshot();let beam=tool.includes('beam');members.push({kind:tool,x:p.x,y:p.y,w:beam?500:400,h:beam?250:400});rememberCreated('member',members.length-1);selected={type:'member',i:members.length-1};mode('select');selected={type:'member',i:members.length-1};render();msg('구조부재를 배치했습니다. 치수와 위치를 수정하세요.');return}
  if(['rect','lshape','ushape','wall','smallbeam'].includes(tool)){interaction={type:'preset',id:e.pointerId,start:p,end:p,kind:tool};svg.setPointerCapture(e.pointerId);return}
  if(tool==='free'){free=[p];interaction={type:'free',id:e.pointerId,start:p,held:false,last:p,samples:[p]};svg.setPointerCapture(e.pointerId);pressTimer=setTimeout(()=>{if(interaction?.type==='free'){interaction.held=true;interaction.last=free.at(-1)||interaction.start;render();msg('직선 보정 중: 펜을 떼지 말고 움직이면 각도와 길이가 바뀝니다.')}},650);render();return}
@@ -329,13 +371,13 @@ function onDown(e){if(e.pointerType==='touch')return;if(e.pointerType==='touch'&
  let v=e.target.getAttribute('data-vertex'),edge=e.target.getAttribute('data-edge'),pi=e.target.getAttribute('data-path');if(v!==null&&pi!==null){selected={type:'vertex',pi:+pi,i:+v};interaction={type:'drag',id:e.pointerId,pi:+pi,i:+v,start:p,original:{...paths[+pi].pts[+v]},moved:false};svg.setPointerCapture(e.pointerId)}else if(edge!==null&&pi!==null)selected={type:'edge',pi:+pi,i:+edge};else selected=null;if(joinFirst!==null&&selected&&selected.pi!==joinFirst){joinWith(selected.pi);return}render()}
 function onMove(e){if(e.pointerType==='touch')return;if(tool==='erase'&&e.pointerType!=='touch'){let q=point(e),cursor=$('eraserCursor');cursor.setAttribute('visibility','visible');cursor.setAttribute('cx',q.x);cursor.setAttribute('cy',q.y);cursor.setAttribute('r',+$('eraseSize').value/2)}if(!interaction||e.pointerId!==interaction.id)return;let p=point(e),d=interaction;
  if(d.type==='free'){if(d.held){d.last=p;free=[d.start,p];render()}else if(distance(p,free.at(-1))>2){free.push(p);d.samples.push(p);d.last=p;clearPress();pressTimer=setTimeout(()=>{if(interaction?.type==='free'){interaction.held=true;interaction.last=free.at(-1);free=[interaction.start,interaction.last];render();msg('직선 보정: 펜을 움직여 방향과 길이를 조절하세요.')}},650);render()}}
- else if(d.type==='preset'){d.end=p;preview=d.kind==='wall'?[d.start,p]:presetPoints(d.kind,d.start,p).concat([presetPoints(d.kind,d.start,p)[0]]);render()}
+ else if(d.type==='preset'){d.end=p;preview=['wall','smallbeam'].includes(d.kind)?[d.start,p]:presetPoints(d.kind,d.start,p).concat([presetPoints(d.kind,d.start,p)[0]]);render()}
  else if(d.type==='erase'){d.changed=eraseAt(p)||d.changed;render()}
  else if(d.type==='drag'||d.type==='memberDrag'){let dx=p.x-d.start.x,dy=p.y-d.start.y;if(Math.hypot(dx,dy)>1&&!d.moved){snapshot();d.moved=true}if(d.moved){if(d.type==='drag')paths[d.pi].pts[d.i]={x:d.original.x+dx,y:d.original.y+dy};else Object.assign(members[d.i],{x:d.original.x+dx,y:d.original.y+dy});render()}}
 }
 function onUp(e){if(e.pointerType==='touch')return;if(!interaction||e.pointerId!==interaction.id)return;clearPress();let d=interaction;interaction=null;
  if(d.type==='free'){let source=d.samples||free,simplified=simplify(source,4),xs=source.map(p=>p.x),ys=source.map(p=>p.y),bw=Math.max(...xs)-Math.min(...xs),bh=Math.max(...ys)-Math.min(...ys);let isHoldRect=d.held&&source.length>=5&&bw>18&&bh>18&&distance(source[0],source.at(-1))<Math.max(35,Math.min(bw,bh)*.55);let arr=d.held?[d.start,point(e)]:simplified;free=[];if(isHoldRect){snapshot();paths.push({kind:'polygon',closed:true,pts:presetPoints('rect',{x:Math.min(...xs),y:Math.min(...ys)},{x:Math.max(...xs),y:Math.max(...ys)}),color:color()});rememberCreated('path',paths.length-1);msg('길게 누른 뒤 드래그하여 사각형을 추가했습니다.')}else if(arr.length>=2&&distance(arr[0],arr.at(-1))>2){snapshot();paths.push({kind:'stroke',closed:false,pts:arr,color:color()});rememberCreated('path',paths.length-1);msg('선 하나를 추가했습니다. 실행 취소는 마지막 선 하나만 되돌립니다.')}else msg('너무 짧은 선은 저장하지 않았습니다.')}
- else if(d.type==='preset'){preview=null;let end=point(e);if(distance(d.start,end)<8)end={x:d.start.x+120,y:d.start.y+90};snapshot();if(d.kind==='wall'||d.kind==='smallbeam')paths.push({kind:'wall',closed:false,pts:[d.start,end],thickness:d.kind==='smallbeam'?250:(+$('defaultThickness').value||200),color:color()});else paths.push({kind:'polygon',closed:true,pts:presetPoints(d.kind,d.start,end),color:color()});rememberCreated('path',paths.length-1);mode('select');msg('형상을 추가했습니다. 선택 모드에서 치수를 수정할 수 있습니다.')}
+ else if(d.type==='preset'){preview=null;let end=point(e);if(distance(d.start,end)<8)end={x:d.start.x+120,y:d.start.y+90};snapshot();if(d.kind==='wall'||d.kind==='smallbeam'){let pts=[d.start,end];paths.push({...(d.kind==='smallbeam'?{kind:'wall',thickness:250,wallRole:'beam',wallAlign:'center'}:wallOptions(false,pts)),closed:false,pts,color:color()})}else {let pts=presetPoints(d.kind,d.start,end);paths.push({...wallOptions(true,pts),closed:true,pts,color:color()})}rememberCreated('path',paths.length-1);mode('select');msg('형상을 추가했습니다. 선택 모드에서 치수를 수정할 수 있습니다.')}
  else if(d.type==='erase'){if(!d.changed)history.pop();selected=null}render();autosave()}
 
 // Finger gestures never draw: one-finger vertical scroll, two-finger pinch zoom.
@@ -346,9 +388,9 @@ function onFingerMove(e){if(e.pointerType!=='touch'||!touchPoints.has(e.pointerI
 function onFingerUp(e){if(e.pointerType!=='touch')return;touchPoints.delete(e.pointerId);touchGesture=touchPoints.size===1?{type:'scroll',y:[...touchPoints.values()][0].y}:null}
 svg.addEventListener('pointerdown',onFingerDown);svg.addEventListener('pointermove',onFingerMove);svg.addEventListener('pointerup',onFingerUp);svg.addEventListener('pointercancel',onFingerUp);
 svg.addEventListener('wheel',e=>{if(e.ctrlKey){e.preventDefault();zoom(e.deltaY<0?1.15:.87)}},{passive:false});svg.addEventListener('pointerdown',onDown);svg.addEventListener('pointermove',onMove);svg.addEventListener('pointerup',onUp);svg.addEventListener('pointercancel',onUp);
-function applyEdge(){if(selected?.type!=='edge')return;let target=+$('edgeLength').value;if(!(target>0))return msg('올바른 치수를 입력하세요.');let p=getSelected(),i=selected.i,old=segLen(p,i);if(old<.00001)return;snapshot();let ratio=target/old;if($('resizeMode').value==='scale'){let anchor={...p.pts[0]};paths.forEach(path=>path.pts=path.pts.map(q=>({x:anchor.x+(q.x-anchor.x)*ratio,y:anchor.y+(q.y-anchor.y)*ratio})));measured=true}else if(!measured){unitScale=target/distance(...seg(p,i));measured=true}else{let j=(i+1)%p.pts.length,a=p.pts[i],b=p.pts[j];let nb={x:a.x+(b.x-a.x)*ratio,y:a.y+(b.y-a.y)*ratio};let dx=nb.x-b.x,dy=nb.y-b.y;if(p.closed){ // preserve all vertices and avoid coincident neighbors
+function applyEdge(){if(selected?.type!=='edge')return;let target=+$('edgeLength').value;if(!(target>0))return msg('올바른 치수를 입력하세요.');let p=getSelected(),i=selected.i,old=segLen(p,i);if(old<.00001)return;snapshot();let ratio=target/old;if(!measured){unitScale=target/distance(...seg(p,i));measured=true}else if($('resizeMode').value==='scale'){let anchor={...p.pts[0]};paths.forEach(path=>path.pts=path.pts.map(q=>({x:anchor.x+(q.x-anchor.x)*ratio,y:anchor.y+(q.y-anchor.y)*ratio})));measured=true}else{let j=(i+1)%p.pts.length,a=p.pts[i],b=p.pts[j];let nb={x:a.x+(b.x-a.x)*ratio,y:a.y+(b.y-a.y)*ratio};let dx=nb.x-b.x,dy=nb.y-b.y;if(p.closed){ // preserve all vertices and avoid coincident neighbors
 if(p.pts.some((q,k)=>k!==j&&distance(q,nb)<2)){history.pop();return msg('다른 모서리와 겹치는 치수입니다. 값을 확인하세요.')}p.pts[j]=nb;
-}else{for(let k=j;k<p.pts.length;k++)p.pts[k]={x:p.pts[k].x+dx,y:p.pts[k].y+dy}}}render();msg('선분 길이를 적용했습니다. 꼭짓점 개수는 유지됩니다.')}
+}else{for(let k=j;k<p.pts.length;k++)p.pts[k]={x:p.pts[k].x+dx,y:p.pts[k].y+dy}}}render();autosave();msg('선분 길이를 적용했습니다. 꼭짓점 개수는 유지됩니다.')}
 function applyVertex(){if(selected?.type!=='vertex')return;let x=+$('vx').value,y=+$('vy').value;if(!Number.isFinite(x)||!Number.isFinite(y))return;snapshot();getSelected().pts[selected.i]={x:x/unitScale,y:y/unitScale};render();msg('모서리 좌표를 적용했습니다.')}
 function download(blob,name){let a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 function makeSVG(){let clone=svg.cloneNode(true);clone.querySelectorAll('line[stroke="transparent"], [data-vertex]').forEach(el=>el.remove());let xml=new XMLSerializer().serializeToString(clone);return xml.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ').replace(/xmlns="http:\/\/www.w3.org\/2000\/svg" xmlns="http:\/\/www.w3.org\/2000\/svg"/,'xmlns="http://www.w3.org/2000/svg"')}
@@ -356,15 +398,12 @@ function exportSVG(){download(new Blob([makeSVG()],{type:'image/svg+xml'}),'현�
 function exportJPG(){rasterExport('image/jpeg','현장도면.jpg')}
 function rasterExport(mime,name){let src=URL.createObjectURL(new Blob([makeSVG()],{type:'image/svg+xml'})),im=new Image();im.onload=()=>{let c=document.createElement('canvas');c.width=1800;c.height=1300;let ctx=c.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0,c.width,c.height);SM47Export.padded(c).toBlob(b=>download(b,name),mime,.92);URL.revokeObjectURL(src)};im.src=src}
 function exportPNG(){let src=URL.createObjectURL(new Blob([makeSVG()],{type:'image/svg+xml'})),im=new Image();im.onload=()=>{let c=document.createElement('canvas');c.width=1800;c.height=1300;let ctx=c.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0,c.width,c.height);SM47Export.downloadCanvas(c,b=>download(b,'현장도면.png'));URL.revokeObjectURL(src)};im.src=src}
-function exportDXF(){if(!paths.some(p=>p.pts.length>=2)&&!members.length)return msg('도면을 먼저 그려주세요.');let s='0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n4\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n';for(let p of paths){let n=p.closed?p.pts.length:p.pts.length-1;for(let i=0;i<n;i++){
- let [a,b]=seg(p,i);
- if(p.kind==='wall'){
-  const len=Math.hypot(b.x-a.x,b.y-a.y);if(len<.001)continue;
-  const t=(p.thickness||200)/unitScale/2,nx=-(b.y-a.y)/len*t,ny=(b.x-a.x)/len*t;
-  const c=[{x:a.x+nx,y:a.y+ny},{x:b.x+nx,y:b.y+ny},{x:b.x-nx,y:b.y-ny},{x:a.x-nx,y:a.y-ny}];
-  for(let k=0;k<4;k++){const u=c[k],v=c[(k+1)%4];s+=`0\nLINE\n8\nWALL\n10\n${(u.x*unitScale).toFixed(3)}\n20\n${(-u.y*unitScale).toFixed(3)}\n30\n0\n11\n${(v.x*unitScale).toFixed(3)}\n21\n${(-v.y*unitScale).toFixed(3)}\n31\n0\n`;}
+function exportDXF(){if(!paths.some(p=>p.pts.length>=2)&&!members.length)return msg('도면을 먼저 그려주세요.');let s='0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n4\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n';for(let p of paths){if(p.kind==='wall'){
+  const layer=p.wallRole==='beam'?'BEAM':p.wallRole==='exterior'?'EXTERIOR_WALL':'WALL';
+  for(const loop of wallLoops(p))for(let k=0;k<loop.length;k++){const u=loop[k],v=loop[(k+1)%loop.length];if(distance(u,v)<.00001)continue;s+=`0\nLINE\n8\n${layer}\n10\n${(u.x*unitScale).toFixed(3)}\n20\n${(-u.y*unitScale).toFixed(3)}\n30\n0\n11\n${(v.x*unitScale).toFixed(3)}\n21\n${(-v.y*unitScale).toFixed(3)}\n31\n0\n`;}
   continue;
  }
+ let n=p.closed?p.pts.length:p.pts.length-1;for(let i=0;i<n;i++){let [a,b]=seg(p,i);
  s+=`0\nLINE\n8\nOUTLINE\n10\n${(a.x*unitScale).toFixed(3)}\n20\n${(-a.y*unitScale).toFixed(3)}\n30\n0\n11\n${(b.x*unitScale).toFixed(3)}\n21\n${(-b.y*unitScale).toFixed(3)}\n31\n0\n`}}for(let m of members){let x=m.x*unitScale,y=m.y*unitScale,w=m.w/2,h=m.h/2;let pts=[[x-w,y-h],[x+w,y-h],[x+w,y+h],[x-w,y+h]];for(let i=0;i<4;i++){let a=pts[i],b=pts[(i+1)%4];s+=`0\nLINE\n8\nSTRUCTURE\n10\n${a[0]}\n20\n${-a[1]}\n30\n0\n11\n${b[0]}\n21\n${-b[1]}\n31\n0\n`}}for(let d of doors){let pts=doorGeometry(d);let chain=[d.hinge,d.leaf];for(let i=0;i<chain.length-1;i++){let a=chain[i],b=chain[i+1];s+=`0\nLINE\n8\nDOOR\n10\n${(a.x*unitScale).toFixed(3)}\n20\n${(-a.y*unitScale).toFixed(3)}\n30\n0\n11\n${(b.x*unitScale).toFixed(3)}\n21\n${(-b.y*unitScale).toFixed(3)}\n31\n0\n`;}for(let i=1;i<pts.length;i++){let a=pts[i-1],b=pts[i];s+=`0\nLINE\n8\nDOOR_SWING\n10\n${(a.x*unitScale).toFixed(3)}\n20\n${(-a.y*unitScale).toFixed(3)}\n30\n0\n11\n${(b.x*unitScale).toFixed(3)}\n21\n${(-b.y*unitScale).toFixed(3)}\n31\n0\n`;}}s+='0\nENDSEC\n0\nEOF\n';download(new Blob([s],{type:'application/dxf'}),'현장도면.dxf')}
 function sarchExportStamp147(){const d=new Date(),p=n=>String(n).padStart(2,'0');return ''+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())}
 function sarchDrawingExportName147(){const n=smDrawSites.find(s=>s.id===smDrawSiteId)?.name||'현장도면';return String(n).replace(/[\\/:*?"<>|]/g,'_').slice(0,65)+'_도면작성_'+sarchExportStamp147()+'.json'}
@@ -616,7 +655,7 @@ panel.appendChild(sm52Camera);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange);
  else arrange();
 })();
-</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=237',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
+</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=238',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
 #smetric-v66-update{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(16px);z-index:2147483646;max-width:min(90vw,370px);padding:9px 14px;border-radius:11px;background:rgba(24,47,63,.91);color:#e9fff5;box-shadow:0 6px 24px rgba(0,0,0,.16);font:500 12px/1.5 system-ui,sans-serif;text-align:center;pointer-events:none;opacity:0;transition:opacity .3s,transform .3s}
 #smetric-v66-update.visible{opacity:1;transform:translateX(-50%) translateY(0)}
 </style><script id="smetric-v66-auto-update">(function(){'use strict';
@@ -625,7 +664,7 @@ const BASE='/SEOB/';let shown=false;let running=false;
 function toast(message){if(shown)return;shown=true;let el=document.getElementById('smetric-v66-update');if(!el){el=document.createElement('div');el.id='smetric-v66-update';el.setAttribute('role','status');el.setAttribute('aria-live','polite');document.body.appendChild(el)}el.textContent=message;requestAnimationFrame(()=>el.classList.add('visible'));setTimeout(()=>{el.classList.remove('visible');setTimeout(()=>el.remove(),350)},4500)}
 function status(worker){return new Promise(resolve=>{if(!worker)return resolve(null);const ch=new MessageChannel();let timer=setTimeout(()=>resolve(null),4500);ch.port1.onmessage=e=>{clearTimeout(timer);resolve(e.data)};try{worker.postMessage({type:'SMETRIC_OFFLINE_STATUS'},[ch.port2])}catch(e){clearTimeout(timer);resolve(null)}})}
 async function run(){if(running||!navigator.onLine)return;running=true;try{
- const reg=await navigator.serviceWorker.register(BASE+'seob-sw.js?v=237',{scope:BASE,updateViaCache:'none'});
+ const reg=await navigator.serviceWorker.register(BASE+'seob-sw.js?v=238',{scope:BASE,updateViaCache:'none'});
  await reg.update();
  // New worker may be installing; only report success after it has activated and cached all files.
  let worker=reg.active;if(reg.installing){await new Promise(resolve=>{const w=reg.installing;const timeout=setTimeout(resolve,18000);w.addEventListener('statechange',()=>{if(w.state==='activated'||w.state==='redundant'){clearTimeout(timeout);resolve()}})});worker=reg.active}
@@ -694,12 +733,12 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
 <script defer src="../sarch-quick-nav-v139.js?v=139"></script>
 
 <link rel="stylesheet" href="../sarch-workspace-v142.css?v=143">
-<link rel="stylesheet" href="../sarch-drawing-tools-v144.css?v=149">
+<link rel="stylesheet" href="../sarch-drawing-tools-v144.css?v=238">
 <script defer src="../sarch-transfer-v156.js?v=156"></script>
 <script defer src="../sarch-workspace-v142.js?v=161"></script>
 <link rel="stylesheet" href="../sarch-shell-v145.css?v=147">
 <script defer src="../sarch-shell-v145.js?v=145"></script>
-<script defer src="../sarch-drawing-tools-v144.js?v=149"></script>
+<script defer src="../sarch-drawing-tools-v144.js?v=238"></script>
 <link rel="stylesheet" href="../sarch-brand-v196.css"><link rel="stylesheet" href="../sarch-fandom-v198.css"><link rel="stylesheet" href="../sarch-global-theme-v206.css?v=237"><script defer src="../sarch-global-theme-v217.js?v=237"></script><link rel="stylesheet" href="../sarch-theme-v214.css?v=225"><script defer src="../sarch-theme-v214.js?v=225"></script><link rel="stylesheet" href="../sarch-ink-v233.css"><script src="../sarch-ink-v233.js"></script><script>
 (function(){
 function isInk(p){return !!p.sarchInk&&(p.kind==='stroke'||p.kind==='polygon'||p.kind==='annotation')}
