@@ -132,10 +132,22 @@ async function check(mod,width,height){
     const helpCollapsed=await page.locator(".sarch-draw-output-help-v144").evaluate(el=>el.open===false);
     const noExtras=await page.locator("#sarchFloor135 .sarch-floor-more-v135").count()===0;
     const noLegacy=await page.locator("#sarchDrawSurface144 .sarch-draw-legacy-v144,#sarchDrawSurface144 .sarch-draw-more-v144").count()===0;
-    await page.locator("#sarchDrawTab144-draw").click();
-    const drawing=await page.locator("#modeFree").isVisible();
+    await page.locator("#sarchDrawTab144-edit").click();
+    const freeVisible=await page.locator("#modeFree").isVisible();
+    await page.locator("#sarchDrawTab144-outer").click();
+    const drawing=freeVisible&&await page.locator("#modeRect").isVisible()&&await page.locator("#sarchOuterThickness").isVisible();
+    if(width===1280){
+      await page.locator("#sarchOuterThickness").fill("200");
+      await page.locator("#modeRect").click();
+      const canvas=page.locator("#drawing"),b=await canvas.boundingBox();
+      await page.mouse.move(b.x+b.width*.25,b.y+b.height*.25);
+      await page.mouse.down();await page.mouse.move(b.x+b.width*.65,b.y+b.height*.65,{steps:12});await page.mouse.up();
+      const result=await page.evaluate(()=>{const p=paths.at(-1);return {kind:p?.kind,closed:p?.closed,loops:p?wallLoops(p):[],thickness:p?.thickness}});
+      report(id,"rectangle creates two wall contours",result.kind==="wall"&&result.closed&&result.thickness===200&&result.loops.length===2&&JSON.stringify(result.loops[0])!==JSON.stringify(result.loops[1]),JSON.stringify(result));
+      await page.locator("#modeSelect").click();
+    }
     report(id,"drawing concise edit and right-side output",
-      initCount===3&&labels.join("").includes("편집")&&structural&&eraser&&initialHidden&&
+      initCount===6&&labels.join("").includes("편집")&&structural&&eraser&&initialHidden&&
       eraserOptionsVisible&&buttonGrouped&&hiddenAfter&&output&&compact&&cameraDocked&&
       helpCollapsed&&noExtras&&noLegacy&&drawing&&Object.values(counts).every(n=>n===1),
       JSON.stringify({labels,counts,structural,eraser,initialHidden,eraserOptionsVisible,buttonGrouped,

@@ -261,15 +261,15 @@ const pwaVersion=JSON.parse(read('version.json')).version;
 ok(tiltHTML.includes('./sw.js?v=168')&&tiltHTML.includes('seob-sw.js?v='+pwaVersion),'PWA service worker script registrations match the current release version');
 ok(tiltHTML.includes("'#canvasWrap,#items,#detail,#smValueSizeLabel,#smTiltValueToggle'"),'measurement-toggle pointer event must not clear selected tilt point');
 const drawHTML=read('drawing/index.html');
-onlyOnce(drawHTML,'href="../sarch-drawing-tools-v144.css?v=149"','drawing v144 stylesheet');
-onlyOnce(drawHTML,'src="../sarch-drawing-tools-v144.js?v=149"','drawing v144 controller');
+onlyOnce(drawHTML,'href="../sarch-drawing-tools-v144.css?v=238"','drawing v144 stylesheet');
+onlyOnce(drawHTML,'src="../sarch-drawing-tools-v144.js?v=238"','drawing v144 controller');
 const drawingUI=read('sarch-drawing-tools-v144.js');
 scriptSyntax(drawingUI,'sarch-drawing-tools-v144.js');
-ok(['draw','member','edit'].every(id=>drawingUI.includes('key:"'+id+'"')),'three drawing tool categories preserved');
+ok(['outer','wall','member','door','edit','export'].every(id=>drawingUI.includes('key:"'+id+'"')),'six field workflow categories preserved');
 ok(!drawingUI.includes('cloneNode('),'v144 controls must keep existing event handlers');
 ok(drawingUI.includes('sarch-draw-legacy-parked-v148'),'legacy event handlers safely parked offscreen');
 
-ok(!drawingUI.includes('key:"export"'),'removed redundant export toolbar tab');
+ok(drawingUI.includes('key:"export"')&&drawingUI.includes('sarchQuickDXF'),'CAD export directly available in workflow');
 ok(drawingUI.includes('side.appendChild(output)'),'export remains inside right-side editing panel');
 ok(drawingUI.includes('sarchEraseOptions148'),'eraser options are contextual');
 ok(drawingUI.includes('floorMore.remove()'),'drawing-only extra floor accordion is removed');
@@ -277,8 +277,16 @@ const drawingUIStyle=read('sarch-drawing-tools-v144.css');
 ok(drawingUIStyle.includes('sarch-drawing-v144'),'v144 styles limited to drawing workspace');
 ok((drawingUIStyle.match(/{/g)||[]).length===(drawingUIStyle.match(/}/g)||[]).length,'v144 CSS braces balanced');
 const drawSW=read('drawing/sw.js');
-ok(drawSW.includes('sarch-drawing-tools-v144.css?v=149')&&drawSW.includes('sarch-drawing-tools-v144.js?v=149'),'new drawing tools cached offline');
-ok(rootSW.includes('sarch-drawing-tools-v144.js'),'new drawing JS cached by root PWA');
+ok(drawSW.includes('sarch-drawing-tools-v144.css?v=238')&&drawSW.includes('sarch-drawing-tools-v144.js?v=238'),'new drawing tools cached offline');
+ok(rootSW.includes('sarch-drawing-tools-v144.js?v=238'),'new drawing JS cached by root PWA');
+const wallGeometry=drawHTML.slice(drawHTML.indexOf('function wallOffsets(p)'),drawHTML.indexOf('function wallOptions('));
+const loopsFor=new Function('unitScale','distance',wallGeometry+';return wallLoops')(20,(a,b)=>Math.hypot(a.x-b.x,a.y-b.y));
+const rectangle=loopsFor({pts:[{x:0,y:0},{x:100,y:0},{x:100,y:80},{x:0,y:80}],closed:true,wallAlign:'left',thickness:200});
+ok(rectangle.length===2&&rectangle[0].length===4&&rectangle[1].length===4&&rectangle[0][0].x===10&&rectangle[0][0].y===10&&rectangle[1][0].x===0,'200mm exterior rectangle renders distinct closed inner and outer contours');
+const globalTheme=read('sarch-global-theme-v217.js');
+scriptSyntax(globalTheme,'global theme');
+const themeLabels=globalTheme.match(/const labels=\{([^}]+)\}/)?.[1]||'';
+ok(['catcrew','bearcrew','penguincrew'].every(t=>themeLabels.includes(t+':'))&&!themeLabels.includes('safety:'),'new mascot themes present and safety excluded');
 
 
 const shellJS=read('sarch-shell-v145.js');
