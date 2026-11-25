@@ -1,9 +1,9 @@
 /* S:ARCH unified theme selector and removable illustrated theme pack. */
 (()=>{"use strict";
 const KEY="sarch-global-theme-v199";
-const labels={dark:"기본 · S:ARCH",light:"라이트",navy:"네이비",forest:"포레스트",ocean:"오션",paper:"도면지",lavender:"라벤더",rose:"로즈",shinchan:"짱구"};
+const labels={dark:"기본 · S:ARCH",light:"라이트",navy:"네이비",forest:"포레스트",ocean:"오션",paper:"도면지",lavender:"라벤더",safety:"세이프티",terminal:"터미널",terracotta:"테라코타",shinchan:"짱구"};
 // Similar palettes are consolidated. Migrate existing preferences without touching project data.
-const mergedThemes=Object.freeze({graphite:"dark",slate:"dark",blueprint:"navy",mint:"forest",sand:"paper"});
+const mergedThemes=Object.freeze({graphite:"dark",slate:"dark",blueprint:"navy",mint:"forest",sand:"paper",rose:"lavender"});
 function canonicalTheme(value){const key=Object.hasOwn(mergedThemes,value)?mergedThemes[value]:value;return Object.hasOwn(labels,key)?key:"dark"}
 const base=new URL(".",document.currentScript.src);
 const images={
