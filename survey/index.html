@@ -105,8 +105,8 @@ body[data-theme="graphite"] .theme-picker select{color:#fff!important}
 .front-photo-card .front-slot-name{font-size:12px;font-weight:700;color:var(--muted)}
 .front-photo-card .front-photo-preview{height:160px;border:1px dashed var(--line);border-radius:9px;background:var(--board);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted);font-size:13px;text-align:center}
 .front-photo-preview img{width:100%;height:100%;object-fit:cover}
-.front-photo-card label.front-label{display:block;font-size:12px;font-weight:700;color:var(--ink)}
-.front-photo-card label.front-label input,.front-photo-card .front-label select{display:block;margin-top:6px;width:100%;min-width:0;padding:9px;font-size:12px}
+.front-photo-card .front-label{display:block;font-size:12px;font-weight:700;color:var(--ink)}
+.front-photo-card .front-label input,.front-photo-card .front-label select{display:block;margin-top:6px;width:100%;min-width:0;padding:9px;font-size:12px}
 .front-description-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr) auto;gap:6px;align-items:start}
 .front-description-fields>div{min-width:0}
 .front-photo-card .front-label .front-fixed{display:flex;align-items:center;justify-content:center;min-height:34px;margin-top:6px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--field);color:var(--ink);white-space:nowrap;font-size:12px}
@@ -1582,6 +1582,7 @@ function renderFrontPhotoWorkspace(){
     file.setAttribute('aria-label',i+1+'번 '+(kind==='outside'?'외부':'내부')+' 전경 '+text);
     file.addEventListener('change',async()=>{
      const chosen=file.files?.[0];if(!chosen)return;
+     if(kind==='inside'&&!saved?.label&&!parts.floor&&!parts.space)caption='내부 전경';
      control.style.opacity='.5';
      try{
       const image=await compressed(await fileToData(chosen),1600);
@@ -1650,6 +1651,7 @@ async function exportAlbumHwpx(){
   return ps.some(p=>pText(p)===insideDefaults[0])&&ps.some(p=>pText(p)===insideDefaults[5]);
  });
  const originalAlbumPics=[...doc.getElementsByTagNameNS(hpNS,'pic')];
+ const originalIndoorPara=indoorTable?(()=>{let p=indoorTable;while(p&&p.localName!=='p')p=p.parentNode;return p?.cloneNode(true)})():null;
  const extraInteriorImages=[],extraExteriorImages=[];
  // The supplied template contains three exterior pictures, not four.
  // Reuse its editable six-picture overview grid for the exterior table.
@@ -1694,7 +1696,7 @@ async function exportAlbumHwpx(){
   let tablePara=indoorTable;
   while(tablePara&&tablePara.localName!=='p')tablePara=tablePara.parentNode;
   if(!tablePara?.parentNode)throw Error('내부 전경 HWPX 표의 문단 구조를 확인할 수 없습니다.');
-  const extraPara=tablePara.cloneNode(true);
+  const extraPara=originalIndoorPara?originalIndoorPara.cloneNode(true):tablePara.cloneNode(true);
   extraPara.setAttribute('pageBreak','1');
   // Each picture/table shape must have a distinct numeric object identifier.
   const elements=[extraPara,...extraPara.getElementsByTagName('*')];
@@ -1706,7 +1708,7 @@ async function exportAlbumHwpx(){
   if(extraPics.length!==6)throw Error('원본 양식 내부 전경 그림 개수가 6개가 아니므로 추가 페이지를 안전하게 만들 수 없습니다.');
   // Preserve the six original slots while supplying individually named images 7–12.
   const extraPs=[...extraTable.getElementsByTagNameNS(hpNS,'p')];
-  const originalCaptionNodes=insideDefaults.map((old,i)=>extraPs.find(p=>pText(p)===old || pText(p)===(albumSlot('inside',i).label||ALBUM_IN[i])));
+  const originalCaptionNodes=insideDefaults.map(old=>extraPs.find(p=>pText(p)===old));
   originalCaptionNodes.forEach((target,i)=>{if(target)setPara(target,albumSlot('inside',i+6).label||ALBUM_IN[i+6])});
   // The inherited layout stays editable; a break places the copied table on a separate page.
   tablePara.parentNode.insertBefore(extraPara,tablePara.nextSibling);
