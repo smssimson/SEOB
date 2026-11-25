@@ -1,10 +1,12 @@
 /* S:ARCH unified theme selector and removable illustrated theme pack. */
 (()=>{"use strict";
 const KEY="sarch-global-theme-v199";
-const labels={dark:"기본 · S:ARCH",light:"라이트",navy:"네이비",forest:"포레스트",ocean:"오션",paper:"도면지",lavender:"라벤더",safety:"세이프티",terminal:"터미널",terracotta:"테라코타",shinchan:"짱구"};
+const hasOwn=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+let currentChoice=null;
+const labels={dark:"기본 · S:ARCH",light:"라이트",navy:"네이비",forest:"포레스트",ocean:"오션",paper:"도면지",lavender:"라벤더",terminal:"터미널",terracotta:"테라코타",shinchan:"짱구",catcrew:"고양이 조사단",bearcrew:"곰돌이 건축단",penguincrew:"펭귄 측정단"};
 // Similar palettes are consolidated. Migrate existing preferences without touching project data.
-const mergedThemes=Object.freeze({graphite:"dark",slate:"dark",blueprint:"navy",mint:"forest",sand:"paper",rose:"lavender"});
-function canonicalTheme(value){const key=Object.hasOwn(mergedThemes,value)?mergedThemes[value]:value;return Object.hasOwn(labels,key)?key:"dark"}
+const mergedThemes=Object.freeze({graphite:"dark",slate:"dark",blueprint:"navy",mint:"forest",sand:"paper",rose:"lavender",safety:"dark"});
+function canonicalTheme(value){const key=hasOwn(mergedThemes,value)?mergedThemes[value]:value;return hasOwn(labels,key)?key:"dark"}
 const base=new URL(".",document.currentScript.src);
 const images={
  shinchan:["shinchan-0.webp","shinchan-2.png","shinchan-3.webp","shinchan-0.webp"],
@@ -142,23 +144,56 @@ function paintCamera(theme){
  }
 }
 
+
+// Original mascot illustrations, entirely inline and available offline.
+const mascots={
+ catcrew:{name:"고양이 조사단",fur:"#f5caa7",face:"#fff1db",edge:"#65493e",vest:"#6a9f93",hat:"#7eafa0",blush:"#e6a09b"},
+ bearcrew:{name:"곰돌이 건축단",fur:"#bf9670",face:"#f7e0b9",edge:"#614634",vest:"#7e91bc",hat:"#9cadd1",blush:"#dd9a88"},
+ penguincrew:{name:"펭귄 측정단",fur:"#506d86",face:"#f7f3e8",edge:"#30455d",vest:"#8ab9ce",hat:"#a5cce0",blush:"#f4a58e"}
+};
+function mascotSVG(theme,i){
+ const t=mascots[theme],e=t.edge,f=t.fur,w=t.face,h=t.hat,v=t.vest;
+ const head=theme==="catcrew"?'<path d="M66 64L62 25L96 44Q120 32 144 44L178 25L174 64" fill="'+f+'"/>':theme==="bearcrew"?'<circle cx="75" cy="48" r="22" fill="'+f+'"/><circle cx="165" cy="48" r="22" fill="'+f+'"/><circle cx="75" cy="48" r="12" fill="'+w+'"/><circle cx="165" cy="48" r="12" fill="'+w+'"/>':'';
+ const face=theme==="penguincrew"?'<path d="M120 62C84 37 66 70 77 100Q89 122 120 117Q151 122 163 100C174 70 156 37 120 62Z" fill="'+w+'" stroke="none"/><path d="M110 89L130 89L120 101Z" fill="#e9ac5f"/>':'<ellipse cx="120" cy="97" rx="25" ry="17" fill="'+w+'" stroke="none"/><path d="M115 90Q120 86 125 90L120 95Z" fill="'+e+'"/><path d="M120 95v4m0 0q-7 6-12 0m12 0q7 6 12 0" fill="none"/>';
+ const tools=[
+ '<g transform="translate(161 95)"><rect width="49" height="34" rx="6" fill="#56697b"/><path d="M11 0l7-7h13l6 7" fill="#8495a4"/><circle cx="26" cy="17" r="11" fill="#c8e4ec"/><circle cx="26" cy="17" r="5" fill="#627e95"/></g>',
+ '<g transform="translate(157 94) rotate(-7)"><rect width="57" height="42" rx="4" fill="#fff7e6"/><path d="M7 7h42v28H7Zm15 0v18H7m15-8h27m-12 0v18" fill="none" stroke="#77899b"/><path d="M7 38l44-36" stroke="#d59857" stroke-width="5"/></g>',
+ '<g transform="translate(161 104) rotate(-25)"><path d="M-7 11H3" stroke="#9aa5aa" stroke-width="5"/><rect x="3" width="47" height="22" rx="5" fill="#758c9a"/><rect x="15" y="5" width="21" height="10" rx="2" fill="#c9e9db"/><path d="M50 2h7v18h-7" fill="#b0b6b7"/></g>',
+ '<g transform="translate(165 84)"><path d="M21 22L2 73M21 22L42 73M21 22V73" fill="none" stroke="#9a724b" stroke-width="5"/><rect x="3" width="36" height="24" rx="5" fill="#d5ab73"/><circle cx="21" cy="12" r="7" fill="#6d9cae"/></g>'
+ ];
+ const scenes=[
+ '<path d="M10 144V57L37 37L64 57V144M37 37V144M17 71h13v15H17m26-15h13v15H43M17 103h13v15H17m26-15h13v15H43" fill="#ffffff55" stroke="'+v+'"/>',
+ '<g stroke="'+v+'" fill="#ffffff55"><rect x="10" y="95" width="56" height="44" rx="4"/><path d="M17 102h42v30H17Zm19 0v20H17m19-9h23" fill="none"/></g>',
+ '<path d="M10 107L39 94L65 107V144L39 157L10 144Z" fill="#ffffff55" stroke="'+v+'"/><path d="M10 107l29 13 26-13M39 120v37" fill="none" stroke="'+v+'"/>',
+ '<g stroke="'+v+'" fill="#ffffff55"><path d="M9 145V42L36 25L64 43V145ZM36 25V145M16 61h14v15H16m27-15h14v15H43m-27 22h14v15H16m27-15h14v15H43"/><path d="M36 19V151" stroke-dasharray="5 4" fill="none"/></g>'
+ ];
+ return '<svg viewBox="0 0 230 183" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="121" cy="166" rx="91" ry="8" fill="'+e+'" opacity=".12"/><g stroke="'+e+'" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+scenes[i]+'<ellipse cx="121" cy="135" rx="42" ry="33" fill="'+f+'"/><path d="M95 111h52l12 42H83Z" fill="'+v+'"/><path d="M120 117v34M92 134h55" stroke="'+w+'" fill="none"/><ellipse cx="93" cy="160" rx="17" ry="9" fill="'+f+'"/><ellipse cx="148" cy="160" rx="17" ry="9" fill="'+f+'"/>'+head+'<ellipse cx="120" cy="79" rx="51" ry="42" fill="'+f+'"/>'+face+'<circle cx="100" cy="78" r="3.8" fill="'+e+'" stroke="none"/><circle cx="140" cy="78" r="3.8" fill="'+e+'" stroke="none"/><ellipse cx="88" cy="94" rx="8" ry="4" fill="'+t.blush+'" stroke="none"/><ellipse cx="152" cy="94" rx="8" ry="4" fill="'+t.blush+'" stroke="none"/><path d="M79 53Q81 20 120 20Q159 20 161 53L171 59Q120 66 69 59Z" fill="'+h+'"/><path d="M120 24v25" fill="none"/><ellipse cx="83" cy="129" rx="12" ry="15" fill="'+f+'"/><ellipse cx="157" cy="124" rx="13" ry="12" fill="'+f+'"/>'+tools[i]+'</g></svg>';
+}
+function paintMascot(theme){
+ const mod=document.documentElement.dataset.module;
+ if(mod==="home"){document.querySelectorAll(".modules .module").forEach((card,i)=>{if(i>=4)return;const d=document.createElement("span");d.className="sarch-theme-character sarch-mascot-card";d.setAttribute("aria-hidden","true");d.innerHTML=mascotSVG(theme,i);card.append(d)})}
+ else{const i=["survey","drawing","schmidt","tilt"].indexOf(mod);const head=document.querySelector(".smetric-app-header"),anchor=head?.querySelector(".sm43-header-audit,#smSurveyQualityButton,#smDrawingQualityButton,#qualityCheck,#audit");if(i>=0&&anchor){const d=document.createElement("span");d.className="sarch-theme-character sarch-theme-header-character sarch-mascot-header";d.setAttribute("aria-hidden","true");d.innerHTML=mascotSVG(theme,i);anchor.append(d);headerArt=d;if(typeof ResizeObserver==="function"){headerObserver=new ResizeObserver(placeHeader);headerObserver.observe(head);headerObserver.observe(anchor)}requestAnimationFrame(placeHeader)}}
+}
+
 function apply(choice){
  const val=canonicalTheme(choice);
+ currentChoice=val;
  const current=val;
  const b=document.body; b.dataset.theme=current;
- if(cameraIcons[current])b.style.setProperty("--st-camera-icon",'url("'+cameraIcons[current]+'")');
- else b.style.removeProperty("--st-camera-icon");
- paintCamera(current);
  document.documentElement.dataset.sarchTheme=val;
  const global=document.getElementById("sarchGlobalTheme");if(global)global.value=val;
+ if(cameraIcons[current])b.style.setProperty("--st-camera-icon",'url("'+cameraIcons[current]+'")');
+ else b.style.removeProperty("--st-camera-icon");
+ try{paintCamera(current)}catch(e){console.warn("S:ARCH theme camera",e)}
  // Legacy controls are retained for compatibility, but no longer exposed to users.
  for(const el of document.querySelectorAll("#themeSelect,#headerThemeProxy,#equipmentTheme,#theme")){
-  for(const option of Array.from(el.options||[])){if(["pokemon","digimon","marvel"].includes(option.value)||Object.hasOwn(mergedThemes,option.value))option.remove()}
+  for(const option of Array.from(el.options||[])){if(["pokemon","digimon","marvel"].includes(option.value)||hasOwn(mergedThemes,option.value))option.remove()}
   if(!Array.from(el.options||[]).some(x=>x.value===current))el.add(new Option(labels[current],current));
   el.value=current;
  }
  headerObserver?.disconnect();headerArt=null;
  document.querySelectorAll(".sarch-theme-character").forEach(el=>el.remove());
+ if(mascots[current]){paintMascot(current);return}
  if(!images[current])return;
  const mod=document.documentElement.dataset.module;
  if(mod==="home"){
@@ -176,20 +211,23 @@ function apply(choice){
 }
 function init(){
  const home=document.documentElement.dataset.module==="home";
- if(home){
-  const header=document.querySelector(".header");
+ {
+  const header=document.querySelector(home?".header":".smetric-app-header,.sm-topbar");
   if(header&&!document.getElementById("sarchGlobalTheme")){
    const wrap=document.createElement("label");wrap.className="sarch-global-picker";wrap.htmlFor="sarchGlobalTheme";
    const label=document.createElement("span");label.textContent="테마 선택";
    const sel=document.createElement("select");sel.id="sarchGlobalTheme";sel.setAttribute("aria-label","전체 화면 테마");
    for(const [key,name] of Object.entries(labels))sel.add(new Option(name,key));
    wrap.append(label,sel);header.append(wrap);
-   sel.addEventListener("change",()=>{try{localStorage.setItem(KEY,sel.value)}catch(e){}apply(sel.value)});
+   const choose=()=>{const value=canonicalTheme(sel.value);if(currentChoice===value)return;try{localStorage.setItem(KEY,value)}catch(e){}apply(value)};
+   sel.addEventListener("input",choose);sel.addEventListener("change",choose);
   }
- }else{
+ }
+ if(!home){
   for(const el of document.querySelectorAll("#themeSelect,#headerThemeProxy,#equipmentTheme,#theme")){const wrap=el.closest(".theme-picker")||el.closest("label")||el;wrap.hidden=true;wrap.classList.add("sarch-legacy-theme-hidden")}
  }
  apply(stored());
+ new MutationObserver(()=>{if(currentChoice&&(document.body.dataset.theme!==currentChoice||document.documentElement.dataset.sarchTheme!==currentChoice)){document.body.dataset.theme=currentChoice;document.documentElement.dataset.sarchTheme=currentChoice}}).observe(document.body,{attributes:true,attributeFilter:["data-theme"]});
  // Legacy scripts can initialize once on load; the global selection always wins.
  window.addEventListener("load",()=>apply(stored()),{once:true});
  window.addEventListener("pageshow",()=>apply(stored()));
