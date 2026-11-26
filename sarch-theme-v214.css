@@ -350,3 +350,8 @@ html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme=
  html.sarch-native-brand[data-module="home"] body.sarch-home-v139:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) .modules .module>.sarch-v214-scene:is([data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]){width:62%!important;height:calc(88% - 14px)!important;right:5px!important;bottom:7px!important}
 }
 }
+
+@media screen {
+html.sarch-native-brand:not([data-module="home"]) body:is([data-theme="shinchan"],[data-theme="pokemon"],[data-theme="digimon"],[data-theme="marvel"]) :is(.smetric-app-header,.sarch-protect) button[data-sarch214-ui]::before{position:absolute!important;left:2px!important;top:2px!important;width:10px!important;height:10px!important;margin:0!important;opacity:.7!important;pointer-events:none!important}
+}
+@media(min-width:760px) and (max-width:960px){html.sarch-native-brand:not([data-module="home"]) body .smetric-head-controls .sarch-global-picker{flex:0 0 auto!important;margin:0!important;gap:0!important}html.sarch-native-brand:not([data-module="home"]) body .smetric-head-controls .sarch-global-picker>span{display:none!important}html.sarch-native-brand:not([data-module="home"]) body .smetric-head-controls .sarch-global-picker select{width:88px!important;max-width:88px!important;min-width:0!important}}

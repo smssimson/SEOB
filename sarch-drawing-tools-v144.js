@@ -60,6 +60,7 @@ function init(){
  // Keep old event-bound navigation and hidden inputs in the DOM but not onscreen.
  const parked=document.createElement("div");parked.id="sarchDrawLegacy148";
  parked.className="sarch-draw-legacy-parked-v148";parked.hidden=true;
+ root.append(nav,surface,parked);
  const eraseOptions=document.createElement("span");eraseOptions.id="sarchEraseOptions148";
  eraseOptions.className="sarch-draw-erase-inline-v148";eraseOptions.hidden=true;
  function into(node,dest){if(node&&node.nodeType===1)dest.appendChild(node)}
@@ -82,7 +83,7 @@ function init(){
   }
  }
  // Field workflow: move live controls, preserve their original handlers.
- const get=id=>document.getElementById(id);
+ const get=id=>document.getElementById(id)||[surface,parked,eraseOptions].map(root=>root.querySelector("#"+id)).find(Boolean);
  const move=(id,dest)=>{const el=get(id);if(el)dest.append(el);return el};
  const make=(tag,attrs,text)=>{const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs||{}))e.setAttribute(k,v);if(text)e.textContent=text;return e};
  const label=(caption,el,dest)=>{const wrap=make("label",{class:"sarch-plan-field"});wrap.append(caption,el);dest.append(wrap)};
@@ -108,7 +109,7 @@ function init(){
  command(door,"modeDoor","문 위치 찍기",()=>mode("door"));
  note(door,"벽 위를 찍으면 해당 위치에 문 개구부와 열림 기호를 만듭니다. 정확한 거리 입력은 선택 항목에서 가능합니다.");
  move("modeFree",edit);for(const id of ["penColor","penOnly"]){const el=get(id);if(el?.closest("label"))edit.append(el.closest("label"))}
- const quick=make("div",{class:"sarch-plan-quick"});nav.after(quick);
+ const quick=make("div",{class:"sarch-plan-quick"});
  move("modeSelect",quick);
  const undo=[...edit.querySelectorAll("button")].find(b=>b.id==="sm57UndoField"||/undo\(\)/.test(b.getAttribute("onclick")||""));
  if(undo)quick.append(undo);else command(quick,"sarchQuickUndo","↶ 실행 취소",()=>window.undo());
@@ -118,7 +119,7 @@ function init(){
  note(exp,"실측 치수로 축척을 맞춘 뒤 CAD(DXF) 또는 이미지/PDF로 출력하세요.");
  // Empty original tool containers must not consume space.
  for(const e of member.querySelectorAll(".toolbar"))if(!e.querySelector("button,input,select"))e.hidden=true;
- const eraser=document.getElementById("modeErase");
+ const eraser=get("modeErase");
  if(eraser){
   const group=document.createElement("span");
   group.className="sarch-eraser-unit-v148";
@@ -174,8 +175,8 @@ function init(){
  for(const note of [...output.querySelectorAll(":scope > p")])help.appendChild(note);
  output.appendChild(help);
 
- const camera=root.querySelector("#sm52FixedCamera");
- if(camera){camera.classList.add("sarch-draw-camera-v144");nav.appendChild(camera)}
+ const camera=document.getElementById("sm52FixedCamera");
+ if(camera){camera.classList.add("sarch-draw-camera-v144","sarch-camera-tab-v145");nav.appendChild(camera)}
  parked.append(oldTabs,oldDeck);
  root.appendChild(parked);
  root.insertBefore(nav,root.firstChild);

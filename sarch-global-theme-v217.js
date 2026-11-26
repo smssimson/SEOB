@@ -218,7 +218,7 @@ function init(){
    const label=document.createElement("span");label.textContent="테마 선택";
    const sel=document.createElement("select");sel.id="sarchGlobalTheme";sel.setAttribute("aria-label","전체 화면 테마");
    for(const [key,name] of Object.entries(labels))sel.add(new Option(name,key));
-   wrap.append(label,sel);header.append(wrap);
+   wrap.append(label,sel);(home?header:(header.querySelector(".smetric-head-controls")||header)).append(wrap);
    const choose=()=>{const value=canonicalTheme(sel.value);if(currentChoice===value)return;try{localStorage.setItem(KEY,value)}catch(e){}apply(value)};
    sel.addEventListener("input",choose);sel.addEventListener("change",choose);
   }

@@ -655,7 +655,7 @@ panel.appendChild(sm52Camera);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrange);
  else arrange();
 })();
-</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=240',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
+</script><script id="smetric-offline-v60">(function(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('/SEOB/seob-sw.js?v=241',{scope:'/SEOB/'});}catch(e){console.warn('SMETRIC offline setup:',e)}})})();</script><style id="smetric-v66-update-style">
 #smetric-v66-update{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(16px);z-index:2147483646;max-width:min(90vw,370px);padding:9px 14px;border-radius:11px;background:rgba(24,47,63,.91);color:#e9fff5;box-shadow:0 6px 24px rgba(0,0,0,.16);font:500 12px/1.5 system-ui,sans-serif;text-align:center;pointer-events:none;opacity:0;transition:opacity .3s,transform .3s}
 #smetric-v66-update.visible{opacity:1;transform:translateX(-50%) translateY(0)}
 </style><script id="smetric-v66-auto-update">(function(){'use strict';
@@ -664,7 +664,7 @@ const BASE='/SEOB/';let shown=false;let running=false;
 function toast(message){if(shown)return;shown=true;let el=document.getElementById('smetric-v66-update');if(!el){el=document.createElement('div');el.id='smetric-v66-update';el.setAttribute('role','status');el.setAttribute('aria-live','polite');document.body.appendChild(el)}el.textContent=message;requestAnimationFrame(()=>el.classList.add('visible'));setTimeout(()=>{el.classList.remove('visible');setTimeout(()=>el.remove(),350)},4500)}
 function status(worker){return new Promise(resolve=>{if(!worker)return resolve(null);const ch=new MessageChannel();let timer=setTimeout(()=>resolve(null),4500);ch.port1.onmessage=e=>{clearTimeout(timer);resolve(e.data)};try{worker.postMessage({type:'SMETRIC_OFFLINE_STATUS'},[ch.port2])}catch(e){clearTimeout(timer);resolve(null)}})}
 async function run(){if(running||!navigator.onLine)return;running=true;try{
- const reg=await navigator.serviceWorker.register(BASE+'seob-sw.js?v=240',{scope:BASE,updateViaCache:'none'});
+ const reg=await navigator.serviceWorker.register(BASE+'seob-sw.js?v=241',{scope:BASE,updateViaCache:'none'});
  await reg.update();
  // New worker may be installing; only report success after it has activated and cached all files.
  let worker=reg.active;if(reg.installing){await new Promise(resolve=>{const w=reg.installing;const timeout=setTimeout(resolve,18000);w.addEventListener('statechange',()=>{if(w.state==='activated'||w.state==='redundant'){clearTimeout(timeout);resolve()}})});worker=reg.active}
@@ -733,13 +733,13 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});
 <script defer src="../sarch-quick-nav-v139.js?v=139"></script>
 
 <link rel="stylesheet" href="../sarch-workspace-v142.css?v=143">
-<link rel="stylesheet" href="../sarch-drawing-tools-v144.css?v=238">
+<link rel="stylesheet" href="../sarch-drawing-tools-v144.css?v=241">
 <script defer src="../sarch-transfer-v156.js?v=156"></script>
 <script defer src="../sarch-workspace-v142.js?v=161"></script>
 <link rel="stylesheet" href="../sarch-shell-v145.css?v=147">
 <script defer src="../sarch-shell-v145.js?v=145"></script>
-<script defer src="../sarch-drawing-tools-v144.js?v=238"></script>
-<link rel="stylesheet" href="../sarch-brand-v196.css"><link rel="stylesheet" href="../sarch-fandom-v198.css"><link rel="stylesheet" href="../sarch-global-theme-v206.css?v=239"><script defer src="../sarch-global-theme-v217.js?v=239"></script><link rel="stylesheet" href="../sarch-theme-v214.css?v=225"><script defer src="../sarch-theme-v214.js?v=225"></script><link rel="stylesheet" href="../sarch-ink-v233.css"><script src="../sarch-ink-v233.js"></script><script>
+<script defer src="../sarch-drawing-tools-v144.js?v=241"></script>
+<link rel="stylesheet" href="../sarch-brand-v196.css"><link rel="stylesheet" href="../sarch-fandom-v198.css"><link rel="stylesheet" href="../sarch-global-theme-v206.css?v=239"><script defer src="../sarch-global-theme-v217.js?v=241"></script><link rel="stylesheet" href="../sarch-theme-v214.css?v=241"><script defer src="../sarch-theme-v214.js?v=225"></script><link rel="stylesheet" href="../sarch-ink-v233.css"><script src="../sarch-ink-v233.js"></script><script>
 (function(){
 function isInk(p){return !!p.sarchInk&&(p.kind==='stroke'||p.kind==='polygon'||p.kind==='annotation')}
 function asStroke(p){
