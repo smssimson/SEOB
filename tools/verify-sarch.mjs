@@ -449,4 +449,10 @@ const albumWriter194=survey194.slice(survey194.indexOf('async function sm194Writ
 ok(albumWriter194.includes("folder.queryPermission({mode:'readwrite'})")&&albumWriter194.includes('handle.createWritable()')&&albumWriter194.includes('await writer.write(f)')&&!albumWriter194.includes('download('),'album writes original through authorized folder, not downloads');
 ok(survey194.includes('if(captured)await sm194WriteOriginals(captureOriginals)'),'direct album saving only for camera capture after app registration');
 ok(read('survey/index.html').includes('id="smFingerDraw" checked')&&read('survey/index.html').includes("preferred!=='off'"),'finger marking defaults on and respects explicit pen-only preference');
+for(const theme of ['catcrew','bearcrew','penguincrew'])for(let i=0;i<4;i++){
+ const asset='sarch-v243-'+theme+'-'+i+'.webp';
+ ok(read(asset).length>10000,'illustrated scene included: '+asset);
+ for(const sw of ['seob-sw.js','survey/sw.js','drawing/sw.js','schmidt/sw.js','tilt/sw.js'])ok(read(sw).includes(asset),'offline illustrated scene: '+sw+' '+asset);
+}
+ok(read('sarch-global-theme-v217.js').includes('d.append(mascotScene(theme,i))'),'mascot uses illustrated asset, not vector placeholder');
 console.log('S:ARCH v'+version.version+' OK — '+checks+' checks passed (static syntax, source integrity, navigation, export/share, offline cache).');

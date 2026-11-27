@@ -175,10 +175,18 @@ function mascotSVG(theme,i){
  ][i];
  return '<svg viewBox="0 0 365 238" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="'+id+'fur" x2=".85" y2="1"><stop stop-color="'+w+'"/><stop offset=".48" stop-color="'+f+'"/><stop offset="1" stop-color="'+e+'" stop-opacity=".88"/></linearGradient><linearGradient id="'+id+'vest" x2="1" y2="1"><stop stop-color="'+v+'"/><stop offset=".5" stop-color="'+v+'"/><stop offset="1" stop-color="'+e+'"/></linearGradient><linearGradient id="'+id+'hat" x2="0" y2="1"><stop stop-color="#fff7e2"/><stop offset=".5" stop-color="'+h+'"/><stop offset="1" stop-color="'+v+'"/></linearGradient><linearGradient id="'+id+'metal" x2=".6" y2="1"><stop stop-color="#c6d3db"/><stop offset=".5" stop-color="#8198a9"/><stop offset="1" stop-color="#4d6578"/></linearGradient><radialGradient id="'+id+'glass" cx=".35" cy=".3"><stop stop-color="#d1f7ee"/><stop offset=".45" stop-color="#80b7c9"/><stop offset="1" stop-color="#344f68"/></radialGradient><linearGradient id="'+id+'concrete" x2="1" y2=".3"><stop stop-color="#ecede5"/><stop offset="1" stop-color="#b1bdbb"/></linearGradient></defs><ellipse cx="185" cy="224" rx="172" ry="11" fill="'+e+'" opacity=".11"/><g stroke="'+e+'" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+scene+'</g></svg>';
 }
+function mascotScene(theme,i){
+ const img=document.createElement("img");
+ img.className="sarch-mascot-scene-v243";
+ img.src=new URL("sarch-v243-"+theme+"-"+i+".webp",base).href;
+ img.alt="";img.decoding="async";img.draggable=false;
+ img.addEventListener("error",()=>{if(img.parentElement)img.parentElement.innerHTML=mascotSVG(theme,i)},{once:true});
+ return img;
+}
 function paintMascot(theme){
  const mod=document.documentElement.dataset.module;
- if(mod==="home"){document.querySelectorAll(".modules .module").forEach((card,i)=>{if(i>=4)return;const d=document.createElement("span");d.className="sarch-theme-character sarch-mascot-card";d.setAttribute("aria-hidden","true");d.innerHTML=mascotSVG(theme,i);card.append(d)})}
- else{const i=["survey","drawing","schmidt","tilt"].indexOf(mod);const head=document.querySelector(".smetric-app-header"),anchor=head?.querySelector(".sm43-header-audit,#smSurveyQualityButton,#smDrawingQualityButton,#qualityCheck,#audit");if(i>=0&&anchor){const d=document.createElement("span");d.className="sarch-theme-character sarch-theme-header-character sarch-mascot-header";d.setAttribute("aria-hidden","true");d.innerHTML=mascotSVG(theme,i);anchor.append(d);headerArt=d;if(typeof ResizeObserver==="function"){headerObserver=new ResizeObserver(placeHeader);headerObserver.observe(head);headerObserver.observe(anchor)}requestAnimationFrame(placeHeader)}}
+ if(mod==="home"){document.querySelectorAll(".modules .module").forEach((card,i)=>{if(i>=4)return;const d=document.createElement("span");d.className="sarch-theme-character sarch-mascot-card";d.setAttribute("aria-hidden","true");d.append(mascotScene(theme,i));card.append(d)})}
+ else{const i=["survey","drawing","schmidt","tilt"].indexOf(mod);const head=document.querySelector(".smetric-app-header"),anchor=head?.querySelector(".sm43-header-audit,#smSurveyQualityButton,#smDrawingQualityButton,#qualityCheck,#audit");if(i>=0&&anchor){const d=document.createElement("span");d.className="sarch-theme-character sarch-theme-header-character sarch-mascot-header";d.setAttribute("aria-hidden","true");d.append(mascotScene(theme,i));anchor.append(d);headerArt=d;if(typeof ResizeObserver==="function"){headerObserver=new ResizeObserver(placeHeader);headerObserver.observe(head);headerObserver.observe(anchor)}requestAnimationFrame(placeHeader)}}
 }
 
 function apply(choice){

@@ -802,6 +802,24 @@ async function check(mod,width,height){
   try{await page.screenshot({path:folder+"/"+id+"-error.png"})}catch(_){}
  }finally{await context.close()}
 }
+async function checkMascotScenes(){
+ const context=await browser.newContext({viewport:{width:1280,height:800},serviceWorkers:"block"});
+ const page=await context.newPage();
+ try{
+  await page.goto(root,{waitUntil:"load"});
+  for(const theme of ["catcrew","bearcrew","penguincrew"]){
+   await page.locator("#sarchGlobalTheme").selectOption(theme);
+   await page.waitForFunction(t=>{const imgs=[...document.querySelectorAll(".module .sarch-mascot-scene-v243")];return imgs.length===4&&imgs.every((img,i)=>img.complete&&img.naturalWidth>200&&img.src.includes(t+"-"+i+".webp"))},theme,{timeout:10000});
+   report("mascot-home",theme+" four illustrated work scenes loaded",true);
+   await page.screenshot({path:folder+"/mascot-"+theme+".png"});
+  }
+  for(const [i,mod] of modules.entries()){
+   await page.goto(root+mod+"/",{waitUntil:"load"});
+   await page.waitForFunction(({i})=>{const img=document.querySelector(".sarch-mascot-header .sarch-mascot-scene-v243");return img?.complete&&img.naturalWidth>200&&img.src.includes("penguincrew-"+i+".webp")},{i},{timeout:10000});
+   report("mascot-"+mod,"module-specific illustrated scene loaded",true);
+  }
+ }catch(e){report("mascot","illustrated scenes",false,String(e).slice(0,300))}finally{await context.close()}
+}
 async function checkThemes(width,height){
  const context=await browser.newContext({viewport:{width,height},serviceWorkers:"block"});
  const page=await context.newPage(),themes=["shinchan"];
@@ -874,6 +892,7 @@ async function checkThemes(width,height){
 }
 
 try{
+ await checkMascotScenes();
  for(const [w,h] of [[390,844],[1280,800],[800,1280],[1440,900]]){
   for(const mod of modules)await check(mod,w,h);
   if(w===390||w===1280||w===800)await checkThemes(w,h);
