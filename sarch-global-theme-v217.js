@@ -3,9 +3,9 @@
 const KEY="sarch-global-theme-v199";
 const hasOwn=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
 let currentChoice=null;
-const labels={dark:"기본 · S:ARCH",light:"라이트",navy:"네이비",forest:"포레스트",ocean:"오션",paper:"도면지",lavender:"라벤더",terminal:"터미널",terracotta:"테라코타",shinchan:"짱구",catcrew:"고양이 조사단",bearcrew:"곰돌이 건축단",penguincrew:"펭귄 측정단"};
+const labels={dark:"기본 · S:ARCH",light:"라이트",navy:"네이비",forest:"포레스트",ocean:"오션",paper:"도면지",lavender:"라벤더",terminal:"터미널",terracotta:"테라코타",shinchan:"짱구"};
 // Similar palettes are consolidated. Migrate existing preferences without touching project data.
-const mergedThemes=Object.freeze({graphite:"dark",slate:"dark",blueprint:"navy",mint:"forest",sand:"paper",rose:"lavender",safety:"dark"});
+const mergedThemes=Object.freeze({graphite:"dark",slate:"dark",blueprint:"navy",mint:"forest",sand:"paper",rose:"lavender",safety:"dark",catcrew:"dark",bearcrew:"dark",penguincrew:"dark"});
 function canonicalTheme(value){const key=hasOwn(mergedThemes,value)?mergedThemes[value]:value;return hasOwn(labels,key)?key:"dark"}
 const base=new URL(".",document.currentScript.src);
 const images={
@@ -145,50 +145,6 @@ function paintCamera(theme){
 }
 
 
-// Original mascot illustrations, entirely inline and available offline.
-const mascots={
- catcrew:{name:"고양이 조사단",fur:"#f5caa7",face:"#fff1db",edge:"#65493e",vest:"#6a9f93",hat:"#7eafa0",blush:"#e6a09b"},
- bearcrew:{name:"곰돌이 건축단",fur:"#bf9670",face:"#f7e0b9",edge:"#614634",vest:"#7e91bc",hat:"#9cadd1",blush:"#dd9a88"},
- penguincrew:{name:"펭귄 측정단",fur:"#506d86",face:"#f7f3e8",edge:"#30455d",vest:"#8ab9ce",hat:"#a5cce0",blush:"#f4a58e"}
-};
-let mascotSerial=0;
-function mascotSVG(theme,i){
- const t=mascots[theme],e=t.edge,f=t.fur,w=t.face,h=t.hat,v=t.vest,id="crew"+(++mascotSerial);
- const fill=k=>"url(#"+id+k+")";
- const head=(x,y,scale,angle=0)=>{
-  const ears=theme==="catcrew"?'<path d="M-44 -19L-49 -65L-12 -43M44 -19L49 -65L12 -43" fill="'+fill("fur")+'"/><path d="M-39 -34l-3 -21 18 14M39 -34l3 -21-18 14" fill="#e8aaa8" stroke="none"/>':theme==="bearcrew"?'<circle cx="-42" cy="-35" r="21" fill="'+fill("fur")+'"/><circle cx="42" cy="-35" r="21" fill="'+fill("fur")+'"/><circle cx="-42" cy="-35" r="12" fill="'+w+'"/><circle cx="42" cy="-35" r="12" fill="'+w+'"/>':'';
-  const face=theme==="penguincrew"?'<path d="M0-18C-36-45-52-6-37 20Q-24 40 0 33Q25 40 38 20C52-6 36-45 0-18Z" fill="'+w+'" stroke="none"/><path d="M-12 8Q0 1 12 8L0 20Z" fill="#efaf55"/>':'<ellipse cy="17" rx="29" ry="20" fill="'+w+'" stroke="none"/><path d="M-7 9Q0 5 7 9L0 15Z" fill="'+e+'"/><path d="M0 15v6m0 0q-8 8-15 0m15 0q8 8 15 0" fill="none"/>';
-  return '<g transform="translate('+x+' '+y+') rotate('+angle+') scale('+scale+')">'+ears+'<ellipse rx="54" ry="48" fill="'+fill("fur")+'"/>'+face+'<ellipse cx="-22" cy="-3" rx="5.5" ry="7" fill="'+e+'" stroke="none"/><ellipse cx="22" cy="-3" rx="5.5" ry="7" fill="'+e+'" stroke="none"/><circle cx="-20" cy="-5" r="1.9" fill="#fff" stroke="none"/><circle cx="24" cy="-5" r="1.9" fill="#fff" stroke="none"/><ellipse cx="-34" cy="14" rx="9" ry="5" fill="'+t.blush+'" stroke="none" opacity=".85"/><ellipse cx="34" cy="14" rx="9" ry="5" fill="'+t.blush+'" stroke="none" opacity=".85"/>'+(theme==="catcrew"?'<path d="M-47 13l-15-4m15 12l-15 3M47 13l15-4m-15 12l15 3" stroke-width="1.5" fill="none"/>':'')+'<path d="M-49 -30Q-47-66 0-67Q47-66 49-30L58-23Q0-14-58-23Z" fill="'+fill("hat")+'"/><path d="M-9-65L-6-37H6L9-65" fill="'+h+'"/><path d="M-42-41Q-29-60-16-60" stroke="#ffffff" stroke-width="4" opacity=".6" fill="none"/><path d="M-48-28Q0-20 48-28" fill="none" stroke="#fff" opacity=".65"/></g>';
- };
- const paw=(x,y,rx=10,ry=11)=>'<ellipse cx="'+x+'" cy="'+y+'" rx="'+rx+'" ry="'+ry+'" fill="'+fill("fur")+'"/><path d="M'+(x-4)+' '+(y+4)+'l2 3m4-3l2 3" fill="none" opacity=".45"/>';
- const arm=(path)=>'<path d="'+path+'" fill="none" stroke="'+e+'" stroke-width="24"/><path d="'+path+'" fill="none" stroke="'+v+'" stroke-width="19"/><path d="'+path+'" fill="none" stroke="#fff" stroke-opacity=".23" stroke-width="3"/>';
- const body=(x,y,angle=0)=>'<g transform="translate('+x+' '+y+') rotate('+angle+')">'+(theme==="catcrew"?'<path d="M-35 31Q-78 41-67 4" fill="none" stroke="'+e+'" stroke-width="16"/><path d="M-35 31Q-78 41-67 4" fill="none" stroke="'+f+'" stroke-width="12"/>':'')+'<ellipse cy="3" rx="40" ry="45" fill="'+fill("vest")+'"/><path d="M-25-30L0-13 25-30M0-13V43M-34 13h68" stroke="#fff5d7" stroke-width="5" fill="none"/><rect x="-24" y="20" width="19" height="13" rx="2" fill="'+v+'"/><rect x="8" y="20" width="17" height="13" rx="2" fill="'+v+'"/><path d="M-20 43l-5 20M20 43l5 20" stroke="'+e+'" stroke-width="21"/><ellipse cx="-27" cy="66" rx="20" ry="10" fill="'+fill("fur")+'"/><ellipse cx="27" cy="66" rx="20" ry="10" fill="'+fill("fur")+'"/></g>';
- const camera='<g transform="translate(243 91)"><path d="M-28 7Q-38 50 5 58" fill="none" stroke="#625c5a" stroke-width="3"/><rect x="-34" y="-21" width="67" height="48" rx="8" fill="'+fill("metal")+'"/><path d="M-19-21l7-9h20l8 9" fill="#697987"/><rect x="-25" y="-12" width="11" height="7" rx="2" fill="#dce5e8"/><circle cx="4" cy="3" r="20" fill="#2b3b4b"/><circle cx="4" cy="3" r="14" fill="'+fill("glass")+'"/><circle cx="0" cy="-2" r="4" fill="#d3f5fc" stroke="none"/><rect x="22" y="-11" width="5" height="10" rx="2" fill="#aebdc6"/></g>';
- const wall='<g><path d="M278 19L359 5V222L278 235Z" fill="#b9c7c8"/><path d="M278 19L335 31V214L278 235Z" fill="'+fill("concrete")+'"/><path d="M335 31l24-26v217l-24-8" fill="#98adb1"/><path d="M307 49l-12 25 11 17-14 24 14 22-7 26" fill="none" stroke="#6b7478" stroke-width="2.5"/><path d="M284 43h42m-42 145h42" stroke="#fff" opacity=".5"/><g fill="#849697" opacity=".35" stroke="none">'+Array.from({length:17},(_,k)=>'<circle cx="'+(282+(k*17)%47)+'" cy="'+(31+(k*31)%177)+'" r="'+(1+k%2)+'"/>').join("")+'</g></g>';
- const desk='<g><path d="M33 176L265 151 347 185 114 220Z" fill="#c4a07c"/><path d="M33 176v13l81 43v-12m233-35v12l-233 35" fill="#a98060"/><path d="M49 193v34m281-26v26" stroke="#8f765f" stroke-width="9"/><path d="M105 178l132-17 70 25-139 23Z" fill="#fffdf2"/><g fill="none" stroke="#567d9d" stroke-width="2.5"><path d="M124 180l108-15 50 19-112 17Z"/><path d="M136 182l90-12 39 14-94 14Z M173 175l40 20M193 172l36 13 25-4M167 185l27-4"/></g><path d="M120 194l111-14" stroke="#f2cb6c" stroke-width="6"/><path d="M120 194l111-14" stroke="#9d8251" stroke-dasharray="1 7" stroke-width="2"/></g>';
- const instrument='<g><path d="M228 123l-37 102m37-102 42 102m-42-102-2 102" stroke="#64574b" stroke-width="8"/><path d="M228 127l-35 95m35-95 39 95m-39-95-2 95" stroke="#d2aa71" stroke-width="4"/><rect x="206" y="102" width="47" height="25" rx="5" fill="#526b70"/><path d="M211 98V70q0-17 17-17t17 17v28" fill="none" stroke="#ad895b" stroke-width="12"/><rect x="196" y="73" width="72" height="26" rx="8" fill="'+fill("metal")+'"/><ellipse cx="263" cy="86" rx="9" ry="12" fill="#314852"/><ellipse cx="264" cy="86" rx="5" ry="8" fill="'+fill("glass")+'"/><rect x="208" y="101" width="20" height="10" rx="2" fill="#b5e8d2"/><path d="M269 86L304 31" stroke="#d47970" stroke-width="1.7" stroke-dasharray="5 5" fill="none"/></g>';
- const scene=[
- '<g opacity=".75"><path d="M12 174V56l58-30 55 30v118M70 26v148" fill="#a8bbbd" stroke="#718f94"/><path d="M24 69h30v24H24m60-24h27v24H84M24 106h30v25H24m60-25h27v25H84" fill="#e8f5f1" stroke="#77989b"/><path d="M10 174h118" stroke="#718f94" stroke-width="3"/></g>'+wall+body(156,150,-8)+head(160,70,.89,9)+arm("M178 124Q206 141 217 104")+arm("M137 126Q163 151 207 116")+camera+paw(215,103)+paw(224,121)+'<path d="M278 92l-13-5m13 13l-15 2" stroke="#e9ab57" fill="none" stroke-width="2.5"/>',
- '<g opacity=".75"><path d="M15 29h129v81H15z" fill="#f9fbf4" stroke="#a9bdba"/><path d="M26 42h105v55H26zm52 0v35H26m52-12h53m-33 0v32" stroke="#7796ad" fill="none" stroke-width="2"/><path d="M15 115h129" stroke="#b5c0c2"/></g>'+body(153,139,12)+head(150,66,.9,13)+desk+arm("M176 112Q194 139 214 159")+paw(214,159,11,9)+'<path d="M218 155l37 32" stroke="#d9aa62" stroke-width="6"/><path d="M255 187l3 6-6-3" fill="#484746"/>'+arm("M125 117Q120 147 161 176")+paw(164,176,12,9),
- wall+body(139,150,-7)+head(140,69,.9,9)+arm("M166 118Q193 134 220 118")+arm("M114 120Q142 154 207 130")+'<g transform="translate(226 117)"><path d="M-31-9h70v18h-70z" fill="'+fill("metal")+'"/><rect x="-28" y="-7" width="13" height="14" rx="3" fill="#566675"/><rect x="-9" y="-6" width="24" height="12" rx="2" fill="#b4e6d2"/><path d="M-6-2H10" stroke="#48685e" stroke-width="1.5"/><path d="M39-6h10v12H39" fill="#acb3b5"/><path d="M49 0h5" stroke="#64757a" stroke-width="5"/></g>'+paw(213,127)+paw(243,125)+'<g transform="translate(37 189)"><rect width="44" height="28" rx="5" fill="#738f9a"/><rect x="6" y="5" width="29" height="12" rx="2" fill="#c6e9dd"/><path d="M8 21h27" stroke="#c0d1ce"/></g>',
- '<g><path d="M278 17l62 9v197l-62-4z" fill="#bccacc"/><path d="M340 26l17-13v202l-17 8" fill="#91a6aa"/><path d="M295 48h28v32h-28zm0 49h28v32h-28zm0 49h28v32h-28z" fill="#e1f2ef" stroke="#819fa4"/><path d="M278 15v207" stroke="#ac725c" stroke-dasharray="6 5" fill="none"/></g>'+body(127,151,8)+head(136,66,.85,12)+arm("M148 118Q168 99 199 87")+paw(199,87)+instrument+arm("M103 120Q129 149 188 129")+paw(188,129)
- ][i];
- return '<svg viewBox="0 0 365 238" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="'+id+'fur" x2=".85" y2="1"><stop stop-color="'+w+'"/><stop offset=".48" stop-color="'+f+'"/><stop offset="1" stop-color="'+e+'" stop-opacity=".88"/></linearGradient><linearGradient id="'+id+'vest" x2="1" y2="1"><stop stop-color="'+v+'"/><stop offset=".5" stop-color="'+v+'"/><stop offset="1" stop-color="'+e+'"/></linearGradient><linearGradient id="'+id+'hat" x2="0" y2="1"><stop stop-color="#fff7e2"/><stop offset=".5" stop-color="'+h+'"/><stop offset="1" stop-color="'+v+'"/></linearGradient><linearGradient id="'+id+'metal" x2=".6" y2="1"><stop stop-color="#c6d3db"/><stop offset=".5" stop-color="#8198a9"/><stop offset="1" stop-color="#4d6578"/></linearGradient><radialGradient id="'+id+'glass" cx=".35" cy=".3"><stop stop-color="#d1f7ee"/><stop offset=".45" stop-color="#80b7c9"/><stop offset="1" stop-color="#344f68"/></radialGradient><linearGradient id="'+id+'concrete" x2="1" y2=".3"><stop stop-color="#ecede5"/><stop offset="1" stop-color="#b1bdbb"/></linearGradient></defs><ellipse cx="185" cy="224" rx="172" ry="11" fill="'+e+'" opacity=".11"/><g stroke="'+e+'" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'+scene+'</g></svg>';
-}
-function mascotScene(theme,i){
- const img=document.createElement("img");
- img.className="sarch-mascot-scene-v243";
- img.src=new URL("sarch-v243-"+theme+"-"+i+".webp",base).href;
- img.alt="";img.decoding="async";img.draggable=false;
- img.addEventListener("error",()=>{if(img.parentElement)img.parentElement.innerHTML=mascotSVG(theme,i)},{once:true});
- return img;
-}
-function paintMascot(theme){
- const mod=document.documentElement.dataset.module;
- if(mod==="home"){document.querySelectorAll(".modules .module").forEach((card,i)=>{if(i>=4)return;const d=document.createElement("span");d.className="sarch-theme-character sarch-mascot-card";d.setAttribute("aria-hidden","true");d.append(mascotScene(theme,i));card.append(d)})}
- else{const i=["survey","drawing","schmidt","tilt"].indexOf(mod);const head=document.querySelector(".smetric-app-header"),anchor=head?.querySelector(".sm43-header-audit,#smSurveyQualityButton,#smDrawingQualityButton,#qualityCheck,#audit");if(i>=0&&anchor){const d=document.createElement("span");d.className="sarch-theme-character sarch-theme-header-character sarch-mascot-header";d.setAttribute("aria-hidden","true");d.append(mascotScene(theme,i));anchor.append(d);headerArt=d;if(typeof ResizeObserver==="function"){headerObserver=new ResizeObserver(placeHeader);headerObserver.observe(head);headerObserver.observe(anchor)}requestAnimationFrame(placeHeader)}}
-}
-
 function apply(choice){
  const val=canonicalTheme(choice);
  currentChoice=val;
@@ -207,7 +163,6 @@ function apply(choice){
  }
  headerObserver?.disconnect();headerArt=null;
  document.querySelectorAll(".sarch-theme-character").forEach(el=>el.remove());
- if(mascots[current]){paintMascot(current);return}
  if(!images[current])return;
  const mod=document.documentElement.dataset.module;
  if(mod==="home"){
